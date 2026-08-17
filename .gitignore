@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# original/unprocessed photos - kept locally, not committed (large binaries)
+/assets/originals
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
