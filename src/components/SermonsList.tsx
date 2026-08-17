@@ -49,13 +49,7 @@ export default function SermonsList({ videos }: { videos: YouTubeVideo[] }) {
             {featured.snippet.title}
           </h2>
 
-          <p className="text-gray-500">
-            Published on{" "}
-            {new Date(featured.snippet.publishedAt).toLocaleDateString(
-              "en-IN",
-              { day: "numeric", month: "long", year: "numeric" }
-            )}
-          </p>
+          <p className="text-gray-500">Published on {featured.publishedLong}</p>
         </div>
       </div>
 
@@ -86,12 +80,7 @@ export default function SermonsList({ videos }: { videos: YouTubeVideo[] }) {
                     {video.snippet.title}
                   </h3>
 
-                  <p className="text-gray-500 mb-5">
-                    {new Date(video.snippet.publishedAt).toLocaleDateString(
-                      "en-IN",
-                      { day: "numeric", month: "short", year: "numeric" }
-                    )}
-                  </p>
+                  <p className="text-gray-500 mb-5">{video.publishedShort}</p>
 
                   <span className="text-red-600 font-semibold">
                     ▶ Watch Sermon
