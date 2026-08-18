@@ -5,13 +5,20 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import OrderPuzzle from "@/components/puzzles/OrderPuzzle";
 import { getPuzzleById } from "@/data/biblePuzzles";
+import { pageMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const puzzle = getPuzzleById(id);
-  return { title: puzzle ? `${puzzle.title} | Bible Quiz` : "Bible Quiz" };
+  if (!puzzle) return { title: "Bible Quiz" };
+  return pageMetadata({
+    title: `${puzzle.title} | Bible Quiz`,
+    description: puzzle.description,
+    path: `/bible-puzzle/${puzzle.id}`,
+    image: "/bible-puzzle/opengraph-image",
+  });
 }
 
 export default async function BiblePuzzlePlayPage({ params }: Props) {

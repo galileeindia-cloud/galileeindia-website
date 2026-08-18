@@ -1,14 +1,16 @@
-import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SermonsList from "@/components/SermonsList";
 import { getVideos } from "@/services/youtube";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Sermons | Galilee Prayer Fellowship",
+export const metadata = pageMetadata({
+  title: "Sermons",
   description:
     "Watch the latest messages from Galilee Prayer Fellowship and grow together through God's Word.",
-};
+  path: "/sermons",
+  image: "/opengraph-image",
+});
 
 export default async function SermonsPage() {
   const videos = await getVideos();

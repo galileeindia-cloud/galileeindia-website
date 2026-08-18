@@ -1,13 +1,15 @@
-import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JoinUsForm from "@/components/JoinUsForm";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Join Us | Galilee Prayer Fellowship",
+export const metadata = pageMetadata({
+  title: "Join Us",
   description:
     "Get in touch with Galilee Prayer Fellowship, request prayer, or let us know you're planning a visit.",
-};
+  path: "/join-us",
+  image: "/opengraph-image",
+});
 
 export default function JoinUsPage() {
   return (

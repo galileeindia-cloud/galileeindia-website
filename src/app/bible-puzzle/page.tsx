@@ -1,15 +1,16 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Puzzle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { BIBLE_PUZZLES } from "@/data/biblePuzzles";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Bible Quiz | Galilee Prayer Fellowship",
+export const metadata = pageMetadata({
+  title: "Bible Quiz",
   description:
     "Play a Bible ordering puzzle, race the clock, and see how you rank on the leaderboard.",
-};
+  path: "/bible-puzzle",
+});
 
 export default function BiblePuzzlePage() {
   return (

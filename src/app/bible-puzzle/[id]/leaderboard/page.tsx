@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { getPuzzleById } from "@/data/biblePuzzles";
 import { fetchLeaderboard } from "@/services/leaderboardService";
 import { formatDuration } from "@/utils/time";
+import { pageMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -16,7 +17,13 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const puzzle = getPuzzleById(id);
-  return { title: puzzle ? `${puzzle.title} Leaderboard | Bible Quiz` : "Bible Quiz" };
+  if (!puzzle) return { title: "Bible Quiz" };
+  return pageMetadata({
+    title: `${puzzle.title} Leaderboard | Bible Quiz`,
+    description: `See the fastest times for the ${puzzle.title} Bible quiz.`,
+    path: `/bible-puzzle/${puzzle.id}/leaderboard`,
+    image: "/bible-puzzle/opengraph-image",
+  });
 }
 
 export default async function BiblePuzzleLeaderboardPage({ params }: Props) {
