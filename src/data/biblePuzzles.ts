@@ -44,7 +44,7 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
   },
   {
     id: "2",
-    number: "O01",
+    number: "N02",
     title: "Books of the Old Testament",
     description: "Drag each book into the top panel, in the correct order.",
     items: [
