@@ -4,6 +4,7 @@ import { Trophy } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import OrderPuzzle from "@/components/puzzles/OrderPuzzle";
+import MatchPuzzle from "@/components/puzzles/MatchPuzzle";
 import { getPuzzleById } from "@/data/biblePuzzles";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -68,7 +69,11 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
             </Link>
           </div>
 
-          <OrderPuzzle key={puzzle.id} puzzleId={puzzle.id} answerKey={puzzle.items} />
+          {puzzle.type === "order" ? (
+            <OrderPuzzle key={puzzle.id} puzzleId={puzzle.id} answerKey={puzzle.items} />
+          ) : (
+            <MatchPuzzle key={puzzle.id} puzzleId={puzzle.id} groups={puzzle.groups} />
+          )}
         </div>
       </section>
 

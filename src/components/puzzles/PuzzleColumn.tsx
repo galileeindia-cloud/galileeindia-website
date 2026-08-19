@@ -10,9 +10,23 @@ type Props = {
   items: string[];
   emptyHint: string;
   children: ReactNode;
+  /** Fires when the empty area of the column itself is tapped (not an item) — used to drop a tap-selected item here when there are more than two containers to choose from. */
+  onColumnTap?: () => void;
+  /** Highlights the column as a pending drop target for a tap-selected item. */
+  pending?: boolean;
+  compact?: boolean;
 };
 
-export default function PuzzleColumn({ id, title, items, emptyHint, children }: Props) {
+export default function PuzzleColumn({
+  id,
+  title,
+  items,
+  emptyHint,
+  children,
+  onColumnTap,
+  pending,
+  compact,
+}: Props) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
@@ -21,8 +35,9 @@ export default function PuzzleColumn({ id, title, items, emptyHint, children }: 
 
       <div
         ref={setNodeRef}
-        className={`min-h-[140px] rounded-2xl border-2 border-dashed p-4 flex flex-wrap content-start gap-2.5 transition ${
-          isOver ? "border-blue-400 bg-blue-50" : "border-gray-200"
+        onClick={onColumnTap}
+        className={`${compact ? "min-h-[90px]" : "min-h-[140px]"} rounded-2xl border-2 border-dashed p-4 flex flex-wrap content-start gap-2.5 transition ${
+          isOver || pending ? "border-blue-400 bg-blue-50" : "border-gray-200"
         }`}
       >
         <SortableContext items={items} strategy={rectSortingStrategy}>

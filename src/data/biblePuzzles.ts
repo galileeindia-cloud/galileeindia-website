@@ -1,10 +1,24 @@
-export type BiblePuzzle = {
+export type OrderPuzzleData = {
   id: string;
   number: string;
   title: string;
   description: string;
+  type: "order";
   items: string[];
 };
+
+export type MatchGroup = { label: string; items: string[] };
+
+export type MatchPuzzleData = {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+  type: "match";
+  groups: MatchGroup[];
+};
+
+export type BiblePuzzle = OrderPuzzleData | MatchPuzzleData;
 
 export const BIBLE_PUZZLES: BiblePuzzle[] = [
   {
@@ -12,6 +26,7 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
     number: "N01",
     title: "Books of the New Testament",
     description: "Drag each book into the top panel, in the correct order.",
+    type: "order",
     items: [
       "Matthew",
       "Mark",
@@ -47,6 +62,7 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
     number: "N02",
     title: "Books of the Old Testament",
     description: "Drag each book into the top panel, in the correct order.",
+    type: "order",
     items: [
       "Genesis",
       "Exodus",
@@ -87,6 +103,44 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       "Haggai",
       "Zechariah",
       "Malachi",
+    ],
+  },
+  {
+    id: "3",
+    number: "N03",
+    title: "Authors of the New Testament",
+    description: "Drag each book down below into the author who wrote it.",
+    type: "match",
+    groups: [
+      { label: "Matthew", items: ["Matthew"] },
+      { label: "Mark", items: ["Mark"] },
+      { label: "Luke", items: ["Luke", "Acts"] },
+      {
+        label: "John",
+        items: ["John", "1 John", "2 John", "3 John", "Revelation"],
+      },
+      {
+        label: "Paul",
+        items: [
+          "Romans",
+          "1 Corinthians",
+          "2 Corinthians",
+          "Galatians",
+          "Ephesians",
+          "Philippians",
+          "Colossians",
+          "1 Thessalonians",
+          "2 Thessalonians",
+          "1 Timothy",
+          "2 Timothy",
+          "Titus",
+          "Philemon",
+        ],
+      },
+      { label: "James", items: ["James"] },
+      { label: "Peter", items: ["1 Peter", "2 Peter"] },
+      { label: "Jude", items: ["Jude"] },
+      { label: "Unknown", items: ["Hebrews"] },
     ],
   },
 ];
