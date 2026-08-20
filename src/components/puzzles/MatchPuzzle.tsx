@@ -5,10 +5,10 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
-  closestCorners,
+  pointerWithin,
   useSensor,
   useSensors,
-  type DragOverEvent,
+  type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { RotateCcw } from "lucide-react";
@@ -156,18 +156,24 @@ export default function MatchPuzzle({
     setActiveId(String(event.active.id));
   }
 
-  function handleDragOver(event: DragOverEvent) {
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveId(null);
+
     const { active, over } = event;
     if (!over) return;
 
     const activeId = String(active.id);
     const overId = String(over.id);
 
-    // Container lookups happen inside the updater, against the freshest
-    // state, rather than the outer closure's snapshot — dnd-kit can fire
-    // dragOver again before React has re-rendered from the previous one,
-    // and resolving against a stale snapshot there risked moving an item
-    // out of a container it had already left (or duplicating/dropping it).
+    // The move is only committed here, once, on drop — not live during
+    // dragOver. A bin's footprint changes shape the moment it goes from
+    // its empty "Tap or drag here" placeholder to holding a chip, and
+    // moving items live on every hover let that layout shift happen
+    // mid-drag under a stationary pointer, which could re-trigger another
+    // move on the next frame and enter a render loop (React error #185,
+    // "Maximum update depth exceeded"). The floating DragOverlay already
+    // shows the "picking it up" visual, so nothing is lost by not moving
+    // the real item until the drag actually ends.
     setContainers((prev) => {
       const activeContainer = Object.keys(prev).find((key) => prev[key].includes(activeId));
       const overContainer = prev[overId]
@@ -178,25 +184,12 @@ export default function MatchPuzzle({
         return prev;
       }
 
-      const activeItems = prev[activeContainer];
-      const overItems = prev[overContainer];
-      const overIndex = overItems.indexOf(overId);
-      const newIndex = overIndex >= 0 ? overIndex : overItems.length;
-
       return {
         ...prev,
-        [activeContainer]: activeItems.filter((item) => item !== activeId),
-        [overContainer]: [
-          ...overItems.slice(0, newIndex),
-          activeId,
-          ...overItems.slice(newIndex),
-        ],
+        [activeContainer]: prev[activeContainer].filter((item) => item !== activeId),
+        [overContainer]: [...prev[overContainer], activeId],
       };
     });
-  }
-
-  function handleDragEnd() {
-    setActiveId(null);
   }
 
   function moveItem(id: string, from: string, to: string) {
@@ -313,13 +306,17 @@ export default function MatchPuzzle({
 
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={pointerWithin}
         onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
         <h3 className="font-bold text-blue-900 mb-3 text-center">Sort by Author</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
+        {/* items-start: without it, CSS Grid stretches every cell in a row
+            to match its tallest sibling — since "Paul" can hold far more
+            books than "John" or "James" sitting next to it, that stretch
+            distorted their drop-target geometry mid-drag as items were
+            added, occasionally causing a drop to resolve to the wrong bin. */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10 items-start">
           {groups.map((g) => (
             <PuzzleColumn
               key={g.label}
