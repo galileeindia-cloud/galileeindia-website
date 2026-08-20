@@ -152,10 +152,6 @@ export default function MatchPuzzle({
     setPhase("playing");
   }
 
-  function findContainer(id: string): string | undefined {
-    return Object.keys(containers).find((key) => containers[key].includes(id));
-  }
-
   function handleDragStart(event: DragStartEvent) {
     setActiveId(String(event.active.id));
   }
@@ -164,13 +160,24 @@ export default function MatchPuzzle({
     const { active, over } = event;
     if (!over) return;
 
-    const activeContainer = findContainer(String(active.id));
+    const activeId = String(active.id);
     const overId = String(over.id);
-    const overContainer = containers[overId] ? overId : findContainer(overId);
 
-    if (!activeContainer || !overContainer || activeContainer === overContainer) return;
-
+    // Container lookups happen inside the updater, against the freshest
+    // state, rather than the outer closure's snapshot — dnd-kit can fire
+    // dragOver again before React has re-rendered from the previous one,
+    // and resolving against a stale snapshot there risked moving an item
+    // out of a container it had already left (or duplicating/dropping it).
     setContainers((prev) => {
+      const activeContainer = Object.keys(prev).find((key) => prev[key].includes(activeId));
+      const overContainer = prev[overId]
+        ? overId
+        : Object.keys(prev).find((key) => prev[key].includes(overId));
+
+      if (!activeContainer || !overContainer || activeContainer === overContainer) {
+        return prev;
+      }
+
       const activeItems = prev[activeContainer];
       const overItems = prev[overContainer];
       const overIndex = overItems.indexOf(overId);
@@ -178,10 +185,10 @@ export default function MatchPuzzle({
 
       return {
         ...prev,
-        [activeContainer]: activeItems.filter((item) => item !== active.id),
+        [activeContainer]: activeItems.filter((item) => item !== activeId),
         [overContainer]: [
           ...overItems.slice(0, newIndex),
-          String(active.id),
+          activeId,
           ...overItems.slice(newIndex),
         ],
       };
