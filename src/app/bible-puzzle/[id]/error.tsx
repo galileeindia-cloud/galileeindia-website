@@ -29,6 +29,11 @@ export default function PuzzleError({
         <RotateCcw size={18} />
         Try again
       </button>
+
+      <p className="mt-6 max-w-lg text-xs text-gray-400 font-mono break-words">
+        {error.message || "No error message available"}
+        {error.digest ? ` (digest: ${error.digest})` : ""}
+      </p>
     </div>
   );
 }
