@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { withRetry } from "@/lib/withRetry";
 
 export interface LeaderboardEntry {
   score_uuid: string;
@@ -29,18 +30,21 @@ export async function submitScore(
 ) {
   const score_uuid = generateUuid();
 
-  const { error } = await supabase.from("bible_puzzle_scores").insert([
-    {
-      score_uuid,
-      puzzle_id: puzzleId,
-      player_name: playerName,
-      time_taken_ms: timeTakenMs,
-    },
-  ]);
+  await withRetry(async () => {
+    const { error } = await supabase.from("bible_puzzle_scores").insert([
+      {
+        score_uuid,
+        puzzle_id: puzzleId,
+        player_name: playerName,
+        time_taken_ms: timeTakenMs,
+      },
+    ]);
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+      if (error.code === "23505") return;
+      throw error;
+    }
+  }, "submitScore");
 
   return { score_uuid };
 }
@@ -49,16 +53,18 @@ export async function fetchLeaderboard(
   puzzleId: string,
   limit = 10
 ): Promise<LeaderboardEntry[]> {
-  const { data, error } = await supabase
-    .from("bible_puzzle_scores")
-    .select("score_uuid, puzzle_id, player_name, time_taken_ms, created_at")
-    .eq("puzzle_id", puzzleId)
-    .order("time_taken_ms", { ascending: true })
-    .limit(limit);
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from("bible_puzzle_scores")
+      .select("score_uuid, puzzle_id, player_name, time_taken_ms, created_at")
+      .eq("puzzle_id", puzzleId)
+      .order("time_taken_ms", { ascending: true })
+      .limit(limit);
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+      throw error;
+    }
 
-  return data ?? [];
+    return data ?? [];
+  }, "fetchLeaderboard");
 }

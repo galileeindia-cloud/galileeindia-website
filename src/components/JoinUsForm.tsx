@@ -41,7 +41,8 @@ export default function JoinUsForm() {
 
       reset();
       setSubmitted(true);
-    } catch {
+    } catch (err) {
+      console.error("Join Us form submission failed:", err);
       setSubmitError(
         "Something went wrong while submitting your request. Please try again."
       );
