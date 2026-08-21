@@ -8,12 +8,26 @@ export interface LeaderboardEntry {
   created_at: string;
 }
 
+// crypto.randomUUID() needs a fairly recent browser (Chrome 92+, Safari
+// 15.4+); older in-app/webview browsers can lack it entirely, which would
+// otherwise throw before the insert even attempts to run.
+function generateUuid(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export async function submitScore(
   puzzleId: string,
   playerName: string,
   timeTakenMs: number
 ) {
-  const score_uuid = crypto.randomUUID();
+  const score_uuid = generateUuid();
 
   const { error } = await supabase.from("bible_puzzle_scores").insert([
     {

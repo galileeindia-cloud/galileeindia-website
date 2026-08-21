@@ -34,8 +34,10 @@ export default function Leaderboard({
       )}
 
       {!loading && error && (
-        <p className="text-center text-sm text-gray-500">
-          Leaderboard isn&rsquo;t available right now, but your time still counts!
+        <p className="text-center text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg py-3 px-4">
+          ⚠️ Your score wasn&rsquo;t saved to the leaderboard — something went
+          wrong submitting it. Your puzzle time still counts, but you may want
+          to try again later so it gets recorded.
         </p>
       )}
 
