@@ -82,9 +82,8 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
               puzzleId={puzzle.id}
               cols={puzzle.cols}
               grid={puzzle.grid}
-              blocked={puzzle.blocked}
-              path={puzzle.path}
               words={puzzle.words}
+              wordPaths={puzzle.wordPaths}
             />
           )}
         </div>

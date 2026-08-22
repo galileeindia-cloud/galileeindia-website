@@ -28,12 +28,11 @@ export type PathPuzzleData = {
   type: "path";
   rows: number;
   cols: number;
-  /** Full letter grid; null at blocked cells. */
-  grid: (string | null)[][];
-  blocked: GridCell[];
-  /** The one true winding path, in order — its letters spell `words` joined. */
-  path: GridCell[];
+  grid: string[][];
   words: string[];
+  /** One independent orthogonal path per word, in the same order as `words`;
+   * each word's letters read off its own path in order. Paths don't overlap. */
+  wordPaths: GridCell[][];
 };
 
 export type BiblePuzzle = OrderPuzzleData | MatchPuzzleData | PathPuzzleData;
@@ -166,31 +165,58 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
     number: "N04",
     title: "Names of Jesus",
     description:
-      "Trace one winding path through the grid — up, down, left, or right — to uncover four names of Jesus.",
+      "Drag across connected letters — up, down, left, or right — to find seven names of Jesus.",
     type: "path",
     rows: 8,
     cols: 8,
-    words: ["SAVIOR", "MESSIAH", "KING OF KINGS", "PRINCE OF PEACE"],
+    words: ["SAVIOR", "CHRIST", "MESSIAH", "ROCK", "IMMANUEL", "REDEEMER", "LIFE"],
     grid: [
-      [null, "L", "D", null, "P", "F", "F", "O"],
-      ["W", "J", "F", null, "E", "O", "K", "G"],
-      ["E", "J", "D", "J", "A", "E", "I", "N"],
-      ["O", null, "U", null, "C", "C", "N", "I"],
-      ["Y", null, "O", null, "E", "N", "G", "K"],
-      [null, "M", "L", "L", null, "I", "S", "H"],
-      ["S", "I", "O", null, "D", "R", "P", "A"],
-      ["A", "V", "R", "M", "E", "S", "S", "I"],
+      ["I", "A", "N", "U", "E", "L", "Z", "A"],
+      ["M", "M", "K", "A", "S", "R", "E", "T"],
+      ["K", "K", "H", "Y", "E", "M", "D", "P"],
+      ["W", "C", "U", "E", "R", "E", "E", "P"],
+      ["R", "O", "H", "C", "F", "J", "S", "A"],
+      ["E", "F", "R", "I", "E", "S", "S", "V"],
+      ["L", "I", "N", "S", "M", "A", "I", "I"],
+      ["P", "O", "V", "T", "L", "H", "R", "O"],
     ],
-    blocked: [
-      [1, 3], [4, 3], [4, 1], [5, 4], [0, 0],
-      [5, 0], [6, 3], [3, 3], [0, 3], [3, 1],
+    wordPaths: [
+      [[4, 6], [4, 7], [5, 7], [6, 7], [7, 7], [7, 6]],
+      [[4, 3], [4, 2], [5, 2], [5, 3], [6, 3], [7, 3]],
+      [[6, 4], [5, 4], [5, 5], [5, 6], [6, 6], [6, 5], [7, 5]],
+      [[4, 0], [4, 1], [3, 1], [2, 1]],
+      [[0, 0], [1, 0], [1, 1], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5]],
+      [[1, 5], [1, 6], [2, 6], [3, 6], [3, 5], [2, 5], [2, 4], [3, 4]],
+      [[6, 0], [6, 1], [5, 1], [5, 0]],
     ],
-    path: [
-      [6, 0], [7, 0], [7, 1], [6, 1], [6, 2], [7, 2], [7, 3], [7, 4], [7, 5],
-      [7, 6], [7, 7], [6, 7], [5, 7], [4, 7], [3, 7], [2, 7], [1, 7], [0, 7],
-      [0, 6], [1, 6], [2, 6], [3, 6], [4, 6], [5, 6], [6, 6], [6, 5], [5, 5],
-      [4, 5], [3, 5], [2, 5], [1, 5], [0, 5], [0, 4], [1, 4], [2, 4], [3, 4],
-      [4, 4],
+  },
+  {
+    id: "5",
+    number: "N05",
+    title: "Disciples of Jesus",
+    description:
+      "Drag across connected letters — up, down, left, or right — to find seven of the twelve disciples.",
+    type: "path",
+    rows: 7,
+    cols: 7,
+    words: ["PETER", "MATTHEW", "JAMES", "JOHN", "THOMAS", "PHILIP", "JUDAS"],
+    grid: [
+      ["Y", "J", "V", "K", "M", "M", "P"],
+      ["M", "A", "H", "T", "Q", "M", "H"],
+      ["E", "S", "O", "M", "A", "P", "I"],
+      ["P", "L", "U", "D", "S", "I", "L"],
+      ["E", "R", "J", "A", "S", "N", "G"],
+      ["T", "E", "N", "A", "M", "K", "W"],
+      ["J", "O", "H", "T", "T", "H", "E"],
+    ],
+    wordPaths: [
+      [[3, 0], [4, 0], [5, 0], [5, 1], [4, 1]],
+      [[5, 4], [5, 3], [6, 3], [6, 4], [6, 5], [6, 6], [5, 6]],
+      [[0, 1], [1, 1], [1, 0], [2, 0], [2, 1]],
+      [[6, 0], [6, 1], [6, 2], [5, 2]],
+      [[1, 3], [1, 2], [2, 2], [2, 3], [2, 4], [3, 4]],
+      [[0, 6], [1, 6], [2, 6], [3, 6], [3, 5], [2, 5]],
+      [[4, 2], [3, 2], [3, 3], [4, 3], [4, 4]],
     ],
   },
 ];

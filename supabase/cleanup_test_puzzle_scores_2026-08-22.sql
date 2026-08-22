@@ -1,0 +1,43 @@
+-- Run in the Supabase Dashboard SQL Editor for the galileeindia project.
+-- Removes rows created by automated/manual testing while developing the
+-- Bible Quiz puzzles, identified by their score_uuid (not by name pattern,
+-- to avoid any risk of matching a real player's name). Real plays —
+-- including the pastor's own name variations (Sam Oguri, S O, sam O, etc.),
+-- MasO, Lakshmi, Samuel, Sarat, Rose Christiana joy, S, and O SPD — are left
+-- untouched.
+
+delete from bible_puzzle_scores
+where score_uuid in (
+  'cb9e7ec7-a51d-4624-94ec-535d5c8868cf', -- LiveTestUser-OT-...
+  '646d6ee1-08cb-4950-8c96-4c3e8dc686bb', -- LiveTestUser-Match-...
+  '52929e7e-4c1b-428b-b108-041425d9617e', -- RegressionCheck-...
+  'f32230cb-2ded-4df8-a6d4-fce33288dc99', -- RegressionCheck-...
+  '11111111-1111-4111-8111-111111111111', -- DiagnosticCheck
+  '33851e26-d821-44f9-8613-2eb55d77a358', -- RateCheck1
+  '738c7f71-cef2-43fe-8f07-65e7a1ca607b', -- RateCheck2
+  'c5ffbfc2-17d7-491c-85eb-b845a6ffe900', -- RateCheck3
+  'd9d35e76-1e9e-4460-a082-e64df4576fc9', -- RateCheck4
+  'e1ca4e1d-a352-4d08-a157-e8c20d7921f8', -- RateCheck5
+  '281aae7f-fbbd-4b6a-b2f5-213082d72389', -- RateCheck6
+  'dc17fdc5-e45a-485f-8b1c-674f9dd32797', -- RateCheck7
+  '2563567f-878f-469f-acf9-681d0bdf3926', -- RateCheck8
+  '3fde6632-12fc-4dd2-94bd-2b55b9e2c50f', -- SecondPlayTest
+  '3cf11f3b-98c0-4e63-a6df-cbfbc73e3d62', -- SecondPlayTest
+  '22222222-2222-4222-8222-222222222222', -- OriginTestA
+  '33333333-3333-4333-8333-333333333333', -- OriginTestB
+  '44444444-4444-4444-8444-444444444444', -- RLSRecheck
+  '55555551-5555-4555-8555-555555555555', -- JwtKeyTest1
+  '55555552-5555-4555-8555-555555555555', -- JwtKeyTest2
+  '55555553-5555-4555-8555-555555555555', -- JwtKeyTest3
+  '55555554-5555-4555-8555-555555555555', -- JwtKeyTest4
+  '55555555-5555-4555-8555-555555555555', -- JwtKeyTest5
+  '4f14e989-f739-4963-be42-63a024b89e27', -- ReliabilityCheck1-...
+  '4b58f41b-aa25-4cd2-a2f4-e2efff9d4e70', -- ReliabilityCheck2-...
+  '9f854fd9-bae9-4c82-809f-a780946c9171', -- ReliabilityCheck3-...
+  '27244970-551d-428f-9771-025fce238446', -- WendTest-1787385767480
+  '30f8e616-c836-4634-a201-27cc4b3f0247', -- WendTest-1787385869328
+  '78dfe868-2f8f-46b1-a47b-5828f6af1923', -- WendDragTest-...
+  'c913c051-94d5-406d-88d3-2f4d6e4533b2', -- DisciplesRetest-...
+  'add310f1-9155-41ca-b0f0-b2dd7d23515e', -- Disciples7Test-...
+  '2f25a6f1-560f-4d15-9643-f5f98511e3b8'  -- Names7Test-...
+);

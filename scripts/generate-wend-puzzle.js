@@ -1,14 +1,16 @@
-// One-off generator: produces a grid + winding path + blocked cells for the
-// "names of Jesus" path-tracing puzzle. Run once, paste the output into
-// biblePuzzles.ts as static data — the puzzle is fixed, not regenerated
-// per play, same as a real "daily puzzle" game.
+// One-off generator: places N independent, non-overlapping words on a grid
+// (each its own straight/bent orthogonal path) for the drag-to-select
+// word-find puzzles. Run once, paste the output into biblePuzzles.ts.
+//
+// Each word is anchored to start within its own assigned region of the
+// grid (grid divided into roughly len(WORDS) regions) so the words end up
+// spread across the whole board — a plain random walk per word tends to
+// cluster them together by chance, leaving one lopsided empty area.
 const ROWS = 8;
 const COLS = 8;
-const WORDS = ["SAVIOR", "MESSIAH", "KINGOFKINGS", "PRINCEOFPEACE"];
-const TARGET = WORDS.join("");
-const BLOCKED_COUNT = 10;
+const WORDS = ["SAVIOR", "CHRIST", "MESSIAH", "ROCK", "IMMANUEL", "REDEEMER", "LIFE"];
 
-function key(r, c) {
+function key([r, c]) {
   return `${r},${c}`;
 }
 
@@ -30,110 +32,149 @@ function shuffle(arr) {
   return a;
 }
 
-// Randomized self-avoiding walk with backtracking (warnsdorff-ish: prefer
-// neighbors with fewer further options, to reduce dead-ends) until we reach
-// the target length.
-function findPath(targetLen, maxAttempts = 20000) {
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const path = [];
-    const visited = new Set();
-    const startR = Math.floor(Math.random() * ROWS);
-    const startC = Math.floor(Math.random() * COLS);
-    path.push([startR, startC]);
-    visited.add(key(startR, startC));
+// Divide the grid into a regRows x regCols grid of regions, one per word
+// (extra regions, if any, are simply unused).
+const regCols = Math.ceil(Math.sqrt((WORDS.length * COLS) / ROWS));
+const regRows = Math.ceil(WORDS.length / regCols);
+const regions = [];
+for (let rr = 0; rr < regRows; rr++) {
+  for (let rc = 0; rc < regCols; rc++) {
+    const rowStart = Math.floor((rr * ROWS) / regRows);
+    const rowEnd = Math.floor(((rr + 1) * ROWS) / regRows);
+    const colStart = Math.floor((rc * COLS) / regCols);
+    const colEnd = Math.floor(((rc + 1) * COLS) / regCols);
+    regions.push({ rowStart, rowEnd, colStart, colEnd });
+  }
+}
 
+function findWordPath(word, usedSet, region, maxAttempts = 8000) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    // Prefer a start cell inside the word's home region; if that region is
+    // full, fall back to anywhere free on the board.
+    let candidates = [];
+    for (let r = region.rowStart; r < region.rowEnd; r++) {
+      for (let c = region.colStart; c < region.colEnd; c++) {
+        if (!usedSet.has(key([r, c]))) candidates.push([r, c]);
+      }
+    }
+    if (candidates.length === 0) {
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (!usedSet.has(key([r, c]))) candidates.push([r, c]);
+        }
+      }
+    }
+    if (candidates.length === 0) return null;
+
+    const [sr, sc] = candidates[Math.floor(Math.random() * candidates.length)];
+    const path = [[sr, sc]];
+    const visited = new Set([key([sr, sc])]);
     let stuck = false;
-    while (path.length < targetLen) {
+
+    while (path.length < word.length) {
       const [r, c] = path[path.length - 1];
       const options = shuffle(neighbors(r, c)).filter(
-        ([nr, nc]) => !visited.has(key(nr, nc))
+        ([nr, nc]) => !visited.has(key([nr, nc])) && !usedSet.has(key([nr, nc]))
       );
       if (options.length === 0) {
         stuck = true;
         break;
       }
-      // Warnsdorff heuristic: prefer the option with fewest onward moves,
-      // to reduce the chance of painting ourselves into a corner.
-      options.sort((a, b) => {
-        const aOpts = neighbors(a[0], a[1]).filter((n) => !visited.has(key(n[0], n[1]))).length;
-        const bOpts = neighbors(b[0], b[1]).filter((n) => !visited.has(key(n[0], n[1]))).length;
-        return aOpts - bOpts === 0 ? Math.random() - 0.5 : aOpts - bOpts;
-      });
       const next = options[0];
       path.push(next);
-      visited.add(key(next[0], next[1]));
+      visited.add(key(next));
     }
 
-    if (!stuck && path.length === targetLen) {
-      return path;
+    if (!stuck && path.length === word.length) return path;
+  }
+  return null;
+}
+
+// A spread-quality score: how many of the grid's own quadrants contain at
+// least one path cell (higher is better; 4 is ideal for any grid size).
+function spreadScore(wordPaths) {
+  const quadrants = new Set();
+  for (const path of wordPaths) {
+    for (const [r, c] of path) {
+      const qr = r < ROWS / 2 ? 0 : 1;
+      const qc = c < COLS / 2 ? 0 : 1;
+      quadrants.add(`${qr},${qc}`);
     }
   }
-  throw new Error("Failed to find a path after max attempts");
+  return quadrants.size;
 }
 
-const path = findPath(TARGET.length);
-const pathSet = new Set(path.map(([r, c]) => key(r, c)));
-
-// Pick blocked cells from cells NOT on the path.
-const allCells = [];
-for (let r = 0; r < ROWS; r++) {
-  for (let c = 0; c < COLS; c++) {
-    if (!pathSet.has(key(r, c))) allCells.push([r, c]);
+function generate() {
+  const wordRegions = shuffle(regions).slice(0, WORDS.length);
+  const usedSet = new Set();
+  const wordPaths = [];
+  for (let i = 0; i < WORDS.length; i++) {
+    const path = findWordPath(WORDS[i], usedSet, wordRegions[i]);
+    if (!path) return null;
+    path.forEach((cell) => usedSet.add(key(cell)));
+    wordPaths.push(path);
   }
+  return wordPaths;
 }
-const blocked = shuffle(allCells).slice(0, BLOCKED_COUNT);
-const blockedSet = new Set(blocked.map(([r, c]) => key(r, c)));
 
-// Build the grid: path cells get their target letter, blocked cells are
-// null, everything else gets a random decoy letter.
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let best = null;
+let bestScore = -1;
+for (let i = 0; i < 300; i++) {
+  const attempt = generate();
+  if (!attempt) continue;
+  const score = spreadScore(attempt);
+  if (score > bestScore) {
+    bestScore = score;
+    best = attempt;
+  }
+  if (bestScore === 4) break; // all 4 quadrants covered — good enough
+}
+if (!best) throw new Error("Failed to place all words after 300 attempts");
+const wordPaths = best;
+
+// Build the grid.
 const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-
-path.forEach(([r, c], i) => {
-  grid[r][c] = TARGET[i];
+WORDS.forEach((word, i) => {
+  wordPaths[i].forEach(([r, c], j) => {
+    grid[r][c] = word[j];
+  });
 });
-blocked.forEach(([r, c]) => {
-  grid[r][c] = null;
-});
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 for (let r = 0; r < ROWS; r++) {
   for (let c = 0; c < COLS; c++) {
-    if (grid[r][c] === null && !blockedSet.has(key(r, c))) {
+    if (grid[r][c] === null) {
       grid[r][c] = ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
     }
   }
 }
 
-// Sanity checks.
-const reconstructed = path.map(([r, c]) => grid[r][c]).join("");
-if (reconstructed !== TARGET) throw new Error("Path letters don't match target!");
-for (let i = 1; i < path.length; i++) {
-  const [pr, pc] = path[i - 1];
-  const [r, c] = path[i];
-  const dist = Math.abs(pr - r) + Math.abs(pc - c);
-  if (dist !== 1) throw new Error(`Non-adjacent step at index ${i}`);
-}
-const seen = new Set();
-for (const [r, c] of path) {
-  const k = key(r, c);
-  if (seen.has(k)) throw new Error("Path revisits a cell!");
-  seen.add(k);
-}
-for (let r = 0; r < ROWS; r++) {
-  for (let c = 0; c < COLS; c++) {
-    if (grid[r][c] === null && !blockedSet.has(key(r, c))) {
-      throw new Error(`Unfilled non-blocked cell at ${r},${c}`);
+// Validate.
+WORDS.forEach((word, i) => {
+  const reconstructed = wordPaths[i].map(([r, c]) => grid[r][c]).join("");
+  if (reconstructed !== word) throw new Error(`Mismatch for ${word}: got ${reconstructed}`);
+  for (let k = 1; k < wordPaths[i].length; k++) {
+    const [pr, pc] = wordPaths[i][k - 1];
+    const [r, c] = wordPaths[i][k];
+    if (Math.abs(pr - r) + Math.abs(pc - c) !== 1) {
+      throw new Error(`Non-adjacent step in ${word} at index ${k}`);
     }
   }
-}
+});
+const allUsed = new Set();
+wordPaths.forEach((wp, i) => {
+  wp.forEach((cell) => {
+    const k = key(cell);
+    if (allUsed.has(k)) throw new Error(`Overlap detected involving word ${WORDS[i]}`);
+    allUsed.add(k);
+  });
+});
 
 console.log("=== VALIDATION PASSED ===");
-console.log("Path length:", path.length, "Target length:", TARGET.length);
+console.log("Spread score (quadrants covered, out of 4):", bestScore);
 console.log();
 console.log("=== GRID (for visual check) ===");
 for (let r = 0; r < ROWS; r++) {
-  console.log(
-    grid[r].map((ch, c) => (blockedSet.has(key(r, c)) ? "#" : ch)).join(" ")
-  );
+  console.log(grid[r].join(" "));
 }
 console.log();
 console.log("=== TypeScript output ===");
@@ -141,5 +182,4 @@ console.log(`rows: ${ROWS},`);
 console.log(`cols: ${COLS},`);
 console.log(`words: ${JSON.stringify(WORDS)},`);
 console.log(`grid: ${JSON.stringify(grid)},`);
-console.log(`blocked: ${JSON.stringify(blocked)},`);
-console.log(`path: ${JSON.stringify(path)},`);
+console.log(`wordPaths: ${JSON.stringify(wordPaths)},`);
