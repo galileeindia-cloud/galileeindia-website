@@ -18,7 +18,25 @@ export type MatchPuzzleData = {
   groups: MatchGroup[];
 };
 
-export type BiblePuzzle = OrderPuzzleData | MatchPuzzleData;
+export type GridCell = [number, number];
+
+export type PathPuzzleData = {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+  type: "path";
+  rows: number;
+  cols: number;
+  /** Full letter grid; null at blocked cells. */
+  grid: (string | null)[][];
+  blocked: GridCell[];
+  /** The one true winding path, in order — its letters spell `words` joined. */
+  path: GridCell[];
+  words: string[];
+};
+
+export type BiblePuzzle = OrderPuzzleData | MatchPuzzleData | PathPuzzleData;
 
 export const BIBLE_PUZZLES: BiblePuzzle[] = [
   {
@@ -141,6 +159,38 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       { label: "Peter", items: ["1 Peter", "2 Peter"] },
       { label: "Jude", items: ["Jude"] },
       { label: "Unknown", items: ["Hebrews"] },
+    ],
+  },
+  {
+    id: "4",
+    number: "N04",
+    title: "Names of Jesus",
+    description:
+      "Trace one winding path through the grid — up, down, left, or right — to uncover four names of Jesus.",
+    type: "path",
+    rows: 8,
+    cols: 8,
+    words: ["SAVIOR", "MESSIAH", "KING OF KINGS", "PRINCE OF PEACE"],
+    grid: [
+      [null, "L", "D", null, "P", "F", "F", "O"],
+      ["W", "J", "F", null, "E", "O", "K", "G"],
+      ["E", "J", "D", "J", "A", "E", "I", "N"],
+      ["O", null, "U", null, "C", "C", "N", "I"],
+      ["Y", null, "O", null, "E", "N", "G", "K"],
+      [null, "M", "L", "L", null, "I", "S", "H"],
+      ["S", "I", "O", null, "D", "R", "P", "A"],
+      ["A", "V", "R", "M", "E", "S", "S", "I"],
+    ],
+    blocked: [
+      [1, 3], [4, 3], [4, 1], [5, 4], [0, 0],
+      [5, 0], [6, 3], [3, 3], [0, 3], [3, 1],
+    ],
+    path: [
+      [6, 0], [7, 0], [7, 1], [6, 1], [6, 2], [7, 2], [7, 3], [7, 4], [7, 5],
+      [7, 6], [7, 7], [6, 7], [5, 7], [4, 7], [3, 7], [2, 7], [1, 7], [0, 7],
+      [0, 6], [1, 6], [2, 6], [3, 6], [4, 6], [5, 6], [6, 6], [6, 5], [5, 5],
+      [4, 5], [3, 5], [2, 5], [1, 5], [0, 5], [0, 4], [1, 4], [2, 4], [3, 4],
+      [4, 4],
     ],
   },
 ];

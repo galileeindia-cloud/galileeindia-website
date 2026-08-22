@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import OrderPuzzle from "@/components/puzzles/OrderPuzzle";
 import MatchPuzzle from "@/components/puzzles/MatchPuzzle";
+import PathPuzzle from "@/components/puzzles/PathPuzzle";
 import { getPuzzleById } from "@/data/biblePuzzles";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -69,10 +70,22 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
             </Link>
           </div>
 
-          {puzzle.type === "order" ? (
+          {puzzle.type === "order" && (
             <OrderPuzzle key={puzzle.id} puzzleId={puzzle.id} answerKey={puzzle.items} />
-          ) : (
+          )}
+          {puzzle.type === "match" && (
             <MatchPuzzle key={puzzle.id} puzzleId={puzzle.id} groups={puzzle.groups} />
+          )}
+          {puzzle.type === "path" && (
+            <PathPuzzle
+              key={puzzle.id}
+              puzzleId={puzzle.id}
+              cols={puzzle.cols}
+              grid={puzzle.grid}
+              blocked={puzzle.blocked}
+              path={puzzle.path}
+              words={puzzle.words}
+            />
           )}
         </div>
       </section>
