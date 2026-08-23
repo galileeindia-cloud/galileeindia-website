@@ -219,6 +219,34 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       [[4, 2], [3, 2], [3, 3], [4, 3], [4, 4]],
     ],
   },
+  {
+    id: "6",
+    number: "N06",
+    title: "Equipped for Service",
+    description:
+      "Jesus gave us the following to equip His people for works of service. Drag across connected letters to find them all.",
+    type: "path",
+    rows: 8,
+    cols: 8,
+    words: ["APOSTLES", "PROPHETS", "EVANGELISTS", "PASTORS", "TEACHERS"],
+    grid: [
+      ["J", "E", "H", "C", "A", "E", "T", "E"],
+      ["Z", "R", "A", "O", "S", "E", "S", "S"],
+      ["A", "S", "Q", "P", "T", "L", "K", "T"],
+      ["H", "P", "S", "A", "K", "S", "S", "S"],
+      ["T", "F", "Y", "R", "P", "E", "T", "I"],
+      ["S", "T", "O", "O", "P", "H", "G", "L"],
+      ["A", "P", "R", "K", "A", "N", "G", "E"],
+      ["P", "T", "S", "Y", "V", "E", "L", "I"],
+    ],
+    wordPaths: [
+      [[3, 3], [2, 3], [1, 3], [1, 4], [2, 4], [2, 5], [1, 5], [1, 6]],
+      [[4, 4], [4, 3], [5, 3], [5, 4], [5, 5], [4, 5], [4, 6], [3, 6]],
+      [[7, 5], [7, 4], [6, 4], [6, 5], [6, 6], [6, 7], [5, 7], [4, 7], [3, 7], [2, 7], [1, 7]],
+      [[7, 0], [6, 0], [5, 0], [5, 1], [5, 2], [6, 2], [7, 2]],
+      [[0, 6], [0, 5], [0, 4], [0, 3], [0, 2], [0, 1], [1, 1], [2, 1]],
+    ],
+  },
 ];
 
 export function getPuzzleById(id: string | undefined) {

@@ -8,7 +8,7 @@
 // cluster them together by chance, leaving one lopsided empty area.
 const ROWS = 8;
 const COLS = 8;
-const WORDS = ["SAVIOR", "CHRIST", "MESSIAH", "ROCK", "IMMANUEL", "REDEEMER", "LIFE"];
+const WORDS = ["APOSTLES", "PROPHETS", "EVANGELISTS", "PASTORS", "TEACHERS"];
 
 function key([r, c]) {
   return `${r},${c}`;
