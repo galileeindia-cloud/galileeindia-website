@@ -136,6 +136,10 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
         label: "John",
         items: ["John", "1 John", "2 John", "3 John", "Revelation"],
       },
+      { label: "James", items: ["James"] },
+      { label: "Peter", items: ["1 Peter", "2 Peter"] },
+      { label: "Jude", items: ["Jude"] },
+      { label: "Unknown", items: ["Hebrews"] },
       {
         label: "Paul",
         items: [
@@ -154,10 +158,6 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
           "Philemon",
         ],
       },
-      { label: "James", items: ["James"] },
-      { label: "Peter", items: ["1 Peter", "2 Peter"] },
-      { label: "Jude", items: ["Jude"] },
-      { label: "Unknown", items: ["Hebrews"] },
     ],
   },
   {

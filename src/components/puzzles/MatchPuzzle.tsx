@@ -318,25 +318,33 @@ export default function MatchPuzzle({
             added, occasionally causing a drop to resolve to the wrong bin. */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10 items-start">
           {groups.map((g) => (
-            <PuzzleColumn
+            // Groups with many items (e.g. Paul's 13 epistles) span the full
+            // row width instead of squeezing into one grid cell — otherwise
+            // their flex-wrap contents have nowhere to go but down, growing
+            // tall and pushing the other bins far below the fold.
+            <div
               key={g.label}
-              id={groupKey(g.label)}
-              title={g.label}
-              items={containers[groupKey(g.label)]}
-              emptyHint="Tap or drag here"
-              onColumnTap={() => tapBin(g.label)}
-              pending={Boolean(selectedId)}
-              compact
+              className={g.items.length > 8 ? "col-span-2 sm:col-span-3" : undefined}
             >
-              {containers[groupKey(g.label)].map((id) => (
-                <SortableItem
-                  key={id}
-                  id={id}
-                  label={id}
-                  onTap={() => tapPlacedItem(id, groupKey(g.label))}
-                />
-              ))}
-            </PuzzleColumn>
+              <PuzzleColumn
+                id={groupKey(g.label)}
+                title={g.label}
+                items={containers[groupKey(g.label)]}
+                emptyHint="Tap or drag here"
+                onColumnTap={() => tapBin(g.label)}
+                pending={Boolean(selectedId)}
+                compact
+              >
+                {containers[groupKey(g.label)].map((id) => (
+                  <SortableItem
+                    key={id}
+                    id={id}
+                    label={id}
+                    onTap={() => tapPlacedItem(id, groupKey(g.label))}
+                  />
+                ))}
+              </PuzzleColumn>
+            </div>
           ))}
         </div>
 
