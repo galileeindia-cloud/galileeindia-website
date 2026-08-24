@@ -24,6 +24,8 @@ const WORD_COLORS = [
   { fill: "bg-rose-500 border-rose-600 text-white", soft: "bg-rose-50 border-rose-200 text-rose-900" },
   { fill: "bg-cyan-500 border-cyan-600 text-white", soft: "bg-cyan-50 border-cyan-200 text-cyan-900" },
   { fill: "bg-lime-500 border-lime-600 text-white", soft: "bg-lime-50 border-lime-200 text-lime-900" },
+  { fill: "bg-teal-500 border-teal-600 text-white", soft: "bg-teal-50 border-teal-200 text-teal-900" },
+  { fill: "bg-fuchsia-500 border-fuchsia-600 text-white", soft: "bg-fuchsia-50 border-fuchsia-200 text-fuchsia-900" },
 ];
 
 function cellKey([r, c]: GridCell) {
@@ -385,18 +387,27 @@ export default function PathPuzzle({
       <div className="flex flex-wrap justify-center gap-3 mb-4">
         {words.map((word, i) => (
           <div key={word} className="flex gap-1">
-            {word.split("").map((ch, j) => (
-              <span
-                key={j}
-                className={`w-7 h-8 sm:w-8 sm:h-9 flex items-center justify-center rounded border font-bold text-sm sm:text-base ${
-                  solved[i]
-                    ? WORD_COLORS[i % WORD_COLORS.length].fill
-                    : "bg-white border-gray-300 text-transparent"
-                }`}
-              >
-                {solved[i] ? ch : "•"}
-              </span>
-            ))}
+            {word.split("").map((ch, j) => {
+              // A literal "-" is a fixed separator, not a hidden letter, so
+              // it's shown from the moment the puzzle loads rather than
+              // waiting behind the "•" placeholder like the real letters.
+              const isSeparator = ch === "-";
+              const revealed = solved[i] || isSeparator;
+              return (
+                <span
+                  key={j}
+                  className={`w-7 h-8 sm:w-8 sm:h-9 flex items-center justify-center rounded border font-bold text-sm sm:text-base ${
+                    solved[i]
+                      ? WORD_COLORS[i % WORD_COLORS.length].fill
+                      : isSeparator
+                        ? "bg-white border-gray-300 text-gray-400"
+                        : "bg-white border-gray-300 text-transparent"
+                  }`}
+                >
+                  {revealed ? ch : "•"}
+                </span>
+              );
+            })}
           </div>
         ))}
       </div>
