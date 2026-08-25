@@ -252,7 +252,7 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
     number: "N07",
     title: "The Fruit of the Spirit",
     description:
-      "The fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faithfulness, gentleness, self-control (Galatians 5:22-23). Drag across connected letters to find them all.",
+      "The fruit of the Spirit is ________. Hint: Refer to Galatians 5:22-23. Drag across connected letters to find them all.",
     type: "path",
     rows: 11,
     cols: 11,
