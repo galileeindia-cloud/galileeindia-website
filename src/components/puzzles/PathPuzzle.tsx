@@ -324,8 +324,14 @@ export default function PathPuzzle({
         </p>
       </div>
 
-      <p className="text-center text-sm text-gray-500 mb-4">
+      <p className="text-center text-sm text-gray-500 mb-2">
         Press and drag across connected letters, then release to check.
+      </p>
+
+      {/* Live readout of the letters traced so far, so the player can see
+          the word taking shape mid-drag instead of only after release. */}
+      <p className="text-center text-xl sm:text-2xl font-bold tracking-[0.3em] text-indigo-700 mb-4 min-h-[2rem]">
+        {dragPath.map(([r, c]) => grid[r][c]).join("")}
       </p>
 
       <div className="flex justify-center mb-8 select-none touch-none">
