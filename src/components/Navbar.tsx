@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { href: "/#events", label: "Events" },
   { href: "/#pastors", label: "Our Pastors" },
   { href: "/sermons", label: "Sermons" },
-  { href: "/bible-puzzle", label: "Bible Quiz" },
+  { href: "/bible-puzzle", label: "Bible Puzzles" },
   { href: "/#contact", label: "Contact" },
   { href: "/join-us", label: "Join Us" },
 ];
@@ -43,9 +43,13 @@ export default function Navbar() {
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8 font-medium text-gray-700">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-8 text-sm xl:text-base font-medium text-gray-700">
             {NAV_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="hover:text-blue-700">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="whitespace-nowrap hover:text-blue-700"
+              >
                 {link.label}
               </Link>
             ))}

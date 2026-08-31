@@ -25,7 +25,7 @@ export default function Footer() {
             <Link href="/#events" className="hover:text-white">Events</Link>
             <Link href="/#pastors" className="hover:text-white">Our Pastors</Link>
             <Link href="/sermons" className="hover:text-white">Sermons</Link>
-            <Link href="/bible-puzzle" className="hover:text-white">Bible Quiz</Link>
+            <Link href="/bible-puzzle" className="hover:text-white">Bible Puzzles</Link>
             <Link href="/join-us" className="hover:text-white">Join Us</Link>
           </div>
         </div>
