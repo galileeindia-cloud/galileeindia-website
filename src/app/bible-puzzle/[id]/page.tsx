@@ -11,6 +11,18 @@ import { pageMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ id: string }> };
 
+function renderVerseText(text: string) {
+  return text.split(/(\b[A-Z]{2,}\b)/g).map((part, i) =>
+    /^[A-Z]{2,}$/.test(part) ? (
+      <strong key={i} className="text-blue-900">
+        {part}
+      </strong>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const puzzle = getPuzzleById(id);
@@ -69,6 +81,27 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
               View Leaderboard
             </Link>
           </div>
+
+          {puzzle.type === "path" && puzzle.verses && puzzle.verses.length > 0 && (
+            <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-10">
+              <h2 className="text-center text-sm font-semibold tracking-widest text-blue-700 uppercase mb-4">
+                Find the bold words in the verses below
+              </h2>
+              <ol className="space-y-3">
+                {puzzle.verses.map((verse, i) => (
+                  <li key={i} className="flex gap-3 text-gray-700 leading-relaxed">
+                    <span className="font-mono text-sm text-gray-400 shrink-0">{i + 1}.</span>
+                    <span>
+                      {renderVerseText(verse.text)}{" "}
+                      <span className="text-sm text-gray-400 whitespace-nowrap">
+                        &mdash; {verse.reference}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
 
           {puzzle.type === "order" && (
             <OrderPuzzle key={puzzle.id} puzzleId={puzzle.id} answerKey={puzzle.items} />

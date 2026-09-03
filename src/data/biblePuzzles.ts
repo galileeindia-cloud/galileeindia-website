@@ -20,6 +20,8 @@ export type MatchPuzzleData = {
 
 export type GridCell = [number, number];
 
+export type BibleVerse = { text: string; reference: string };
+
 export type PathPuzzleData = {
   id: string;
   number: string;
@@ -33,6 +35,8 @@ export type PathPuzzleData = {
   /** One independent orthogonal path per word, in the same order as `words`;
    * each word's letters read off its own path in order. Paths don't overlap. */
   wordPaths: GridCell[][];
+  /** Optional verses shown above the puzzle, giving the words context. */
+  verses?: BibleVerse[];
 };
 
 export type BiblePuzzle = OrderPuzzleData | MatchPuzzleData | PathPuzzleData;
@@ -407,6 +411,91 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       [[5, 0], [6, 0], [7, 0], [7, 1], [6, 1], [5, 1], [5, 2], [5, 3], [6, 3], [6, 4], [7, 4], [7, 3]],
       [[9, 0], [9, 1], [9, 2], [9, 3], [8, 3], [8, 2], [8, 1], [8, 0]],
       [[1, 6], [1, 7], [1, 8], [1, 9], [2, 9], [2, 8], [3, 8], [3, 9]],
+    ],
+  },
+  {
+    id: "12",
+    number: "N12",
+    title: "Words from Popular Bible Verses",
+    description:
+      "Find the CAPITALIZED words from these popular Bible verses. Drag across connected letters to find them all.",
+    type: "path",
+    rows: 12,
+    cols: 12,
+    words: [
+      "SHEPHERD",
+      "WORD",
+      "GOD",
+      "WORLD",
+      "SON",
+      "CHRIST",
+      "SALVATION",
+      "LIGHT",
+      "HEART",
+      "UNDERSTANDING",
+      "DIRECT",
+      "LORD",
+      "WISDOM",
+    ],
+    grid: [
+      ["L", "Z", "I", "R", "N", "O", "R", "J", "Q", "G", "I", "L"],
+      ["E", "R", "D", "Q", "L", "W", "L", "I", "S", "H", "T", "A"],
+      ["H", "H", "S", "R", "E", "I", "D", "F", "O", "N", "S", "Y"],
+      ["P", "E", "L", "V", "O", "L", "P", "E", "R", "A", "T", "G"],
+      ["J", "D", "T", "D", "R", "J", "M", "O", "T", "E", "H", "N"],
+      ["A", "J", "S", "T", "N", "Z", "W", "D", "S", "T", "A", "I"],
+      ["Z", "E", "A", "N", "O", "Y", "I", "S", "R", "P", "N", "D"],
+      ["M", "E", "L", "T", "I", "J", "N", "D", "E", "G", "F", "V"],
+      ["M", "I", "V", "A", "G", "J", "U", "G", "M", "F", "X", "Z"],
+      ["N", "L", "N", "I", "R", "T", "S", "H", "R", "E", "O", "K"],
+      ["B", "K", "W", "D", "E", "C", "U", "C", "I", "J", "D", "R"],
+      ["S", "L", "O", "R", "D", "W", "O", "T", "S", "G", "O", "W"],
+    ],
+    wordPaths: [
+      [[2, 2], [2, 1], [3, 1], [3, 0], [2, 0], [1, 0], [1, 1], [1, 2]],
+      [[10, 2], [11, 2], [11, 3], [11, 4]],
+      [[11, 9], [11, 10], [10, 10]],
+      [[1, 5], [0, 5], [0, 6], [1, 6], [2, 6]],
+      [[1, 8], [2, 8], [2, 9]],
+      [[10, 7], [9, 7], [9, 8], [10, 8], [11, 8], [11, 7]],
+      [[5, 2], [6, 2], [7, 2], [8, 2], [8, 3], [7, 3], [7, 4], [6, 4], [5, 4]],
+      [[0, 11], [0, 10], [0, 9], [1, 9], [1, 10]],
+      [[4, 10], [4, 9], [3, 9], [3, 8], [4, 8]],
+      [[8, 6], [7, 6], [7, 7], [7, 8], [6, 8], [5, 8], [5, 9], [5, 10], [6, 10], [6, 11], [5, 11], [4, 11], [3, 11]],
+      [[10, 3], [9, 3], [9, 4], [10, 4], [10, 5], [9, 5]],
+      [[3, 5], [3, 4], [4, 4], [4, 3]],
+      [[5, 6], [6, 6], [6, 7], [5, 7], [4, 7], [4, 6]],
+    ],
+    verses: [
+      { text: "The LORD is my SHEPHERD; I shall not want.", reference: "Psalm 23:1" },
+      {
+        text: "In the beginning was the WORD, and the WORD was with GOD, and the WORD was GOD.",
+        reference: "John 1:1",
+      },
+      {
+        text: "For God so loved the WORLD that He gave His only begotten SON.",
+        reference: "John 3:16",
+      },
+      {
+        text: "I can do all things through CHRIST who strengthens me.",
+        reference: "Philippians 4:13",
+      },
+      {
+        text: "The LORD is my LIGHT and my SALVATION — whom shall I fear?",
+        reference: "Psalm 27:1",
+      },
+      {
+        text: "Trust in the LORD with all your HEART, and lean not on your own UNDERSTANDING.",
+        reference: "Proverbs 3:5",
+      },
+      {
+        text: "In all your ways acknowledge Him, and He shall DIRECT your paths.",
+        reference: "Proverbs 3:6",
+      },
+      {
+        text: "The fear of the LORD is the beginning of WISDOM.",
+        reference: "Proverbs 9:10",
+      },
     ],
   },
 ];
