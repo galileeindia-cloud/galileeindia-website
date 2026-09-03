@@ -498,6 +498,38 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       },
     ],
   },
+  {
+    id: "13",
+    number: "N13",
+    title: "Unjumble the Woman's Names Found in the Bible",
+    description:
+      "Unjumble the woman's names found in the Bible. Drag across connected letters to find them all.",
+    type: "path",
+    rows: 9,
+    cols: 9,
+    words: ["MARY", "RUTH", "ESTHER", "SARAH", "REBEKAH", "RACHEL", "MIRIAM", "DEBORAH"],
+    grid: [
+      ["G", "K", "A", "I", "R", "D", "A", "L", "J"],
+      ["Y", "B", "M", "K", "I", "M", "Z", "I", "P"],
+      ["E", "H", "E", "R", "O", "B", "F", "B", "I"],
+      ["S", "T", "Y", "A", "R", "E", "D", "A", "O"],
+      ["F", "A", "R", "H", "R", "D", "L", "E", "V"],
+      ["B", "M", "R", "M", "U", "Y", "C", "H", "V"],
+      ["L", "G", "D", "H", "T", "R", "A", "R", "E"],
+      ["V", "H", "A", "A", "H", "E", "N", "R", "X"],
+      ["S", "A", "R", "K", "E", "B", "X", "Q", "J"],
+    ],
+    wordPaths: [
+      [[5, 1], [4, 1], [4, 2], [3, 2]],
+      [[4, 4], [5, 4], [6, 4], [6, 3]],
+      [[2, 0], [3, 0], [3, 1], [2, 1], [2, 2], [2, 3]],
+      [[8, 0], [8, 1], [8, 2], [7, 2], [7, 1]],
+      [[6, 5], [7, 5], [8, 5], [8, 4], [8, 3], [7, 3], [7, 4]],
+      [[6, 7], [6, 6], [5, 6], [5, 7], [4, 7], [4, 6]],
+      [[1, 5], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2]],
+      [[3, 6], [3, 5], [2, 5], [2, 4], [3, 4], [3, 3], [4, 3]],
+    ],
+  },
 ];
 
 export function getPuzzleById(id: string | undefined) {
