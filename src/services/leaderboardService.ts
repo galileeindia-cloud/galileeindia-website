@@ -6,6 +6,9 @@ export interface LeaderboardEntry {
   puzzle_id: string;
   player_name: string;
   time_taken_ms: number;
+  /** Correct-answer count, for puzzles that grade correctness (the quiz).
+   * Null for puzzles that only measure completion time. */
+  score: number | null;
   created_at: string;
 }
 
@@ -26,7 +29,8 @@ function generateUuid(): string {
 export async function submitScore(
   puzzleId: string,
   playerName: string,
-  timeTakenMs: number
+  timeTakenMs: number,
+  score: number | null = null
 ) {
   const score_uuid = generateUuid();
 
@@ -37,6 +41,7 @@ export async function submitScore(
         puzzle_id: puzzleId,
         player_name: playerName,
         time_taken_ms: timeTakenMs,
+        score,
       },
     ]);
 
@@ -56,8 +61,12 @@ export async function fetchLeaderboard(
   return withRetry(async () => {
     const { data, error } = await supabase
       .from("bible_puzzle_scores")
-      .select("score_uuid, puzzle_id, player_name, time_taken_ms, created_at")
+      .select("score_uuid, puzzle_id, player_name, time_taken_ms, score, created_at")
       .eq("puzzle_id", puzzleId)
+      // Puzzles with a graded score (the quiz) rank by score first; puzzles
+      // that never submit a score have every row NULL here, so this order()
+      // is a no-op for them and time_taken_ms alone decides the ranking.
+      .order("score", { ascending: false, nullsFirst: false })
       .order("time_taken_ms", { ascending: true })
       .limit(limit);
 

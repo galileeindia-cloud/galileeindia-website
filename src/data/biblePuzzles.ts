@@ -39,7 +39,27 @@ export type PathPuzzleData = {
   verses?: BibleVerse[];
 };
 
-export type BiblePuzzle = OrderPuzzleData | MatchPuzzleData | PathPuzzleData;
+export type QuizQuestion = {
+  question: string;
+  options: string[];
+  /** Index into `options` (as authored) of the correct answer. */
+  correctIndex: number;
+};
+
+export type QuizPuzzleData = {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+  type: "quiz";
+  questions: QuizQuestion[];
+};
+
+export type BiblePuzzle =
+  | OrderPuzzleData
+  | MatchPuzzleData
+  | PathPuzzleData
+  | QuizPuzzleData;
 
 export const BIBLE_PUZZLES: BiblePuzzle[] = [
   {
@@ -528,6 +548,86 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       [[6, 7], [6, 6], [5, 6], [5, 7], [4, 7], [4, 6]],
       [[1, 5], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2]],
       [[3, 6], [3, 5], [2, 5], [2, 4], [3, 4], [3, 3], [4, 3]],
+    ],
+  },
+  {
+    id: "14",
+    number: "N14",
+    title: "Bible Trivia Quiz",
+    description:
+      "Test your Bible knowledge! Answer all 14 multiple-choice questions.",
+    type: "quiz",
+    questions: [
+      {
+        question: "How many books are there in the Old Testament?",
+        options: ["27", "39", "46", "66"],
+        correctIndex: 1,
+      },
+      {
+        question: "How many books are there in the New Testament?",
+        options: ["23", "27", "39", "66"],
+        correctIndex: 1,
+      },
+      {
+        question: "How many books are there in the entire Bible?",
+        options: ["39", "27", "66", "73"],
+        correctIndex: 2,
+      },
+      {
+        question: "Which is the longest book in the Bible?",
+        options: ["Isaiah", "Genesis", "Psalms", "Jeremiah"],
+        correctIndex: 2,
+      },
+      {
+        question: "Which is the shortest book in the Bible?",
+        options: ["Obadiah", "Jude", "2 John", "3 John"],
+        correctIndex: 3,
+      },
+      {
+        question: "Which is the longest chapter in the Bible?",
+        options: ["Psalm 118", "Psalm 119", "Genesis 1", "Numbers 7"],
+        correctIndex: 1,
+      },
+      {
+        question: "Which is the shortest chapter in the Bible?",
+        options: ["Psalm 1", "Psalm 23", "Psalm 117", "Psalm 150"],
+        correctIndex: 2,
+      },
+      {
+        question: "Which is the shortest verse in the Bible?",
+        options: ["John 3:16", "1 Thessalonians 5:16", "Job 3:2", "John 11:35"],
+        correctIndex: 3,
+      },
+      {
+        question: "Which book has the most chapters in the Bible?",
+        options: ["Isaiah", "Psalms", "Jeremiah", "Genesis"],
+        correctIndex: 1,
+      },
+      {
+        question: "What is the first book of the Bible?",
+        options: ["Exodus", "Job", "Genesis", "Matthew"],
+        correctIndex: 2,
+      },
+      {
+        question: "What is the last book of the Bible?",
+        options: ["Malachi", "Acts", "Jude", "Revelation"],
+        correctIndex: 3,
+      },
+      {
+        question: "What is the first book of the New Testament?",
+        options: ["Mark", "Matthew", "John", "Acts"],
+        correctIndex: 1,
+      },
+      {
+        question: "What is the last book of the Old Testament?",
+        options: ["Zechariah", "Nehemiah", "Malachi", "Haggai"],
+        correctIndex: 2,
+      },
+      {
+        question: "Which Gospel is the shortest?",
+        options: ["Matthew", "Mark", "Luke", "John"],
+        correctIndex: 1,
+      },
     ],
   },
 ];

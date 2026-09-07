@@ -107,6 +107,10 @@ export default async function BiblePuzzleLeaderboardPage({ params }: Props) {
                       {entry.player_name}
                     </span>
                     <span className="shrink-0 text-sm text-gray-600">
+                      {entry.score !== null && (
+                        <span className="font-semibold text-blue-900">{entry.score} pts</span>
+                      )}
+                      {entry.score !== null && " · "}
                       {formatDuration(entry.time_taken_ms)}
                     </span>
                   </li>
