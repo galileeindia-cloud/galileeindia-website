@@ -581,7 +581,7 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       {
         question: "Which is the shortest book in the Bible?",
         options: ["Obadiah", "Jude", "2 John", "3 John"],
-        correctIndex: 3,
+        correctIndex: 2,
       },
       {
         question: "Which is the longest chapter in the Bible?",
