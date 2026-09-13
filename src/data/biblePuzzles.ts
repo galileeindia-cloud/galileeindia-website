@@ -630,6 +630,34 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       },
     ],
   },
+  {
+    id: "15",
+    number: "N15",
+    title: "Unjumble the First 5 Books of the Bible",
+    description:
+      "These five books are also called the Pentateuch. Their author is Moses. Drag across connected letters to find them all.",
+    type: "path",
+    rows: 8,
+    cols: 8,
+    words: ["GENESIS", "EXODUS", "LEVITICUS", "NUMBERS", "DEUTERONOMY"],
+    grid: [
+      ["U", "F", "N", "S", "T", "Y", "M", "D"],
+      ["L", "E", "S", "I", "S", "P", "O", "E"],
+      ["U", "N", "E", "G", "U", "A", "N", "U"],
+      ["I", "T", "I", "V", "Q", "A", "O", "T"],
+      ["C", "U", "L", "E", "X", "E", "R", "E"],
+      ["O", "S", "B", "J", "O", "E", "O", "J"],
+      ["Q", "Q", "S", "U", "D", "D", "F", "D"],
+      ["L", "N", "U", "M", "B", "E", "R", "S"],
+    ],
+    wordPaths: [
+      [[2, 3], [2, 2], [2, 1], [1, 1], [1, 2], [1, 3], [0, 3]],
+      [[4, 5], [4, 4], [5, 4], [6, 4], [6, 3], [6, 2]],
+      [[4, 2], [4, 3], [3, 3], [3, 2], [3, 1], [3, 0], [4, 0], [4, 1], [5, 1]],
+      [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6], [7, 7]],
+      [[0, 7], [1, 7], [2, 7], [3, 7], [4, 7], [4, 6], [3, 6], [2, 6], [1, 6], [0, 6], [0, 5]],
+    ],
+  },
 ];
 
 export function getPuzzleById(id: string | undefined) {
