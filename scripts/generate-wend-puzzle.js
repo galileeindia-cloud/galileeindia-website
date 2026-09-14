@@ -6,14 +6,13 @@
 // grid (grid divided into roughly len(WORDS) regions) so the words end up
 // spread across the whole board — a plain random walk per word tends to
 // cluster them together by chance, leaving one lopsided empty area.
-const ROWS = 8;
-const COLS = 8;
+const ROWS = 6;
+const COLS = 6;
 const WORDS = [
-  "GENESIS",
-  "EXODUS",
-  "LEVITICUS",
-  "NUMBERS",
-  "DEUTERONOMY",
+  "ISAIAH",
+  "JEREMIAH",
+  "EZEKIEL",
+  "DANIEL",
 ];
 
 function key([r, c]) {
