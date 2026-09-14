@@ -18,8 +18,8 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
   { date: "24 May 2026", event: "Special Sunday Service" },
   { date: "13 Jun 2026", event: "One Day Bible Conference" },
   { date: "07 Aug 2026", event: "Whole Night Prayer" },
-  { date: "11 Sep 2026", event: "Whole Night Fasting Prayer" },
+  { date: "09 Oct 2026", event: "Whole Night Fasting Prayer" },
 ];
 
 export const NEWS_MESSAGE =
-  "Whole night Fasting Prayer on 11th Sept 2026, 7:30 PM – 12:00 AM";
+  "Whole night Fasting Prayer on 9th Oct 2026, 7:30 PM – 12:00 AM";
