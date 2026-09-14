@@ -18,6 +18,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
   { date: "24 May 2026", event: "Special Sunday Service" },
   { date: "13 Jun 2026", event: "One Day Bible Conference" },
   { date: "07 Aug 2026", event: "Whole Night Prayer" },
+  { date: "11 Sep 2026", event: "Whole night prayer" },
   { date: "09 Oct 2026", event: "Whole Night Fasting Prayer" },
 ];
 
