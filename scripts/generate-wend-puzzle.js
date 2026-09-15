@@ -6,9 +6,19 @@
 // grid (grid divided into roughly len(WORDS) regions) so the words end up
 // spread across the whole board — a plain random walk per word tends to
 // cluster them together by chance, leaving one lopsided empty area.
-const ROWS = 5;
-const COLS = 5;
-const WORDS = ["పేతురు", "యాకోబు", "యోహాను"];
+const ROWS = 8;
+const COLS = 8;
+const WORDS = [
+  "ప్రేమ",
+  "సంతోషము",
+  "సమాధానము",
+  "దీర్ఘశాంతము",
+  "దయాళుత్వము",
+  "మంచితనము",
+  "విశ్వాసము",
+  "సాత్వికము",
+  "ఆశానిగ్రహము",
+];
 // Filler cells for blank grid squares. Kept script-appropriate rather than
 // hardcoded to A-Z so puzzles in other scripts (e.g. Telugu) don't get
 // Latin letters scattered into an otherwise non-Latin grid. These are all
