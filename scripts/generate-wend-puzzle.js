@@ -6,14 +6,25 @@
 // grid (grid divided into roughly len(WORDS) regions) so the words end up
 // spread across the whole board — a plain random walk per word tends to
 // cluster them together by chance, leaving one lopsided empty area.
-const ROWS = 6;
-const COLS = 6;
-const WORDS = [
-  "ISAIAH",
-  "JEREMIAH",
-  "EZEKIEL",
-  "DANIEL",
-];
+const ROWS = 5;
+const COLS = 5;
+const WORDS = ["పేతురు", "యాకోబు", "యోహాను"];
+// Filler cells for blank grid squares. Kept script-appropriate rather than
+// hardcoded to A-Z so puzzles in other scripts (e.g. Telugu) don't get
+// Latin letters scattered into an otherwise non-Latin grid. These are all
+// standalone Telugu consonants/vowels (no combining marks), so plain
+// indexing into this string is safe.
+const ALPHABET = "అఆఇఈఉఊఎఏఐఒఓఔకఖగఘచఛజఝటఠడఢణతథదధనపఫబభమయరలవశషసహ";
+
+// Splits a string into user-perceived characters ("graphemes") rather than
+// raw UTF-16 code units — needed for scripts like Telugu, where a base
+// consonant and its combining vowel sign are separate code units but must
+// be treated as a single letter/grid cell.
+function graphemesOf(str) {
+  const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  return Array.from(segmenter.segment(str), (s) => s.segment);
+}
+const WORD_UNITS = WORDS.map(graphemesOf);
 
 function key([r, c]) {
   return `${r},${c}`;
@@ -52,7 +63,7 @@ for (let rr = 0; rr < regRows; rr++) {
   }
 }
 
-function findWordPath(word, usedSet, region, maxAttempts = 8000) {
+function findWordPath(units, usedSet, region, maxAttempts = 8000) {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     // Prefer a start cell inside the word's home region; if that region is
     // full, fall back to anywhere free on the board.
@@ -76,7 +87,7 @@ function findWordPath(word, usedSet, region, maxAttempts = 8000) {
     const visited = new Set([key([sr, sc])]);
     let stuck = false;
 
-    while (path.length < word.length) {
+    while (path.length < units.length) {
       const [r, c] = path[path.length - 1];
       const options = shuffle(neighbors(r, c)).filter(
         ([nr, nc]) => !visited.has(key([nr, nc])) && !usedSet.has(key([nr, nc]))
@@ -90,7 +101,7 @@ function findWordPath(word, usedSet, region, maxAttempts = 8000) {
       visited.add(key(next));
     }
 
-    if (!stuck && path.length === word.length) return path;
+    if (!stuck && path.length === units.length) return path;
   }
   return null;
 }
@@ -114,7 +125,7 @@ function generate() {
   const usedSet = new Set();
   const wordPaths = [];
   for (let i = 0; i < WORDS.length; i++) {
-    const path = findWordPath(WORDS[i], usedSet, wordRegions[i]);
+    const path = findWordPath(WORD_UNITS[i], usedSet, wordRegions[i]);
     if (!path) return null;
     path.forEach((cell) => usedSet.add(key(cell)));
     wordPaths.push(path);
@@ -139,12 +150,11 @@ const wordPaths = best;
 
 // Build the grid.
 const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-WORDS.forEach((word, i) => {
+WORD_UNITS.forEach((units, i) => {
   wordPaths[i].forEach(([r, c], j) => {
-    grid[r][c] = word[j];
+    grid[r][c] = units[j];
   });
 });
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 for (let r = 0; r < ROWS; r++) {
   for (let c = 0; c < COLS; c++) {
     if (grid[r][c] === null) {

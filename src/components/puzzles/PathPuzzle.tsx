@@ -10,6 +10,7 @@ import {
   type LeaderboardEntry,
 } from "@/services/leaderboardService";
 import { formatDuration } from "@/utils/time";
+import { graphemes } from "@/utils/text";
 import type { GridCell } from "@/data/biblePuzzles";
 
 type Phase = "name" | "playing" | "complete";
@@ -393,7 +394,7 @@ export default function PathPuzzle({
       <div className="flex flex-wrap justify-center gap-3 mb-4">
         {words.map((word, i) => (
           <div key={word} className="flex gap-1">
-            {word.split("").map((ch, j) => {
+            {graphemes(word).map((ch, j) => {
               // A literal "-" is a fixed separator, not a hidden letter, so
               // it's shown from the moment the puzzle loads rather than
               // waiting behind the "•" placeholder like the real letters.
