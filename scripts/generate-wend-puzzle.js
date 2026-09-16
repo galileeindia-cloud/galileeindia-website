@@ -6,22 +6,9 @@
 // grid (grid divided into roughly len(WORDS) regions) so the words end up
 // spread across the whole board — a plain random walk per word tends to
 // cluster them together by chance, leaving one lopsided empty area.
-const ROWS = 8;
-const COLS = 8;
-const WORDS = [
-  "హోషేయ",
-  "యోవేలు",
-  "ఆమోసు",
-  "ఓబద్యా",
-  "యోనా",
-  "మీకా",
-  "నహూము",
-  "హబక్కూకు",
-  "జెఫన్యా",
-  "హగ్గయి",
-  "జెకర్యా",
-  "మలాకీ",
-];
+const ROWS = 5;
+const COLS = 5;
+const WORDS = ["ఇస్సాకు", "శారా", "హాగరు", "లోతు", "ఇష్మాయేలు"];
 // Filler cells for blank grid squares. Kept script-appropriate rather than
 // hardcoded to A-Z so puzzles in other scripts (e.g. Telugu) don't get
 // Latin letters scattered into an otherwise non-Latin grid. These are all
@@ -99,6 +86,7 @@ function findWordPath(units, usedSet, region, maxAttempts = 8000) {
     const path = [[sr, sc]];
     const visited = new Set([key([sr, sc])]);
     let stuck = false;
+    let lastDir = null; // [dr, dc] of the previous step, or null before the first step
 
     while (path.length < units.length) {
       const [r, c] = path[path.length - 1];
@@ -109,7 +97,15 @@ function findWordPath(units, usedSet, region, maxAttempts = 8000) {
         stuck = true;
         break;
       }
-      const next = options[0];
+      // Prefer a turn over continuing in the same direction, so paths
+      // zigzag instead of running in an obvious straight line that's easy
+      // to spot at a glance. Falls back to a straight continuation only
+      // when no turn is available (e.g. hugging a grid edge).
+      const turns = lastDir
+        ? options.filter(([nr, nc]) => nr - r !== lastDir[0] || nc - c !== lastDir[1])
+        : options;
+      const next = (turns.length > 0 ? turns : options)[0];
+      lastDir = [next[0] - r, next[1] - c];
       path.push(next);
       visited.add(key(next));
     }
