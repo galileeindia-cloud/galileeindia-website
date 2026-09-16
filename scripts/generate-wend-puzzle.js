@@ -9,15 +9,18 @@
 const ROWS = 8;
 const COLS = 8;
 const WORDS = [
-  "ప్రేమ",
-  "సంతోషము",
-  "సమాధానము",
-  "దీర్ఘశాంతము",
-  "దయాళుత్వము",
-  "మంచితనము",
-  "విశ్వాసము",
-  "సాత్వికము",
-  "ఆశానిగ్రహము",
+  "హోషేయ",
+  "యోవేలు",
+  "ఆమోసు",
+  "ఓబద్యా",
+  "యోనా",
+  "మీకా",
+  "నహూము",
+  "హబక్కూకు",
+  "జెఫన్యా",
+  "హగ్గయి",
+  "జెకర్యా",
+  "మలాకీ",
 ];
 // Filler cells for blank grid squares. Kept script-appropriate rather than
 // hardcoded to A-Z so puzzles in other scripts (e.g. Telugu) don't get
