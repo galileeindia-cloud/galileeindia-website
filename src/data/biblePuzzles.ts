@@ -55,34 +55,11 @@ export type QuizPuzzleData = {
   questions: QuizQuestion[];
 };
 
-export type CrosswordEntry = {
-  /** Printed clue number; shared by an across and a down entry that start in the same cell. */
-  clueNumber: number;
-  direction: "across" | "down";
-  /** Zero-based cell where the answer's first letter sits. */
-  row: number;
-  col: number;
-  answer: string;
-  clue: string;
-};
-
-export type CrosswordPuzzleData = {
-  id: string;
-  number: string;
-  title: string;
-  description: string;
-  type: "crossword";
-  rows: number;
-  cols: number;
-  entries: CrosswordEntry[];
-};
-
 export type BiblePuzzle =
   | OrderPuzzleData
   | MatchPuzzleData
   | PathPuzzleData
-  | QuizPuzzleData
-  | CrosswordPuzzleData;
+  | QuizPuzzleData;
 
 export const BIBLE_PUZZLES: BiblePuzzle[] = [
   {
@@ -938,21 +915,45 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
     number: "N23",
     title: "Names, Places and Things in the Book of Jonah",
     description:
-      "Solve the crossword using the clues. Every answer is a name, place, or thing found in the book of Jonah.",
-    type: "crossword",
+      "Find the names, places, and things found in the book of Jonah. Drag across connected letters to find them all.",
+    type: "path",
     rows: 10,
     cols: 10,
-    entries: [
-      { clueNumber: 1, direction: "across", row: 0, col: 2, answer: "SEA", clue: "It grew calm as soon as Jonah was thrown into it" },
-      { clueNumber: 2, direction: "down", row: 0, col: 4, answer: "AMITTAI", clue: "Jonah's father" },
-      { clueNumber: 3, direction: "down", row: 2, col: 0, answer: "JOPPA", clue: "The port city where Jonah found a ship" },
-      { clueNumber: 4, direction: "across", row: 2, col: 3, answer: "NINEVEH", clue: "The great city God sent Jonah to warn" },
-      { clueNumber: 5, direction: "down", row: 3, col: 2, answer: "SAILORS", clue: "Frightened men on the ship who cried out to their gods and threw Jonah overboard" },
-      { clueNumber: 6, direction: "across", row: 4, col: 0, answer: "PLANT", clue: "The LORD appointed a ___ to grow over Jonah and shade his head" },
-      { clueNumber: 7, direction: "down", row: 4, col: 9, answer: "GOD", clue: "Jonah said he worshiped the LORD, the ___ of heaven, who made the sea and the land" },
-      { clueNumber: 8, direction: "down", row: 5, col: 7, answer: "FISH", clue: "The great ___ the LORD appointed to swallow Jonah" },
-      { clueNumber: 9, direction: "across", row: 6, col: 6, answer: "WIND", clue: "The LORD hurled a great ___ upon the sea, and a mighty storm arose" },
-      { clueNumber: 10, direction: "across", row: 8, col: 0, answer: "TARSHISH", clue: "The place Jonah sailed toward to run away from the LORD" },
+    words: [
+      "AMITTAI",
+      "NINEVEH",
+      "SAILORS",
+      "GOD",
+      "TARSHISH",
+      "JOPPA",
+      "SEA",
+      "FISH",
+      "WIND",
+      "PLANT",
+    ],
+    grid: [
+      ["O", "A", "G", "O", "B", "I", "T", "T", "G", "A"],
+      ["Y", "O", "M", "D", "N", "M", "I", "A", "I", "T"],
+      ["A", "O", "J", "S", "Y", "A", "H", "P", "R", "A"],
+      ["J", "O", "Z", "R", "I", "A", "I", "N", "S", "H"],
+      ["P", "P", "Z", "O", "L", "S", "N", "E", "S", "I"],
+      ["A", "H", "S", "R", "F", "I", "E", "V", "H", "T"],
+      ["V", "N", "O", "G", "H", "S", "H", "K", "O", "J"],
+      ["Q", "D", "S", "T", "E", "E", "T", "Y", "G", "U"],
+      ["I", "N", "D", "P", "O", "S", "S", "T", "A", "N"],
+      ["W", "S", "R", "A", "O", "A", "E", "P", "L", "T"],
+    ],
+    wordPaths: [
+      [[2, 5], [1, 5], [1, 6], [0, 6], [0, 7], [1, 7], [1, 8]],
+      [[3, 7], [3, 6], [4, 6], [4, 7], [5, 7], [5, 6], [6, 6]],
+      [[4, 5], [3, 5], [3, 4], [4, 4], [4, 3], [5, 3], [5, 2]],
+      [[0, 2], [0, 3], [1, 3]],
+      [[1, 9], [2, 9], [2, 8], [3, 8], [3, 9], [4, 9], [4, 8], [5, 8]],
+      [[3, 0], [3, 1], [4, 1], [4, 0], [5, 0]],
+      [[8, 6], [9, 6], [9, 5]],
+      [[5, 4], [5, 5], [6, 5], [6, 4]],
+      [[9, 0], [8, 0], [8, 1], [7, 1]],
+      [[9, 7], [9, 8], [8, 8], [8, 9], [9, 9]],
     ],
   },
 ];

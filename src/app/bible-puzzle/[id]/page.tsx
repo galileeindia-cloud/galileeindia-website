@@ -7,7 +7,6 @@ import OrderPuzzle from "@/components/puzzles/OrderPuzzle";
 import MatchPuzzle from "@/components/puzzles/MatchPuzzle";
 import PathPuzzle from "@/components/puzzles/PathPuzzle";
 import QuizPuzzle from "@/components/puzzles/QuizPuzzle";
-import CrosswordPuzzle from "@/components/puzzles/CrosswordPuzzle";
 import { getPuzzleById } from "@/data/biblePuzzles";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -123,15 +122,6 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
           )}
           {puzzle.type === "quiz" && (
             <QuizPuzzle key={puzzle.id} puzzleId={puzzle.id} questions={puzzle.questions} />
-          )}
-          {puzzle.type === "crossword" && (
-            <CrosswordPuzzle
-              key={puzzle.id}
-              puzzleId={puzzle.id}
-              rows={puzzle.rows}
-              cols={puzzle.cols}
-              entries={puzzle.entries}
-            />
           )}
         </div>
       </section>

@@ -6,15 +6,26 @@
 // grid (grid divided into roughly len(WORDS) regions) so the words end up
 // spread across the whole board — a plain random walk per word tends to
 // cluster them together by chance, leaving one lopsided empty area.
-const ROWS = 5;
-const COLS = 5;
-const WORDS = ["ఇస్సాకు", "శారా", "హాగరు", "లోతు", "ఇష్మాయేలు"];
+const ROWS = 10;
+const COLS = 10;
+const WORDS = [
+  "AMITTAI",
+  "NINEVEH",
+  "SAILORS",
+  "GOD",
+  "TARSHISH",
+  "JOPPA",
+  "SEA",
+  "FISH",
+  "WIND",
+  "PLANT",
+];
 // Filler cells for blank grid squares. Kept script-appropriate rather than
 // hardcoded to A-Z so puzzles in other scripts (e.g. Telugu) don't get
-// Latin letters scattered into an otherwise non-Latin grid. These are all
-// standalone Telugu consonants/vowels (no combining marks), so plain
-// indexing into this string is safe.
-const ALPHABET = "అఆఇఈఉఊఎఏఐఒఓఔకఖగఘచఛజఝటఠడఢణతథదధనపఫబభమయరలవశషసహ";
+// Latin letters scattered into an otherwise non-Latin grid. For Telugu use
+// standalone consonants/vowels (no combining marks), e.g.
+// "అఆఇఈఉఊఎఏఐఒఓఔకఖగఘచఛజఝటఠడఢణతథదధనపఫబభమయరలవశషసహ".
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 // Splits a string into user-perceived characters ("graphemes") rather than
 // raw UTF-16 code units — needed for scripts like Telugu, where a base
