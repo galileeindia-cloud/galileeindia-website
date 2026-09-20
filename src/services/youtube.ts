@@ -26,17 +26,32 @@ function formatPublished(iso: string, months: string[]) {
   return `${date.getUTCDate()} ${months[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
 }
 
+type PlaylistItem = {
+  snippet: {
+    title: string;
+    publishedAt: string;
+    thumbnails?: Record<string, { url: string } | undefined>;
+  };
+  contentDetails: { videoId: string; videoPublishedAt?: string };
+};
+
+// Reads the channel's "uploads" playlist rather than the search endpoint:
+// search silently omits many public videos, while the uploads playlist lists
+// every one (and costs 1 quota unit per call instead of 100).
 export async function getVideos(): Promise<YouTubeVideo[]> {
   const apiKey = process.env.YOUTUBE_API_KEY;
   const channelId = process.env.YOUTUBE_CHANNEL_ID;
+  if (!apiKey || !channelId) return [];
+
+  // A channel's uploads playlist ID is its channel ID with the "UC" prefix
+  // swapped for "UU".
+  const uploadsPlaylistId = `UU${channelId.slice(2)}`;
 
   const url =
-    `https://www.googleapis.com/youtube/v3/search?` +
+    `https://www.googleapis.com/youtube/v3/playlistItems?` +
     `key=${apiKey}` +
-    `&channelId=${channelId}` +
-    `&part=snippet,id` +
-    `&type=video` +
-    `&order=date` +
+    `&playlistId=${uploadsPlaylistId}` +
+    `&part=snippet,contentDetails` +
     `&maxResults=50`;
 
   const response = await fetch(url, { next: { revalidate: 3600 } });
@@ -47,11 +62,26 @@ export async function getVideos(): Promise<YouTubeVideo[]> {
 
   const data = await response.json();
 
-  return (data.items ?? [])
-    .filter((item: YouTubeVideo) => item.id.kind === "youtube#video")
-    .map((item: YouTubeVideo) => ({
-      ...item,
-      publishedLong: formatPublished(item.snippet.publishedAt, MONTHS_LONG),
-      publishedShort: formatPublished(item.snippet.publishedAt, MONTHS_SHORT),
-    }));
+  return ((data.items ?? []) as PlaylistItem[])
+    .map((item) => {
+      const { thumbnails, title } = item.snippet;
+      const thumbnail = thumbnails?.high ?? thumbnails?.medium ?? thumbnails?.default;
+      return { item, title, thumbnail };
+    })
+    // Deleted and private videos stay in the playlist but have no thumbnail.
+    .filter(({ thumbnail }) => thumbnail)
+    .map(({ item, title, thumbnail }) => {
+      const publishedAt = item.contentDetails.videoPublishedAt ?? item.snippet.publishedAt;
+      return {
+        id: { videoId: item.contentDetails.videoId, kind: "youtube#video" },
+        snippet: {
+          title,
+          publishedAt,
+          thumbnails: { high: { url: thumbnail!.url } },
+        },
+        publishedLong: formatPublished(publishedAt, MONTHS_LONG),
+        publishedShort: formatPublished(publishedAt, MONTHS_SHORT),
+      };
+    })
+    .sort((a, b) => b.snippet.publishedAt.localeCompare(a.snippet.publishedAt));
 }
