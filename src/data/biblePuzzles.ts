@@ -55,11 +55,34 @@ export type QuizPuzzleData = {
   questions: QuizQuestion[];
 };
 
+export type CrosswordEntry = {
+  /** Printed clue number; shared by an across and a down entry that start in the same cell. */
+  clueNumber: number;
+  direction: "across" | "down";
+  /** Zero-based cell where the answer's first letter sits. */
+  row: number;
+  col: number;
+  answer: string;
+  clue: string;
+};
+
+export type CrosswordPuzzleData = {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+  type: "crossword";
+  rows: number;
+  cols: number;
+  entries: CrosswordEntry[];
+};
+
 export type BiblePuzzle =
   | OrderPuzzleData
   | MatchPuzzleData
   | PathPuzzleData
-  | QuizPuzzleData;
+  | QuizPuzzleData
+  | CrosswordPuzzleData;
 
 export const BIBLE_PUZZLES: BiblePuzzle[] = [
   {
@@ -908,6 +931,28 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       "3 యోహాను",
       "యూదా",
       "ప్రకటన గ్రంథము",
+    ],
+  },
+  {
+    id: "23",
+    number: "N23",
+    title: "Names, Places and Things in the Book of Jonah",
+    description:
+      "Solve the crossword using the clues. Every answer is a name, place, or thing found in the book of Jonah.",
+    type: "crossword",
+    rows: 10,
+    cols: 10,
+    entries: [
+      { clueNumber: 1, direction: "across", row: 0, col: 2, answer: "SEA", clue: "It grew calm as soon as Jonah was thrown into it" },
+      { clueNumber: 2, direction: "down", row: 0, col: 4, answer: "AMITTAI", clue: "Jonah's father" },
+      { clueNumber: 3, direction: "down", row: 2, col: 0, answer: "JOPPA", clue: "The port city where Jonah found a ship" },
+      { clueNumber: 4, direction: "across", row: 2, col: 3, answer: "NINEVEH", clue: "The great city God sent Jonah to warn" },
+      { clueNumber: 5, direction: "down", row: 3, col: 2, answer: "SAILORS", clue: "Frightened men on the ship who cried out to their gods and threw Jonah overboard" },
+      { clueNumber: 6, direction: "across", row: 4, col: 0, answer: "PLANT", clue: "The LORD appointed a ___ to grow over Jonah and shade his head" },
+      { clueNumber: 7, direction: "down", row: 4, col: 9, answer: "GOD", clue: "Jonah said he worshiped the LORD, the ___ of heaven, who made the sea and the land" },
+      { clueNumber: 8, direction: "down", row: 5, col: 7, answer: "FISH", clue: "The great ___ the LORD appointed to swallow Jonah" },
+      { clueNumber: 9, direction: "across", row: 6, col: 6, answer: "WIND", clue: "The LORD hurled a great ___ upon the sea, and a mighty storm arose" },
+      { clueNumber: 10, direction: "across", row: 8, col: 0, answer: "TARSHISH", clue: "The place Jonah sailed toward to run away from the LORD" },
     ],
   },
 ];
