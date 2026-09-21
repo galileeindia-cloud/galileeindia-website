@@ -41,8 +41,10 @@ function PuzzleCard({ puzzle }: { puzzle: BiblePuzzle }) {
 }
 
 export default function BiblePuzzlePage() {
-  const englishPuzzles = BIBLE_PUZZLES.filter((puzzle) => !isTelugu(puzzle));
-  const teluguPuzzles = BIBLE_PUZZLES.filter(isTelugu);
+  // Newest first, so a freshly added puzzle is the first thing visitors see.
+  const newestFirst = [...BIBLE_PUZZLES].sort((a, b) => Number(b.id) - Number(a.id));
+  const englishPuzzles = newestFirst.filter((puzzle) => !isTelugu(puzzle));
+  const teluguPuzzles = newestFirst.filter(isTelugu);
 
   return (
     <>
