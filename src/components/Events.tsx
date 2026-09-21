@@ -1,5 +1,5 @@
 import { CalendarDays } from "lucide-react";
-import { CHURCH_EVENTS } from "@/data/events";
+import { getEventsNewestFirst } from "@/data/events";
 
 export default function Events() {
   return (
@@ -19,7 +19,7 @@ export default function Events() {
         </h2>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {CHURCH_EVENTS.map((item, index) => {
+          {getEventsNewestFirst().map((item, index) => {
             const [day, month, year] = item.date.split(" ");
             return (
               <div

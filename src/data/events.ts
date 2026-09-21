@@ -22,5 +22,20 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
   { date: "09 Oct 2026", event: "Whole Night Fasting Prayer" },
 ];
 
+const MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+function eventTime({ date }: ChurchEvent) {
+  const [day, month, year] = date.split(" ");
+  return Date.UTC(Number(year), MONTHS.indexOf(month), Number(day));
+}
+
+/** Latest date first, so the most recent (or furthest-out) event leads the calendar. */
+export function getEventsNewestFirst(): ChurchEvent[] {
+  return [...CHURCH_EVENTS].sort((a, b) => eventTime(b) - eventTime(a));
+}
+
 export const NEWS_MESSAGE =
   "Whole night Fasting Prayer on 9th Oct 2026, 7:30 PM – 12:00 AM";
