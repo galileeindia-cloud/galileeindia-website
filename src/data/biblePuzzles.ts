@@ -1007,3 +1007,11 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
 export function getPuzzleById(id: string | undefined) {
   return BIBLE_PUZZLES.find((puzzle) => puzzle.id === id);
 }
+
+// A puzzle counts as Telugu if its title is written in the Telugu script,
+// rather than tracking language as separate metadata — so a puzzle added
+// with a Telugu title lands in the Telugu panel with no extra step.
+const TELUGU_SCRIPT = /[ఀ-౿]/;
+export function isTeluguPuzzle(puzzle: BiblePuzzle) {
+  return TELUGU_SCRIPT.test(puzzle.title);
+}

@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Puzzle } from "lucide-react";
+import { Puzzle, Trophy } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { BIBLE_PUZZLES, type BiblePuzzle } from "@/data/biblePuzzles";
+import { BIBLE_PUZZLES, isTeluguPuzzle, type BiblePuzzle } from "@/data/biblePuzzles";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata = pageMetadata({
@@ -12,17 +12,11 @@ export const metadata = pageMetadata({
   path: "/bible-puzzle",
 });
 
-// A puzzle is sorted into the Telugu column if its title is written in the
-// Telugu script, rather than tracking language as separate metadata — so
-// a puzzle added with a Telugu title lands in the right column with no
-// extra step.
-const TELUGU_SCRIPT = /[ఀ-౿]/;
-const isTelugu = (puzzle: BiblePuzzle) => TELUGU_SCRIPT.test(puzzle.title);
-
 function PuzzleCard({ puzzle }: { puzzle: BiblePuzzle }) {
   return (
     <Link
       href={`/bible-puzzle/${puzzle.id}`}
+      prefetch={false}
       className="group bg-white rounded-2xl shadow-md hover:shadow-xl border border-gray-100 p-6 transition hover:-translate-y-1"
     >
       <span className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-900 text-white mb-4">
@@ -43,8 +37,8 @@ function PuzzleCard({ puzzle }: { puzzle: BiblePuzzle }) {
 export default function BiblePuzzlePage() {
   // Newest first, so a freshly added puzzle is the first thing visitors see.
   const newestFirst = [...BIBLE_PUZZLES].sort((a, b) => Number(b.id) - Number(a.id));
-  const englishPuzzles = newestFirst.filter((puzzle) => !isTelugu(puzzle));
-  const teluguPuzzles = newestFirst.filter(isTelugu);
+  const englishPuzzles = newestFirst.filter((puzzle) => !isTeluguPuzzle(puzzle));
+  const teluguPuzzles = newestFirst.filter(isTeluguPuzzle);
 
   return (
     <>
@@ -56,9 +50,19 @@ export default function BiblePuzzlePage() {
             Bible Quiz
           </h1>
 
-          <p className="text-center text-xl text-gray-600 mb-12">
+          <p className="text-center text-xl text-gray-600 mb-6">
             A new puzzle from time to time. Tap a puzzle below to play.
           </p>
+
+          <div className="flex justify-center mb-12">
+            <Link
+              href="/bible-puzzle/leaderboard"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-900 text-white font-semibold hover:bg-blue-800 transition"
+            >
+              <Trophy size={18} />
+              Leader Board for all Puzzles
+            </Link>
+          </div>
 
           <div className="grid md:grid-cols-2 md:gap-12">
             <div className="md:pr-6">
