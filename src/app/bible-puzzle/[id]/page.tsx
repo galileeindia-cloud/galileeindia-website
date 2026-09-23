@@ -7,10 +7,16 @@ import OrderPuzzle from "@/components/puzzles/OrderPuzzle";
 import MatchPuzzle from "@/components/puzzles/MatchPuzzle";
 import PathPuzzle from "@/components/puzzles/PathPuzzle";
 import QuizPuzzle from "@/components/puzzles/QuizPuzzle";
-import { getPuzzleById } from "@/data/biblePuzzles";
+import { BIBLE_PUZZLES, getPuzzleById } from "@/data/biblePuzzles";
 import { pageMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ id: string }> };
+
+// Puzzles are static data, so build every play page ahead of time instead of
+// rendering it on each visit.
+export function generateStaticParams() {
+  return BIBLE_PUZZLES.map((puzzle) => ({ id: puzzle.id }));
+}
 
 function renderVerseText(text: string) {
   return text.split(/(\b[A-Z]{2,}\b)/g).map((part, i) =>

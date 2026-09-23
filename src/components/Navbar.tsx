@@ -14,7 +14,7 @@ const NAV_LINKS = [
   { href: "/sermons", label: "Sermons" },
   { href: "/bible-puzzle", label: "Bible Puzzles" },
   { href: "/#contact", label: "Contact" },
-  { href: "/join-us", label: "Join Us" },
+  { href: "/join-us", label: "Join Us", prefetch: false },
 ];
 
 export default function Navbar() {
@@ -48,6 +48,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={link.prefetch}
                 className="whitespace-nowrap hover:text-blue-700"
               >
                 {link.label}
@@ -71,6 +72,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={link.prefetch}
                 className="py-3 px-2 rounded-lg hover:bg-blue-50 hover:text-blue-700"
                 onClick={() => setMenuOpen(false)}
               >

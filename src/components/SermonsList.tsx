@@ -72,7 +72,11 @@ export default function SermonsList({ videos }: { videos: YouTubeVideo[] }) {
                 <img
                   src={video.snippet.thumbnails.high.url}
                   alt={video.snippet.title}
-                  className="w-full"
+                  width={480}
+                  height={360}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-auto"
                 />
 
                 <div className="p-5">

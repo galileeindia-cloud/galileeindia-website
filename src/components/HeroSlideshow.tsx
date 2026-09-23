@@ -8,10 +8,15 @@ const INTERVAL_MS = 5000;
 
 export default function HeroSlideshow() {
   const [active, setActive] = useState(0);
+  // Slides 0..loadedUpTo have their image mounted. Every slide sits in the
+  // viewport at opacity 0, so mounting all of them makes the browser download
+  // every slide at once; instead stay one slide ahead of the one being shown.
+  const [loadedUpTo, setLoadedUpTo] = useState(1);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setActive((current) => (current + 1) % HERO_IMAGES.length);
+      setLoadedUpTo((current) => Math.min(current + 1, HERO_IMAGES.length - 1));
     }, INTERVAL_MS);
 
     return () => clearInterval(timer);
@@ -32,15 +37,17 @@ export default function HeroSlideshow() {
               animationDelay: `-${(index * INTERVAL_MS) / 1000}s`,
             }}
           >
-            <Image
-              src={image.src}
-              alt={image.alt}
-              fill
-              priority={index === 0}
-              sizes="100vw"
-              className="object-cover"
-              style={{ objectPosition: image.position ?? "center" }}
-            />
+            {index <= loadedUpTo && (
+              <Image
+                src={image.src}
+                alt={image.alt}
+                fill
+                priority={index === 0}
+                sizes="100vw"
+                className="object-cover"
+                style={{ objectPosition: image.position ?? "center" }}
+              />
+            )}
           </div>
         </div>
       ))}
