@@ -36,6 +36,7 @@ function PuzzleCard({ puzzle }: { puzzle: BiblePuzzle }) {
 
 export default function BiblePuzzlePage() {
   // Newest first, so a freshly added puzzle is the first thing visitors see.
+  // The Telugu panel comes first (top on phones, left on wide screens).
   const newestFirst = [...BIBLE_PUZZLES].sort((a, b) => Number(b.id) - Number(a.id));
   const englishPuzzles = newestFirst.filter((puzzle) => !isTeluguPuzzle(puzzle));
   const teluguPuzzles = newestFirst.filter(isTeluguPuzzle);
@@ -67,10 +68,10 @@ export default function BiblePuzzlePage() {
           <div className="grid md:grid-cols-2 md:gap-12">
             <div className="md:pr-6">
               <h2 className="text-center text-lg font-bold text-blue-900 uppercase tracking-widest mb-6">
-                English
+                తెలుగు
               </h2>
               <div className="flex flex-col gap-6">
-                {englishPuzzles.map((puzzle) => (
+                {teluguPuzzles.map((puzzle) => (
                   <PuzzleCard key={puzzle.id} puzzle={puzzle} />
                 ))}
               </div>
@@ -78,10 +79,10 @@ export default function BiblePuzzlePage() {
 
             <div className="mt-14 md:mt-0 md:pl-6 md:border-l md:border-gray-200">
               <h2 className="text-center text-lg font-bold text-blue-900 uppercase tracking-widest mb-6">
-                తెలుగు
+                English
               </h2>
               <div className="flex flex-col gap-6">
-                {teluguPuzzles.map((puzzle) => (
+                {englishPuzzles.map((puzzle) => (
                   <PuzzleCard key={puzzle.id} puzzle={puzzle} />
                 ))}
               </div>

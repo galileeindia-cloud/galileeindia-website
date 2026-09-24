@@ -159,16 +159,16 @@ export default async function AllPuzzlesLeaderboardPage() {
           <div className="grid xl:grid-cols-2 gap-10 items-start">
             <div className="min-w-0">
               <h2 className="text-center text-lg font-bold text-blue-900 uppercase tracking-widest mb-6">
-                English
+                తెలుగు
               </h2>
-              <LeaderboardTable results={english} />
+              <LeaderboardTable results={telugu} />
             </div>
 
             <div className="min-w-0">
               <h2 className="text-center text-lg font-bold text-blue-900 uppercase tracking-widest mb-6">
-                తెలుగు
+                English
               </h2>
-              <LeaderboardTable results={telugu} />
+              <LeaderboardTable results={english} />
             </div>
           </div>
         </div>
