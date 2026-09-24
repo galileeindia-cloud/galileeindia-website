@@ -55,11 +55,27 @@ export type QuizPuzzleData = {
   questions: QuizQuestion[];
 };
 
+export type FillSentence = {
+  /** Sentence text where each "___" marks a blank, filled in order by `answers`. */
+  text: string;
+  answers: string[];
+};
+
+export type FillPuzzleData = {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+  type: "fill";
+  sentences: FillSentence[];
+};
+
 export type BiblePuzzle =
   | OrderPuzzleData
   | MatchPuzzleData
   | PathPuzzleData
-  | QuizPuzzleData;
+  | QuizPuzzleData
+  | FillPuzzleData;
 
 export const BIBLE_PUZZLES: BiblePuzzle[] = [
   {
@@ -1000,6 +1016,38 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       [[2, 6], [2, 5], [3, 5]],
       [[2, 4], [3, 4]],
       [[2, 0], [2, 1]],
+    ],
+  },
+  {
+    id: "25",
+    number: "N25",
+    title: "కీర్తనలు 1వ అధ్యాయము: ఖాళీలను పూరించండి.",
+    description:
+      "క్రింది వాక్యాలలోని ఖాళీలలో సరైన పదాన్ని లాగి ఉంచండి.",
+    type: "fill",
+    sentences: [
+      { text: "దుష్టుల ఆలోచనచొప్పున ___ పాపుల మార్గమున ___ అపహాసకులు కూర్చుండు చోటను ___", answers: ["నడువక", "నిలువక", "కూర్చుండక"] },
+      { text: "యెహోవా ధర్మశాస్త్రమునందు ___ దివారాత్రము దానిని ___ ధన్యుడు.", answers: ["ఆనందించుచు", "ధ్యానించువాడు"] },
+      { text: "అతడు ___ యోరను నాటబడినదై ఆకు వాడక తన కాలమందు ___ చెట్టువలె నుండును అతడు చేయునదంతయు ___.", answers: ["నీటికాలువల", "ఫలమిచ్చు", "సఫలమగును"] },
+      { text: "దుష్టులు ఆలాగున నుండక గాలి చెదరగొట్టు ___ నుందురు.", answers: ["పొట్టువలె"] },
+      { text: "కాబట్టి ___ దుష్టులును ___ సభలో పాపులును నిలువరు.", answers: ["న్యాయవిమర్శలో", "నీతిమంతుల"] },
+      { text: "నీతిమంతుల మార్గము యెహోవాకు తెలియును దుష్టుల మార్గము ___ నడుపును.", answers: ["నాశనమునకు"] },
+    ],
+  },
+  {
+    id: "26",
+    number: "N26",
+    title: "Psalm 1: Fill the blanks",
+    description:
+      "Drag each word into the correct blank to complete Psalm 1 (NIV 1984).",
+    type: "fill",
+    sentences: [
+      { text: "Blessed is the man who does not ___ in the counsel of the wicked or ___ in the way of sinners or sit in the ___ of mockers.", answers: ["walk", "stand", "seat"] },
+      { text: "But his ___ is in the law of the LORD, and on his law he ___ day and night.", answers: ["delight", "meditates"] },
+      { text: "He is like a tree planted by ___, which yields its ___ in season and whose leaf does not wither. Whatever he does ___.", answers: ["streams of water", "fruit", "prospers"] },
+      { text: "Not so the wicked! They are like ___ that the wind blows away.", answers: ["chaff"] },
+      { text: "Therefore the wicked will not stand in the ___, nor sinners in the assembly of the ___.", answers: ["judgment", "righteous"] },
+      { text: "For the LORD watches over the way of the righteous, but the way of the wicked will ___.", answers: ["perish"] },
     ],
   },
 ];

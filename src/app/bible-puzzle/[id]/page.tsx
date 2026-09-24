@@ -7,7 +7,8 @@ import OrderPuzzle from "@/components/puzzles/OrderPuzzle";
 import MatchPuzzle from "@/components/puzzles/MatchPuzzle";
 import PathPuzzle from "@/components/puzzles/PathPuzzle";
 import QuizPuzzle from "@/components/puzzles/QuizPuzzle";
-import { BIBLE_PUZZLES, getPuzzleById } from "@/data/biblePuzzles";
+import FillPuzzle from "@/components/puzzles/FillPuzzle";
+import { BIBLE_PUZZLES, getPuzzleById, isTeluguPuzzle } from "@/data/biblePuzzles";
 import { pageMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ id: string }> };
@@ -63,23 +64,32 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
     );
   }
 
+  // Puzzles played on a phone-sized screen without scrolling get a slimmer title area.
+  const compact = puzzle.type === "fill";
+
   return (
     <>
       <Navbar />
 
-      <section className="bg-gray-50 min-h-screen py-12 sm:py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      <section className={`bg-gray-50 min-h-screen ${compact ? "py-4 sm:py-14" : "py-12 sm:py-20"}`}>
+        <div className={`${puzzle.type === "fill" ? "max-w-6xl" : "max-w-4xl"} mx-auto px-4 sm:px-6`}>
           <p className="text-center text-sm font-semibold tracking-widest text-blue-700 uppercase mb-2">
             Puzzle {puzzle.number}
           </p>
 
-          <h1 className="text-3xl sm:text-5xl font-bold text-blue-900 text-center mb-4">
+          <h1
+            className={`font-bold text-blue-900 text-center ${
+              compact ? "text-xl sm:text-4xl mb-1 sm:mb-3" : "text-3xl sm:text-5xl mb-4"
+            }`}
+          >
             {puzzle.title}
           </h1>
 
-          <p className="text-center text-lg text-gray-600 mb-4">{puzzle.description}</p>
+          <p className={`text-center text-gray-600 ${compact ? "text-sm sm:text-lg mb-1 sm:mb-3" : "text-lg mb-4"}`}>
+            {puzzle.description}
+          </p>
 
-          <div className="flex justify-center mb-10">
+          <div className={`flex justify-center ${compact ? "mb-2 sm:mb-6" : "mb-10"}`}>
             <Link
               href={`/bible-puzzle/${puzzle.id}/leaderboard`}
               className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:underline"
@@ -128,6 +138,14 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
           )}
           {puzzle.type === "quiz" && (
             <QuizPuzzle key={puzzle.id} puzzleId={puzzle.id} questions={puzzle.questions} />
+          )}
+          {puzzle.type === "fill" && (
+            <FillPuzzle
+              key={puzzle.id}
+              puzzleId={puzzle.id}
+              sentences={puzzle.sentences}
+              telugu={isTeluguPuzzle(puzzle)}
+            />
           )}
         </div>
       </section>
