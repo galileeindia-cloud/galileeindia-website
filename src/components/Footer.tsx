@@ -20,12 +20,12 @@ export default function Footer() {
             Quick Links
           </h3>
           <div className="flex flex-col gap-2 text-sm">
-            <Link href="/#about" className="hover:text-white">About</Link>
-            <Link href="/#services" className="hover:text-white">Ministries</Link>
-            <Link href="/#events" className="hover:text-white">Events</Link>
-            <Link href="/#pastors" className="hover:text-white">Our Pastors</Link>
-            <Link href="/sermons" className="hover:text-white">Sermons</Link>
-            <Link href="/bible-puzzle" className="hover:text-white">Bible Puzzles</Link>
+            <Link href="/#about" prefetch={false} className="hover:text-white">About</Link>
+            <Link href="/#services" prefetch={false} className="hover:text-white">Ministries</Link>
+            <Link href="/#events" prefetch={false} className="hover:text-white">Events</Link>
+            <Link href="/#pastors" prefetch={false} className="hover:text-white">Our Pastors</Link>
+            <Link href="/sermons" prefetch={false} className="hover:text-white">Sermons</Link>
+            <Link href="/bible-puzzle" prefetch={false} className="hover:text-white">Bible Puzzles</Link>
             <Link href="/join-us" prefetch={false} className="hover:text-white">Join Us</Link>
           </div>
         </div>

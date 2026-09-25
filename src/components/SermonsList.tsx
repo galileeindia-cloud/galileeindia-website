@@ -5,6 +5,9 @@ import type { YouTubeVideo } from "@/services/youtube";
 
 export default function SermonsList({ videos }: { videos: YouTubeVideo[] }) {
   const [nowPlayingId, setNowPlayingId] = useState<string | null>(null);
+  // The featured video is only a thumbnail until tapped, so opening the page
+  // doesn't pull in YouTube's player scripts (over 1 MB).
+  const [featuredStarted, setFeaturedStarted] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
 
   const latest = videos[0];
@@ -32,16 +35,38 @@ export default function SermonsList({ videos }: { videos: YouTubeVideo[] }) {
         className="bg-white rounded-3xl shadow-xl overflow-hidden mb-20 scroll-mt-24"
       >
         <div className="aspect-video w-full bg-black">
-          <iframe
-            key={featured.id.videoId}
-            className="w-full h-full"
-            src={`https://www.youtube.com/embed/${featured.id.videoId}${
-              nowPlayingId ? "?autoplay=1" : ""
-            }`}
-            title={featured.snippet.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+          {featuredStarted || nowPlayingId ? (
+            <iframe
+              key={featured.id.videoId}
+              className="w-full h-full"
+              src={`https://www.youtube.com/embed/${featured.id.videoId}?autoplay=1`}
+              title={featured.snippet.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setFeaturedStarted(true)}
+              aria-label={`Play ${featured.snippet.title}`}
+              className="relative block w-full h-full"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={featured.snippet.thumbnails.high.url}
+                alt=""
+                width={480}
+                height={360}
+                decoding="async"
+                className="w-full h-full object-cover"
+              />
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="flex items-center justify-center w-20 h-14 rounded-2xl bg-red-600 text-white text-3xl shadow-lg">
+                  ▶
+                </span>
+              </span>
+            </button>
+          )}
         </div>
 
         <div className="p-10 text-center">

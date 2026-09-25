@@ -14,7 +14,7 @@ const NAV_LINKS = [
   { href: "/sermons", label: "Sermons" },
   { href: "/bible-puzzle", label: "Bible Puzzles" },
   { href: "/#contact", label: "Contact" },
-  { href: "/join-us", label: "Join Us", prefetch: false },
+  { href: "/join-us", label: "Join Us" },
 ];
 
 export default function Navbar() {
@@ -24,7 +24,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="flex items-center justify-between h-24 lg:h-28">
-          <Link href="/#home" className="flex items-center gap-4">
+          <Link href="/#home" prefetch={false} className="flex items-center gap-4">
             <Image
               src="/images/logo.png"
               alt="Galilee Prayer Fellowship"
@@ -48,7 +48,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                prefetch={link.prefetch}
+                prefetch={false}
                 className="whitespace-nowrap hover:text-blue-700"
               >
                 {link.label}
@@ -72,7 +72,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                prefetch={link.prefetch}
+                prefetch={false}
                 className="py-3 px-2 rounded-lg hover:bg-blue-50 hover:text-blue-700"
                 onClick={() => setMenuOpen(false)}
               >
