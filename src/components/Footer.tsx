@@ -26,7 +26,6 @@ export default function Footer() {
             <Link href="/#pastors" prefetch={false} className="hover:text-white">Our Pastors</Link>
             <Link href="/sermons" prefetch={false} className="hover:text-white">Sermons</Link>
             <Link href="/bible-puzzle" prefetch={false} className="hover:text-white">Bible Puzzles</Link>
-            <Link href="/bible-verse" prefetch={false} className="hover:text-white">Verse Lookup</Link>
             <Link href="/join-us" prefetch={false} className="hover:text-white">Join Us</Link>
           </div>
         </div>

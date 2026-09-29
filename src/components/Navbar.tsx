@@ -13,7 +13,6 @@ const NAV_LINKS = [
   { href: "/#pastors", label: "Our Pastors" },
   { href: "/sermons", label: "Sermons" },
   { href: "/bible-puzzle", label: "Bible Puzzles" },
-  { href: "/bible-verse", label: "Verse Lookup" },
   { href: "/#contact", label: "Contact" },
   { href: "/join-us", label: "Join Us" },
 ];
@@ -44,7 +43,7 @@ export default function Navbar() {
             </div>
           </Link>
 
-          <nav className="hidden xl:flex items-center gap-4 xl:gap-5 2xl:gap-6 text-sm font-medium text-gray-700">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-8 text-sm xl:text-base font-medium text-gray-700">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -58,7 +57,7 @@ export default function Navbar() {
           </nav>
 
           <button
-            className="xl:hidden text-gray-700 shrink-0"
+            className="lg:hidden text-gray-700 shrink-0"
             onClick={() => setMenuOpen((open) => !open)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
@@ -68,7 +67,7 @@ export default function Navbar() {
         </div>
 
         {menuOpen && (
-          <nav className="xl:hidden flex flex-col gap-1 pb-6 font-medium text-gray-700">
+          <nav className="lg:hidden flex flex-col gap-1 pb-6 font-medium text-gray-700">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
