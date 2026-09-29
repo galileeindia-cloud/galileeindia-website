@@ -102,7 +102,7 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
           {puzzle.type === "path" && puzzle.references && puzzle.references.length > 0 && (
             <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-10">
               <h2 className="text-center text-sm font-semibold tracking-widest text-blue-700 uppercase mb-4">
-                Bible references — a hint
+                {isTeluguPuzzle(puzzle) ? "బైబిల్ సూచనలు — ఒక ఆధారం" : "Bible references — a hint"}
               </h2>
               <div className="flex flex-wrap justify-center gap-2">
                 {puzzle.references.map((reference, i) => (
