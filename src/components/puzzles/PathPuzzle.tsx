@@ -11,6 +11,7 @@ import {
 } from "@/services/leaderboardService";
 import { formatDuration } from "@/utils/time";
 import { graphemes } from "@/utils/text";
+import { generateWordSearchLayout } from "@/utils/wordSearchLayout";
 import type { GridCell } from "@/data/biblePuzzles";
 
 type Phase = "name" | "playing" | "complete";
@@ -44,16 +45,34 @@ function pathsEqual(a: GridCell[], b: GridCell[]) {
 export default function PathPuzzle({
   puzzleId,
   cols,
-  grid,
+  grid: initialGrid,
   words,
-  wordPaths,
+  wordPaths: initialWordPaths,
+  randomize = false,
 }: {
   puzzleId: string;
   cols: number;
   grid: string[][];
   words: string[];
   wordPaths: GridCell[][];
+  /** When true, a fresh random layout (scattered, non-overlapping paths)
+   * is generated each time the puzzle starts or restarts, instead of
+   * reusing the same pre-authored grid every play. */
+  randomize?: boolean;
 }) {
+  const [layout, setLayout] = useState({ grid: initialGrid, wordPaths: initialWordPaths });
+  const { grid, wordPaths } = layout;
+
+  function reshuffleLayout() {
+    if (!randomize) return;
+    setLayout(
+      generateWordSearchLayout(words, initialGrid.length, cols, {
+        grid: initialGrid,
+        wordPaths: initialWordPaths,
+      })
+    );
+  }
+
   const pathCellSet = new Set(wordPaths.flat().map(cellKey));
   function isBlockedCell(cell: GridCell) {
     return !pathCellSet.has(cellKey(cell));
@@ -191,8 +210,13 @@ export default function PathPuzzle({
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
     };
+    // `wordPaths` is a dependency (not just an empty array) so that when
+    // `randomize` reshuffles the layout, these listeners get re-registered
+    // with fresh closures over the new paths — otherwise `extendDrag` and
+    // `endDrag` would keep checking drags against the very first layout
+    // generated at mount, and a solved word would never register.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [wordPaths]);
 
   useEffect(() => {
     if (phase !== "playing") return;
@@ -212,6 +236,7 @@ export default function PathPuzzle({
     if (!trimmed) return;
     localStorage.setItem(NAME_STORAGE_KEY, trimmed);
     setName(trimmed);
+    reshuffleLayout();
     setSolved(words.map(() => false));
     setDrag([]);
     setStartTime(Date.now());
@@ -222,6 +247,7 @@ export default function PathPuzzle({
   }
 
   function restart() {
+    reshuffleLayout();
     setSolved(words.map(() => false));
     setDrag([]);
     setStartTime(Date.now());

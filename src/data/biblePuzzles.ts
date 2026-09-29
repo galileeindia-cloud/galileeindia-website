@@ -40,6 +40,10 @@ export type PathPuzzleData = {
   /** Optional bare Bible references shown above the puzzle as a hint,
    * without pairing each one to a specific word. */
   references?: string[];
+  /** When true, the player gets a freshly scattered, non-overlapping
+   * layout of `grid`/`wordPaths` each time they start or restart the
+   * puzzle, instead of the same pre-authored one every play. */
+  randomize?: boolean;
 };
 
 export type QuizQuestion = {
@@ -1060,6 +1064,7 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
     description:
       "Drag across connected letters — up, down, left, or right — to find ten people from the life of Moses.",
     type: "path",
+    randomize: true,
     rows: 10,
     cols: 10,
     words: [

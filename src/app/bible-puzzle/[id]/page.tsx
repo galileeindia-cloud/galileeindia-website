@@ -152,6 +152,7 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
               grid={puzzle.grid}
               words={puzzle.words}
               wordPaths={puzzle.wordPaths}
+              randomize={puzzle.randomize}
             />
           )}
           {puzzle.type === "quiz" && (
