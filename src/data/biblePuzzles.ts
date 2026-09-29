@@ -1060,7 +1060,7 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
   {
     id: "27",
     number: "N27",
-    title: "Unjumble these words to get the names of persons in Life of Moses",
+    title: "Moses- People in the life of Moses",
     description:
       "Drag across connected letters — up, down, left, or right — to find ten people from the life of Moses.",
     type: "path",
