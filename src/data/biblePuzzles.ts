@@ -37,6 +37,9 @@ export type PathPuzzleData = {
   wordPaths: GridCell[][];
   /** Optional verses shown above the puzzle, giving the words context. */
   verses?: BibleVerse[];
+  /** Optional bare Bible references shown above the puzzle as a hint,
+   * without pairing each one to a specific word. */
+  references?: string[];
 };
 
 export type QuizQuestion = {
@@ -1048,6 +1051,64 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       { text: "Not so the wicked! They are like ___ that the wind blows away.", answers: ["chaff"] },
       { text: "Therefore the wicked will not stand in the ___, nor sinners in the assembly of the ___.", answers: ["judgment", "righteous"] },
       { text: "For the LORD watches over the way of the righteous, but the way of the wicked will ___.", answers: ["perish"] },
+    ],
+  },
+  {
+    id: "27",
+    number: "N27",
+    title: "Unjumble these words to get the names of persons in Life of Moses",
+    description:
+      "Drag across connected letters — up, down, left, or right — to find ten people from the life of Moses.",
+    type: "path",
+    rows: 10,
+    cols: 10,
+    words: [
+      "MOSES",
+      "AARON",
+      "MIRIAM",
+      "JETHRO",
+      "ZIPPORAH",
+      "JOSHUA",
+      "CALEB",
+      "KORAH",
+      "ELEAZAR",
+      "PHARAOH",
+    ],
+    grid: [
+      ["M", "O", "S", "E", "S", "A", "A", "R", "O", "N"],
+      ["M", "I", "R", "I", "A", "M", "K", "T", "Q", "Z"],
+      ["J", "E", "T", "H", "R", "O", "V", "X", "Q", "W"],
+      ["J", "O", "S", "H", "U", "A", "F", "K", "P", "D"],
+      ["C", "A", "L", "E", "B", "K", "O", "R", "A", "H"],
+      ["Z", "I", "P", "P", "O", "R", "A", "H", "G", "N"],
+      ["E", "L", "E", "A", "Z", "A", "R", "S", "T", "M"],
+      ["P", "H", "A", "R", "A", "O", "H", "B", "D", "L"],
+      ["R", "A", "T", "B", "K", "D", "N", "S", "F", "G"],
+      ["L", "O", "Q", "X", "T", "B", "N", "S", "D", "F"],
+    ],
+    wordPaths: [
+      [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4]],
+      [[0, 5], [0, 6], [0, 7], [0, 8], [0, 9]],
+      [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5]],
+      [[2, 0], [2, 1], [2, 2], [2, 3], [2, 4], [2, 5]],
+      [[5, 0], [5, 1], [5, 2], [5, 3], [5, 4], [5, 5], [5, 6], [5, 7]],
+      [[3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 5]],
+      [[4, 0], [4, 1], [4, 2], [4, 3], [4, 4]],
+      [[4, 5], [4, 6], [4, 7], [4, 8], [4, 9]],
+      [[6, 0], [6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6]],
+      [[7, 0], [7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6]],
+    ],
+    references: [
+      "Exodus 3:10",
+      "Exodus 4:14; 28:1",
+      "Exodus 2:4; 15:20",
+      "Exodus 18:17–24",
+      "Exodus 2:21; 3:1",
+      "Exodus 24:13; Joshua 1:1–2",
+      "Numbers 14:6–9, 24",
+      "Numbers 16:1–3",
+      "Numbers 20:25–28",
+      "Exodus 5:1–2",
     ],
   },
 ];

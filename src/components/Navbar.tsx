@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { href: "/#pastors", label: "Our Pastors" },
   { href: "/sermons", label: "Sermons" },
   { href: "/bible-puzzle", label: "Bible Puzzles" },
+  { href: "/bible-verse", label: "Verse Lookup" },
   { href: "/#contact", label: "Contact" },
   { href: "/join-us", label: "Join Us" },
 ];

@@ -99,6 +99,24 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
             </Link>
           </div>
 
+          {puzzle.type === "path" && puzzle.references && puzzle.references.length > 0 && (
+            <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-10">
+              <h2 className="text-center text-sm font-semibold tracking-widest text-blue-700 uppercase mb-4">
+                Bible references — a hint
+              </h2>
+              <div className="flex flex-wrap justify-center gap-2">
+                {puzzle.references.map((reference, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-sm font-medium"
+                  >
+                    {reference}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {puzzle.type === "path" && puzzle.verses && puzzle.verses.length > 0 && (
             <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-10">
               <h2 className="text-center text-sm font-semibold tracking-widest text-blue-700 uppercase mb-4">
