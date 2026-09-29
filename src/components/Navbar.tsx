@@ -25,7 +25,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="flex items-center justify-between h-24 lg:h-28">
-          <Link href="/#home" prefetch={false} className="flex items-center gap-4">
+          <Link href="/#home" prefetch={false} className="flex items-center gap-4 shrink-0">
             <Image
               src="/images/logo.png"
               alt="Galilee Prayer Fellowship"
@@ -44,7 +44,7 @@ export default function Navbar() {
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-4 xl:gap-8 text-sm xl:text-base font-medium text-gray-700">
+          <nav className="hidden xl:flex items-center gap-4 xl:gap-5 2xl:gap-6 text-sm font-medium text-gray-700">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -58,7 +58,7 @@ export default function Navbar() {
           </nav>
 
           <button
-            className="lg:hidden text-gray-700"
+            className="xl:hidden text-gray-700 shrink-0"
             onClick={() => setMenuOpen((open) => !open)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
@@ -68,7 +68,7 @@ export default function Navbar() {
         </div>
 
         {menuOpen && (
-          <nav className="lg:hidden flex flex-col gap-1 pb-6 font-medium text-gray-700">
+          <nav className="xl:hidden flex flex-col gap-1 pb-6 font-medium text-gray-700">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
