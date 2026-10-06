@@ -8,6 +8,7 @@ import {
   familyRegistrationSchema,
   DEPENDENT_RELATIONSHIPS,
   RELATIONSHIP_LABELS,
+  MONTHS,
   type FamilyRegistrationSchema,
 } from "@/types/familyRegistrationSchema";
 import { registerFamily, type MemberInput } from "@/services/familyService";
@@ -17,10 +18,18 @@ const inputClass =
 const labelClass = "block font-medium text-gray-700 mb-2";
 const errorClass = "mt-1 text-sm text-red-600";
 
+const DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
+const CURRENT_YEAR = new Date().getFullYear();
+
 /** "2012-06" (from <input type="month">) -> "2012-06-01", or null. */
 function monthToDate(month: string | undefined): string | null {
   if (!month) return null;
   return `${month}-01`;
+}
+
+/** "" -> null, otherwise the parsed number. */
+function toNumberOrNull(value: string | undefined): number | null {
+  return value ? Number(value) : null;
 }
 
 export default function FamilyRegistrationForm() {
@@ -55,7 +64,9 @@ export default function FamilyRegistrationForm() {
         {
           full_name: values.head_name,
           relationship: "head",
-          date_of_birth: values.head_date_of_birth || null,
+          birth_day: toNumberOrNull(values.head_birth_day),
+          birth_month: toNumberOrNull(values.head_birth_month),
+          birth_year: toNumberOrNull(values.head_birth_year),
           phone: values.head_phone,
           email: values.head_email || null,
           consent: values.consent,
@@ -64,7 +75,9 @@ export default function FamilyRegistrationForm() {
         ...values.dependents.map((dependent) => ({
           full_name: dependent.full_name,
           relationship: dependent.relationship,
-          date_of_birth: dependent.date_of_birth || null,
+          birth_day: toNumberOrNull(dependent.birth_day),
+          birth_month: toNumberOrNull(dependent.birth_month),
+          birth_year: toNumberOrNull(dependent.birth_year),
           phone: dependent.phone || null,
           email: dependent.email || null,
           consent: values.consent,
@@ -141,22 +154,66 @@ export default function FamilyRegistrationForm() {
             {errors.head_name && <p className={errorClass}>{errors.head_name.message}</p>}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="head_date_of_birth" className={labelClass}>
-                Date of Birth
-              </label>
-              <input
-                id="head_date_of_birth"
-                type="date"
-                {...register("head_date_of_birth")}
-                className={inputClass}
-              />
-              {errors.head_date_of_birth && (
-                <p className={errorClass}>{errors.head_date_of_birth.message}</p>
-              )}
+          <div>
+            <label className={labelClass}>Date of Birth</label>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <select
+                  id="head_birth_day"
+                  aria-label="Day of birth"
+                  defaultValue=""
+                  {...register("head_birth_day")}
+                  className={inputClass}
+                >
+                  <option value="" disabled>
+                    Day
+                  </option>
+                  {DAYS.map((day) => (
+                    <option key={day} value={day}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <select
+                  id="head_birth_month"
+                  aria-label="Month of birth"
+                  defaultValue=""
+                  {...register("head_birth_month")}
+                  className={inputClass}
+                >
+                  <option value="" disabled>
+                    Month
+                  </option>
+                  {MONTHS.map((month, i) => (
+                    <option key={month} value={i + 1}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <input
+                  id="head_birth_year"
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="Year (optional)"
+                  min={1900}
+                  max={CURRENT_YEAR}
+                  {...register("head_birth_year")}
+                  className={inputClass}
+                />
+              </div>
             </div>
+            {(errors.head_birth_day || errors.head_birth_month) && (
+              <p className={errorClass}>
+                {errors.head_birth_day?.message || errors.head_birth_month?.message}
+              </p>
+            )}
+          </div>
 
+          <div className="grid md:grid-cols-2 gap-6 items-start">
             <div>
               <label htmlFor="head_phone" className={labelClass}>
                 Phone Number
@@ -170,9 +227,7 @@ export default function FamilyRegistrationForm() {
               />
               {errors.head_phone && <p className={errorClass}>{errors.head_phone.message}</p>}
             </div>
-          </div>
 
-          <div className="grid md:grid-cols-2 gap-6 items-start">
             <div>
               <label htmlFor="head_email" className={labelClass}>
                 Email <span className="text-gray-400 font-normal">(optional)</span>
@@ -186,17 +241,17 @@ export default function FamilyRegistrationForm() {
               />
               {errors.head_email && <p className={errorClass}>{errors.head_email.message}</p>}
             </div>
-
-            <label className="flex items-center gap-3 text-sm text-gray-700 md:pt-9">
-              <input
-                id="head_is_baptized"
-                type="checkbox"
-                {...register("head_is_baptized")}
-                className="h-4 w-4 rounded border-gray-300 text-blue-900 focus:ring-blue-900"
-              />
-              I am baptized
-            </label>
           </div>
+
+          <label className="flex items-center gap-3 text-sm text-gray-700">
+            <input
+              id="head_is_baptized"
+              type="checkbox"
+              {...register("head_is_baptized")}
+              className="h-4 w-4 rounded border-gray-300 text-blue-900 focus:ring-blue-900"
+            />
+            I am baptized
+          </label>
         </div>
       </div>
 
@@ -290,19 +345,56 @@ export default function FamilyRegistrationForm() {
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor={`dependents.${index}.date_of_birth`} className={labelClass}>
-                    Date of Birth <span className="text-gray-400 font-normal">(optional)</span>
-                  </label>
+              <div>
+                <label className={labelClass}>
+                  Date of Birth <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  <select
+                    id={`dependents.${index}.birth_day`}
+                    aria-label="Day of birth"
+                    defaultValue=""
+                    {...register(`dependents.${index}.birth_day` as const)}
+                    className={inputClass}
+                  >
+                    <option value="">Day</option>
+                    {DAYS.map((day) => (
+                      <option key={day} value={day}>
+                        {day}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    id={`dependents.${index}.birth_month`}
+                    aria-label="Month of birth"
+                    defaultValue=""
+                    {...register(`dependents.${index}.birth_month` as const)}
+                    className={inputClass}
+                  >
+                    <option value="">Month</option>
+                    {MONTHS.map((month, i) => (
+                      <option key={month} value={i + 1}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
                   <input
-                    id={`dependents.${index}.date_of_birth`}
-                    type="date"
-                    {...register(`dependents.${index}.date_of_birth` as const)}
+                    id={`dependents.${index}.birth_year`}
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="Year"
+                    min={1900}
+                    max={CURRENT_YEAR}
+                    {...register(`dependents.${index}.birth_year` as const)}
                     className={inputClass}
                   />
                 </div>
+                {errors.dependents?.[index]?.birth_day && (
+                  <p className={errorClass}>{errors.dependents[index]?.birth_day?.message}</p>
+                )}
+              </div>
 
+              <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor={`dependents.${index}.phone`} className={labelClass}>
                     Phone <span className="text-gray-400 font-normal">(optional)</span>
@@ -314,9 +406,7 @@ export default function FamilyRegistrationForm() {
                     className={inputClass}
                   />
                 </div>
-              </div>
 
-              <div className="grid md:grid-cols-2 gap-6 items-start">
                 <div>
                   <label htmlFor={`dependents.${index}.email`} className={labelClass}>
                     Email <span className="text-gray-400 font-normal">(optional)</span>
@@ -331,8 +421,10 @@ export default function FamilyRegistrationForm() {
                     <p className={errorClass}>{errors.dependents[index]?.email?.message}</p>
                   )}
                 </div>
+              </div>
 
-                <label className="flex items-center gap-3 text-sm text-gray-700 md:pt-9">
+              <div>
+                <label className="flex items-center gap-3 text-sm text-gray-700">
                   <input
                     id={`dependents.${index}.is_baptized`}
                     type="checkbox"
@@ -352,7 +444,9 @@ export default function FamilyRegistrationForm() {
             append({
               relationship: "child",
               full_name: "",
-              date_of_birth: "",
+              birth_day: "",
+              birth_month: "",
+              birth_year: "",
               phone: "",
               email: "",
               is_baptized: false,

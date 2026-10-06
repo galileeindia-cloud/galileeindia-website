@@ -6,7 +6,10 @@ export type Relationship = "head" | "spouse" | "child" | "parent" | "in_law";
 export interface MemberInput {
   full_name: string;
   relationship: Relationship;
-  date_of_birth?: string | null;
+  /** Always given together; the year is independently optional. */
+  birth_day?: number | null;
+  birth_month?: number | null;
+  birth_year?: number | null;
   phone?: string | null;
   email?: string | null;
   consent: boolean;
@@ -58,7 +61,9 @@ export async function registerFamily(family: FamilyInput, members: MemberInput[]
           family_uuid,
           full_name: member.full_name,
           relationship: member.relationship,
-          date_of_birth: member.date_of_birth || null,
+          birth_day: member.birth_day || null,
+          birth_month: member.birth_month || null,
+          birth_year: member.birth_year || null,
           phone: member.phone || null,
           email: member.email || null,
           consent: member.consent,

@@ -29,7 +29,12 @@ create table if not exists members (
   relationship text not null check (
     relationship in ('head', 'spouse', 'child', 'parent', 'in_law')
   ),
-  date_of_birth date,
+  -- Split out instead of a single `date` column so the birth year can be
+  -- left blank (common for anyone who'd rather not share their age) while
+  -- still capturing enough -- month + day -- to send a birthday greeting.
+  birth_day smallint,
+  birth_month smallint,
+  birth_year smallint,
   phone text,
   email text,
   -- Agreed to be contacted with greetings/updates. Captured once on the
@@ -38,7 +43,15 @@ create table if not exists members (
   -- without touching the rest of the family.
   consent boolean not null default false,
   is_baptized boolean not null default false,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+
+  constraint members_birth_day_range check (birth_day is null or birth_day between 1 and 31),
+  constraint members_birth_month_range check (birth_month is null or birth_month between 1 and 12),
+  constraint members_birth_year_range check (birth_year is null or birth_year between 1900 and 2100),
+  -- Day and month are always given together -- there's no such thing as
+  -- knowing one without the other -- while the year stays independently
+  -- optional.
+  constraint members_birth_day_month_together check ((birth_day is null) = (birth_month is null))
 );
 
 create index if not exists members_family_uuid_idx on members (family_uuid);
