@@ -21,6 +21,9 @@ export interface FamilyInput {
   anniversary_date?: string | null;
   /** Year-month only; pass the 1st of the month (e.g. "2012-06-01"). */
   attending_since?: string | null;
+  address?: string | null;
+  city?: string | null;
+  zip_code?: string | null;
 }
 
 // Supabase's unique_violation code. A retry that lands on a row already
@@ -44,6 +47,9 @@ export async function registerFamily(family: FamilyInput, members: MemberInput[]
         head_name: family.head_name,
         anniversary_date: family.anniversary_date || null,
         attending_since: family.attending_since || null,
+        address: family.address || null,
+        city: family.city || null,
+        zip_code: family.zip_code || null,
       },
     ]);
     if (error) {

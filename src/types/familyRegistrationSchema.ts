@@ -54,6 +54,9 @@ export const familyRegistrationSchema = z
     // From an <input type="month">, e.g. "2012-06" — the day is never
     // captured, matching `families.attending_since` only using year + month.
     attending_since: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    zip_code: z.string().optional(),
     dependents: z.array(dependentSchema),
     consent: z.boolean().refine((value) => value === true, {
       message: "Please agree before submitting the form",

@@ -90,6 +90,9 @@ export default function FamilyRegistrationForm() {
           head_name: values.head_name,
           anniversary_date: values.anniversary_date || null,
           attending_since: monthToDate(values.attending_since),
+          address: values.address || null,
+          city: values.city || null,
+          zip_code: values.zip_code || null,
         },
         members
       );
@@ -283,6 +286,56 @@ export default function FamilyRegistrationForm() {
               {...register("attending_since")}
               className={inputClass}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* ---------- Address ---------- */}
+      <div>
+        <h2 className="text-xl font-bold text-blue-900 mb-1">Address</h2>
+        <p className="text-sm text-gray-500 mb-6">Optional — one address for the whole household.</p>
+
+        <div className="space-y-6">
+          <div>
+            <label htmlFor="address" className={labelClass}>
+              Address
+            </label>
+            <input
+              id="address"
+              type="text"
+              autoComplete="street-address"
+              {...register("address")}
+              className={inputClass}
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="city" className={labelClass}>
+                City
+              </label>
+              <input
+                id="city"
+                type="text"
+                autoComplete="address-level2"
+                {...register("city")}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="zip_code" className={labelClass}>
+                ZIP / PIN Code
+              </label>
+              <input
+                id="zip_code"
+                type="text"
+                inputMode="numeric"
+                autoComplete="postal-code"
+                {...register("zip_code")}
+                className={inputClass}
+              />
+            </div>
           </div>
         </div>
       </div>
