@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getPuzzleById } from "@/data/biblePuzzles";
 import { fetchLeaderboard } from "@/services/leaderboardService";
-import { formatDuration } from "@/utils/time";
+import { formatDurationShort } from "@/utils/time";
 import { pageMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ id: string }> };
@@ -111,7 +111,7 @@ export default async function BiblePuzzleLeaderboardPage({ params }: Props) {
                         <span className="font-semibold text-blue-900">{entry.score} pts</span>
                       )}
                       {entry.score !== null && " · "}
-                      {formatDuration(entry.time_taken_ms)}
+                      {formatDurationShort(entry.time_taken_ms)}
                     </span>
                   </li>
                 ))}

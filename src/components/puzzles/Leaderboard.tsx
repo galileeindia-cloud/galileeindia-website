@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Trophy } from "lucide-react";
 import type { LeaderboardEntry } from "@/services/leaderboardService";
-import { formatDuration } from "@/utils/time";
+import { formatDurationShort } from "@/utils/time";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
@@ -78,7 +78,7 @@ export default function Leaderboard({
                     <span className="font-semibold text-blue-900">{entry.score} pts</span>
                   )}
                   {entry.score !== null && " · "}
-                  {formatDuration(entry.time_taken_ms)}
+                  {formatDurationShort(entry.time_taken_ms)}
                 </span>
               </li>
             );
