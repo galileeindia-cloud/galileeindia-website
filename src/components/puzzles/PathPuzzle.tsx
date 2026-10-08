@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { RotateCcw } from "lucide-react";
+import Link from "next/link";
+import { LayoutGrid, RotateCcw } from "lucide-react";
 import Celebration from "./Celebration";
 import Leaderboard from "./Leaderboard";
 import {
@@ -330,14 +331,25 @@ export default function PathPuzzle({
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={restart}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-900 text-white font-semibold hover:bg-blue-800 transition"
-          >
-            <RotateCcw size={18} />
-            Play Again
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={restart}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-900 text-white font-semibold hover:bg-blue-800 transition"
+            >
+              <RotateCcw size={18} />
+              Play Again
+            </button>
+
+            <Link
+              href="/bible-puzzle"
+              prefetch={false}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition"
+            >
+              <LayoutGrid size={18} />
+              Explore All Puzzles
+            </Link>
+          </div>
 
           <Leaderboard
             puzzleId={puzzleId}
@@ -401,7 +413,10 @@ export default function PathPuzzle({
               let className =
                 "w-9 h-9 sm:w-11 sm:h-11 rounded-md border-2 font-bold text-sm sm:text-base transition select-none touch-none ";
               if (solvedWordIndex !== -1) {
-                className += WORD_COLORS[solvedWordIndex % WORD_COLORS.length].fill;
+                // The fill color alone can blend into a neighboring solved
+                // word's cells when they're adjacent in the grid; the ring
+                // keeps each found word visually outlined as its own shape.
+                className += `${WORD_COLORS[solvedWordIndex % WORD_COLORS.length].fill} ring-2 ring-offset-1 ${WORD_COLORS[solvedWordIndex % WORD_COLORS.length].ring}`;
               } else if (isInDrag) {
                 className += "bg-indigo-200 border-indigo-500 text-indigo-900";
               } else {

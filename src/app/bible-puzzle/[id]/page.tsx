@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Trophy } from "lucide-react";
+import { LayoutGrid, Trophy } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import OrderPuzzle from "@/components/puzzles/OrderPuzzle";
@@ -89,13 +89,23 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
             {puzzle.description}
           </p>
 
-          <div className={`flex justify-center ${compact ? "mb-2 sm:mb-6" : "mb-10"}`}>
+          <div
+            className={`flex flex-wrap justify-center items-center gap-x-6 gap-y-2 ${compact ? "mb-2 sm:mb-6" : "mb-10"}`}
+          >
             <Link
               href={`/bible-puzzle/${puzzle.id}/leaderboard`}
               className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:underline"
             >
               <Trophy size={16} />
               View Leaderboard
+            </Link>
+            <Link
+              href="/bible-puzzle"
+              prefetch={false}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:underline"
+            >
+              <LayoutGrid size={16} />
+              Explore All Puzzles
             </Link>
           </div>
 
