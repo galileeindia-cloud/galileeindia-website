@@ -283,7 +283,10 @@ export default function OrderPuzzle({
   }
 
   return (
-    <div>
+    // The pool tray below is pinned to the bottom of the viewport (not
+    // this container), so this padding keeps it from ever covering the
+    // tail of "Your Order" or the Start Over button as that list grows.
+    <div className="pb-[34vh] sm:pb-[30vh]">
       <div className="flex items-center justify-between mb-6">
         <p className="text-gray-600">
           Go, <span className="font-semibold text-blue-900">{name}</span>!
@@ -300,34 +303,47 @@ export default function OrderPuzzle({
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex flex-col gap-6">
-          <PuzzleColumn
-            id="answer"
-            title="Your Order"
-            items={containers.answer}
-            emptyHint="Tap or drag books here, in order"
-          >
-            {containers.answer.map((id, index) => (
-              <SortableItem
-                key={id}
-                id={id}
-                label={id}
-                index={index}
-                onTap={() => moveItem(id, "answer", "pool")}
-              />
-            ))}
-          </PuzzleColumn>
+        <PuzzleColumn
+          id="answer"
+          title="Your Order"
+          items={containers.answer}
+          emptyHint="Tap or drag books here, in order"
+        >
+          {containers.answer.map((id, index) => (
+            <SortableItem
+              key={id}
+              id={id}
+              label={id}
+              index={index}
+              onTap={() => moveItem(id, "answer", "pool")}
+            />
+          ))}
+        </PuzzleColumn>
 
-          <PuzzleColumn
-            id="pool"
-            title="All Books (jumbled)"
-            items={containers.pool}
-            emptyHint="All books placed!"
-          >
-            {containers.pool.map((id) => (
-              <SortableItem key={id} id={id} label={id} onTap={() => moveItem(id, "pool", "answer")} />
-            ))}
-          </PuzzleColumn>
+        {/* Fixed to the viewport (not the page column) so the remaining
+            books stay within reach on a tall list without scrolling down
+            every time — the point of this layout on a long puzzle. */}
+        <div className="fixed inset-x-0 bottom-0 z-40 bg-white border-t-2 border-gray-200 shadow-[0_-6px_20px_rgba(0,0,0,0.1)]">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-3 pb-4">
+            <p className="text-xs font-semibold text-gray-500 text-center mb-2">
+              All Books (jumbled) &mdash; tap or drag up
+            </p>
+            {/* Right padding keeps items clear of the floating Verse
+                Lookup button, which sits fixed in that same corner. */}
+            <div className="max-h-[22vh] sm:max-h-[24vh] overflow-y-auto pr-24 sm:pr-32">
+              <PuzzleColumn
+                id="pool"
+                title=""
+                items={containers.pool}
+                emptyHint="All books placed!"
+                compact
+              >
+                {containers.pool.map((id) => (
+                  <SortableItem key={id} id={id} label={id} onTap={() => moveItem(id, "pool", "answer")} />
+                ))}
+              </PuzzleColumn>
+            </div>
+          </div>
         </div>
 
         <DragOverlay>

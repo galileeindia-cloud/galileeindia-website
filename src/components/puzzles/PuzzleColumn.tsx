@@ -31,7 +31,7 @@ export default function PuzzleColumn({
 
   return (
     <div className="flex-1 min-w-0">
-      <h3 className="font-semibold text-blue-900 mb-3 text-center">{title}</h3>
+      {title && <h3 className="font-semibold text-blue-900 mb-3 text-center">{title}</h3>}
 
       <div
         ref={setNodeRef}
