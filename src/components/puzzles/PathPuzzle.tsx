@@ -18,16 +18,27 @@ type Phase = "name" | "playing" | "complete";
 
 const NAME_STORAGE_KEY = "biblePuzzlePlayerName";
 
+// One entry per word, cycled with `% WORD_COLORS.length` — sized to 17
+// (the current largest puzzle has 14 words) so every word in a puzzle
+// gets a genuinely distinct color instead of two words sharing one.
 const WORD_COLORS = [
-  { fill: "bg-blue-500 border-blue-600 text-white", soft: "bg-blue-50 border-blue-200 text-blue-900" },
-  { fill: "bg-emerald-500 border-emerald-600 text-white", soft: "bg-emerald-50 border-emerald-200 text-emerald-900" },
-  { fill: "bg-purple-500 border-purple-600 text-white", soft: "bg-purple-50 border-purple-200 text-purple-900" },
-  { fill: "bg-amber-500 border-amber-600 text-white", soft: "bg-amber-50 border-amber-200 text-amber-900" },
-  { fill: "bg-rose-500 border-rose-600 text-white", soft: "bg-rose-50 border-rose-200 text-rose-900" },
-  { fill: "bg-cyan-500 border-cyan-600 text-white", soft: "bg-cyan-50 border-cyan-200 text-cyan-900" },
-  { fill: "bg-lime-500 border-lime-600 text-white", soft: "bg-lime-50 border-lime-200 text-lime-900" },
-  { fill: "bg-teal-500 border-teal-600 text-white", soft: "bg-teal-50 border-teal-200 text-teal-900" },
-  { fill: "bg-fuchsia-500 border-fuchsia-600 text-white", soft: "bg-fuchsia-50 border-fuchsia-200 text-fuchsia-900" },
+  { fill: "bg-red-500 border-red-600 text-white", soft: "bg-red-50 border-red-200 text-red-900", ring: "ring-red-400" },
+  { fill: "bg-orange-500 border-orange-600 text-white", soft: "bg-orange-50 border-orange-200 text-orange-900", ring: "ring-orange-400" },
+  { fill: "bg-amber-500 border-amber-600 text-white", soft: "bg-amber-50 border-amber-200 text-amber-900", ring: "ring-amber-400" },
+  { fill: "bg-yellow-500 border-yellow-600 text-white", soft: "bg-yellow-50 border-yellow-200 text-yellow-900", ring: "ring-yellow-400" },
+  { fill: "bg-lime-500 border-lime-600 text-white", soft: "bg-lime-50 border-lime-200 text-lime-900", ring: "ring-lime-400" },
+  { fill: "bg-green-500 border-green-600 text-white", soft: "bg-green-50 border-green-200 text-green-900", ring: "ring-green-400" },
+  { fill: "bg-emerald-500 border-emerald-600 text-white", soft: "bg-emerald-50 border-emerald-200 text-emerald-900", ring: "ring-emerald-400" },
+  { fill: "bg-teal-500 border-teal-600 text-white", soft: "bg-teal-50 border-teal-200 text-teal-900", ring: "ring-teal-400" },
+  { fill: "bg-cyan-500 border-cyan-600 text-white", soft: "bg-cyan-50 border-cyan-200 text-cyan-900", ring: "ring-cyan-400" },
+  { fill: "bg-sky-500 border-sky-600 text-white", soft: "bg-sky-50 border-sky-200 text-sky-900", ring: "ring-sky-400" },
+  { fill: "bg-blue-500 border-blue-600 text-white", soft: "bg-blue-50 border-blue-200 text-blue-900", ring: "ring-blue-400" },
+  { fill: "bg-indigo-500 border-indigo-600 text-white", soft: "bg-indigo-50 border-indigo-200 text-indigo-900", ring: "ring-indigo-400" },
+  { fill: "bg-violet-500 border-violet-600 text-white", soft: "bg-violet-50 border-violet-200 text-violet-900", ring: "ring-violet-400" },
+  { fill: "bg-purple-500 border-purple-600 text-white", soft: "bg-purple-50 border-purple-200 text-purple-900", ring: "ring-purple-400" },
+  { fill: "bg-fuchsia-500 border-fuchsia-600 text-white", soft: "bg-fuchsia-50 border-fuchsia-200 text-fuchsia-900", ring: "ring-fuchsia-400" },
+  { fill: "bg-pink-500 border-pink-600 text-white", soft: "bg-pink-50 border-pink-200 text-pink-900", ring: "ring-pink-400" },
+  { fill: "bg-rose-500 border-rose-600 text-white", soft: "bg-rose-50 border-rose-200 text-rose-900", ring: "ring-rose-400" },
 ];
 
 function cellKey([r, c]: GridCell) {
@@ -419,7 +430,12 @@ export default function PathPuzzle({
 
       <div className="flex flex-wrap justify-center gap-3 mb-4">
         {words.map((word, i) => (
-          <div key={word} className="flex gap-1">
+          <div
+            key={word}
+            className={`flex gap-1 p-1 rounded-lg transition ${
+              solved[i] ? `ring-2 ring-offset-2 ${WORD_COLORS[i % WORD_COLORS.length].ring}` : ""
+            }`}
+          >
             {graphemes(word).map((ch, j) => {
               // A literal "-" is a fixed separator, not a hidden letter, so
               // it's shown from the moment the puzzle loads rather than
