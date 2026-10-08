@@ -323,14 +323,21 @@ export default function OrderPuzzle({
         {/* Fixed to the viewport (not the page column) so the remaining
             books stay within reach on a tall list without scrolling down
             every time — the point of this layout on a long puzzle. */}
-        <div className="fixed inset-x-0 bottom-0 z-40 bg-white border-t-2 border-gray-200 shadow-[0_-6px_20px_rgba(0,0,0,0.1)]">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-3 pb-4">
+        <div className="fixed inset-x-0 bottom-0 z-40 bg-white border-t-2 border-gray-200 shadow-[0_-6px_20px_rgba(0,0,0,0.1)] overscroll-contain">
+          <div
+            className="max-w-4xl mx-auto px-4 sm:px-6 pt-3"
+            style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+          >
             <p className="text-xs font-semibold text-gray-500 text-center mb-2">
               All Books (jumbled) &mdash; tap or drag up
             </p>
-            {/* Right padding keeps items clear of the floating Verse
+            {/* overscroll-contain stops a finger dragging near the top/
+                bottom of this tray from "leaking" into the page or the
+                browser's own pull-to-refresh/edge-navigation gestures,
+                which could otherwise look like the page itself closing.
+                Right padding keeps items clear of the floating Verse
                 Lookup button, which sits fixed in that same corner. */}
-            <div className="max-h-[22vh] sm:max-h-[24vh] overflow-y-auto pr-24 sm:pr-32">
+            <div className="max-h-[22vh] sm:max-h-[24vh] overflow-y-auto overscroll-contain pr-24 sm:pr-32">
               <PuzzleColumn
                 id="pool"
                 title=""
