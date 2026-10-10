@@ -1,4 +1,4 @@
-import BreakingNews from "@/components/BreakingNews";
+//import BreakingNews from "@/components/BreakingNews";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Welcome from "@/components/Welcome";
@@ -12,7 +12,7 @@ import Footer from "@/components/Footer";
 export default function Home() {
   return (
     <>
-      <BreakingNews />
+      {/* <BreakingNews /> */}
       <Navbar />
       <Hero />
       <Welcome />
