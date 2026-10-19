@@ -20,7 +20,6 @@ export interface MemberInput {
 }
 
 export interface FamilyInput {
-  head_name: string;
   anniversary_date?: string | null;
   /** Year-month only; pass the 1st of the month (e.g. "2012-06-01"). */
   attending_since?: string | null;
@@ -47,7 +46,6 @@ export async function registerFamily(family: FamilyInput, members: MemberInput[]
     const { error } = await supabase.from("families").insert([
       {
         family_uuid,
-        head_name: family.head_name,
         anniversary_date: family.anniversary_date || null,
         attending_since: family.attending_since || null,
         address: family.address || null,

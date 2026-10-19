@@ -96,7 +96,6 @@ function toRegistration(values: FamilyRegistrationSchema): {
 
   return {
     family: {
-      head_name: values.head_name,
       anniversary_date: values.anniversary_date || null,
       attending_since: monthToDate(values.attending_since),
       address: values.address || null,
