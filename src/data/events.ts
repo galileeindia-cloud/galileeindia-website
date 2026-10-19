@@ -38,4 +38,4 @@ export function getEventsNewestFirst(): ChurchEvent[] {
 }
 
 export const NEWS_MESSAGE =
-  "Whole night Fasting Prayer on 9th Oct 2026, 7:30 PM – 12:00 AM";
+  "Year End Special Prayer Meetings on Nov 13, 14 in our Church Premises";
