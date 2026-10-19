@@ -9,9 +9,9 @@ import type { CalendarDay } from "@/lib/occasions";
 // are never displayed.
 
 const [greatVibes, notoBold, notoMedium, logo] = await Promise.all([
-  readFile(join(process.cwd(), "src/assets/fonts/GreatVibes-Regular.ttf")),
-  readFile(join(process.cwd(), "src/assets/fonts/NotoSans-Bold.ttf")),
-  readFile(join(process.cwd(), "src/assets/fonts/NotoSans-Medium.ttf")),
+  readFile(join(process.cwd(), "src/fonts/GreatVibes-Regular.ttf")),
+  readFile(join(process.cwd(), "src/fonts/NotoSans-Bold.ttf")),
+  readFile(join(process.cwd(), "src/fonts/NotoSans-Medium.ttf")),
   readFile(join(process.cwd(), "public/images/logo.png")),
 ]);
 const logoSrc = `data:image/png;base64,${logo.toString("base64")}`;
