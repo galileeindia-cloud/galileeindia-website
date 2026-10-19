@@ -10,9 +10,36 @@ export const RELATIONSHIP_LABELS: Record<string, string> = {
   in_law: "In-law",
 };
 
+export const SALUTATIONS = ["Mr.", "Mrs.", "Miss"] as const;
+
+// Salutation comes from a <select> whose placeholder option is "" until
+// one is picked, so it's typed as a plain string (letting "" be the form's
+// starting value) and checked against the list here.
+const salutation = z
+  .string()
+  .refine((value) => (SALUTATIONS as readonly string[]).includes(value), {
+    message: "Please select a salutation",
+  });
+
 export const MONTHS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
+];
+
+// Most families live in or around Visakhapatnam, so it's the default;
+// "Other" reveals a free-text box for anywhere not listed.
+export const DEFAULT_CITY = "Visakhapatnam";
+export const OTHER_CITY = "Other";
+export const CITIES = [
+  "Visakhapatnam",
+  "Anakapalli",
+  "Vizianagaram",
+  "Srikakulam",
+  "Kakinada",
+  "Rajahmundry",
+  "Vijayawada",
+  "Hyderabad",
+  OTHER_CITY,
 ];
 
 const optionalEmail = z
@@ -28,6 +55,7 @@ const optionalEmail = z
 export const dependentSchema = z
   .object({
     relationship: z.enum(DEPENDENT_RELATIONSHIPS),
+    salutation,
     full_name: z.string().min(2, "Please enter a name"),
     birth_day: z.string().optional(),
     birth_month: z.string().optional(),
@@ -43,6 +71,7 @@ export const dependentSchema = z
 
 export const familyRegistrationSchema = z
   .object({
+    head_salutation: salutation,
     head_name: z.string().min(2, "Please enter the head of family's name"),
     head_birth_day: z.string().min(1, "Please select a day"),
     head_birth_month: z.string().min(1, "Please select a month"),
@@ -56,11 +85,16 @@ export const familyRegistrationSchema = z
     attending_since: z.string().optional(),
     address: z.string().optional(),
     city: z.string().optional(),
+    city_other: z.string().optional(),
     zip_code: z.string().optional(),
     dependents: z.array(dependentSchema),
     consent: z.boolean().refine((value) => value === true, {
       message: "Please agree before submitting the form",
     }),
+  })
+  .refine((data) => data.city !== OTHER_CITY || Boolean(data.city_other?.trim()), {
+    message: "Please enter your city",
+    path: ["city_other"],
   });
 
 export type DependentSchema = z.infer<typeof dependentSchema>;

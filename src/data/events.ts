@@ -38,4 +38,4 @@ export function getEventsNewestFirst(): ChurchEvent[] {
 }
 
 export const NEWS_MESSAGE =
-  "Year End Special Prayer Meetings on Nov 13, 14 in our Church Premises";
+  "Year End Special Prayer Meetings on 13th Nov 2026 and 14th Nov 2026 in our Church Premises";

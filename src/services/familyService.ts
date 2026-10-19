@@ -3,7 +3,10 @@ import { withRetry } from "@/lib/withRetry";
 
 export type Relationship = "head" | "spouse" | "child" | "parent" | "in_law";
 
+export type Salutation = "Mr." | "Mrs." | "Miss";
+
 export interface MemberInput {
+  salutation: Salutation;
   full_name: string;
   relationship: Relationship;
   /** Always given together; the year is independently optional. */
@@ -65,6 +68,7 @@ export async function registerFamily(family: FamilyInput, members: MemberInput[]
         {
           member_uuid,
           family_uuid,
+          salutation: member.salutation,
           full_name: member.full_name,
           relationship: member.relationship,
           birth_day: member.birth_day || null,
