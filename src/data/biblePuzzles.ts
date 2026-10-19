@@ -40,6 +40,9 @@ export type PathPuzzleData = {
   /** Optional bare Bible references shown above the puzzle as a hint,
    * without pairing each one to a specific word. */
   references?: string[];
+  /** Optional passage text shown under the references, one verse per
+   * entry, for the player to read through — answers aren't highlighted. */
+  passage?: string[];
   /** When true, the player gets a freshly scattered, non-overlapping
    * layout of `grid`/`wordPaths` each time they start or restart the
    * puzzle, instead of the same pre-authored one every play. */
@@ -1315,6 +1318,93 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       "యోహాను 2:9",
       "యోహాను 2:11",
       "యోహాను 2:11",
+    ],
+  },
+  {
+    id: "31",
+    number: "N31",
+    title: "Characteristics of True Love",
+    description:
+      "Based on 1 Corinthians 13:4–8, the Apostle Paul gives a few characteristics of true love. Can you figure them out? Love is… Drag across connected letters — up, down, left, or right — to find each one.",
+    type: "path",
+    randomize: true,
+    rows: 10,
+    cols: 10,
+    words: ["PATIENT", "KIND", "PROTECTS", "TRUSTS", "HOPES", "PERSEVERES"],
+    grid: [
+      ["P", "A", "T", "I", "E", "N", "T", "K", "I", "N"],
+      ["K", "I", "N", "D", "A", "B", "C", "D", "E", "F"],
+      ["P", "R", "O", "T", "E", "C", "T", "S", "G", "H"],
+      ["T", "R", "U", "S", "T", "S", "I", "J", "K", "L"],
+      ["H", "O", "P", "E", "S", "M", "N", "O", "P", "Q"],
+      ["P", "E", "R", "S", "E", "V", "E", "R", "E", "S"],
+      ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+      ["K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"],
+      ["U", "V", "W", "X", "Y", "Z", "A", "B", "C", "D"],
+      ["E", "F", "G", "H", "I", "J", "K", "L", "M", "N"],
+    ],
+    wordPaths: [
+      [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6]],
+      [[1, 0], [1, 1], [1, 2], [1, 3]],
+      [[2, 0], [2, 1], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7]],
+      [[3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 5]],
+      [[4, 0], [4, 1], [4, 2], [4, 3], [4, 4]],
+      [[5, 0], [5, 1], [5, 2], [5, 3], [5, 4], [5, 5], [5, 6], [5, 7], [5, 8], [5, 9]],
+    ],
+    references: ["Refer 1 Corinthians 13:4–8 — use NIV (1984)"],
+    passage: [
+      "4. Love is patient, love is kind. It does not envy, it does not boast, it is not proud.",
+      "5. It is not rude, it is not self-seeking, it is not easily angered, it keeps no record of wrongs.",
+      "6. Love does not delight in evil but rejoices with the truth.",
+      "7. It always protects, always trusts, always hopes, always perseveres.",
+      "8. Love never fails. But where there are prophecies, they will cease; where there are tongues, they will be stilled; where there is knowledge, it will pass away.",
+    ],
+  },
+  {
+    id: "32",
+    number: "N32",
+    title: "నిజమైన ప్రేమ లక్షణాలు",
+    description:
+      "1 కొరింథీయులకు 13:4–8 ఆధారంగా, అపొస్తలుడైన పౌలు నిజమైన ప్రేమ యొక్క కొన్ని లక్షణాలను తెలియజేశాడు. అవి ఏమిటో కనుగొనగలరా? ప్రేమ ________ పరస్పరం ఆనుకుని ఉన్న అక్షరాలను పైకి, క్రిందికి, ఎడమకు లేదా కుడికి లాగి ప్రతి ఒక్కదాన్ని కనుగొనండి.",
+    type: "path",
+    randomize: true,
+    rows: 10,
+    cols: 10,
+    words: [
+      "దీర్ఘకాలము-సహించును",
+      "దయ-చూపించును",
+      "అన్నిటికి-తాళుకొనును",
+      "అన్నిటిని-నమ్మును",
+      "అన్నిటిని-నిరీక్షించును",
+      "అన్నిటిని-ఓర్చును",
+    ],
+    grid: [
+      ["దీ", "ర్ఘ", "కా", "ల", "ము", "-", "స", "హిం", "చు", "ను"],
+      ["ద", "య", "-", "చూ", "పిం", "చు", "ను", "అ", "ఆ", "ఇ"],
+      ["అ", "న్ని", "టి", "కి", "-", "తా", "ళు", "కొ", "ను", "ను"],
+      ["అ", "న్ని", "టి", "ని", "-", "న", "మ్ము", "ను", "ఈ", "ఉ"],
+      ["అ", "న్ని", "టి", "ని", "-", "ని", "రీ", "క్షిం", "చు", "ను"],
+      ["అ", "న్ని", "టి", "ని", "-", "ఓ", "ర్చు", "ను", "ఊ", "ఎ"],
+      ["ఏ", "ఐ", "ఒ", "ఓ", "ఔ", "క", "ఖ", "గ", "ఘ", "చ"],
+      ["జ", "ట", "డ", "అ", "ఆ", "ఇ", "ఈ", "ఉ", "ఊ", "ఎ"],
+      ["ఏ", "ఐ", "ఒ", "ఓ", "ఔ", "క", "ఖ", "గ", "ఘ", "చ"],
+      ["జ", "ట", "డ", "అ", "ఆ", "ఇ", "ఈ", "ఉ", "ఊ", "ఎ"],
+    ],
+    wordPaths: [
+      [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9]],
+      [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6]],
+      [[2, 0], [2, 1], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9]],
+      [[3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 5], [3, 6], [3, 7]],
+      [[4, 0], [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7], [4, 8], [4, 9]],
+      [[5, 0], [5, 1], [5, 2], [5, 3], [5, 4], [5, 5], [5, 6], [5, 7]],
+    ],
+    references: ["చదవండి: 1 కొరింథీయులకు 13:4–8"],
+    passage: [
+      "4. ప్రేమ దీర్ఘకాలము సహించును, దయ చూపించును. ప్రేమ మత్సరపడదు; ప్రేమ డంబముగా ప్రవర్తింపదు; అది ఉప్పొంగదు;",
+      "5. అమర్యాదగా నడువదు; స్వప్రయోజనమును విచారించుకొనదు; త్వరగా కోపపడదు; అపకారమును మనస్సులో ఉంచుకొనదు.",
+      "6. దుర్నీతివిషయమై సంతోషపడక సత్యమునందు సంతోషించును.",
+      "7. అన్నిటికి తాళుకొనును, అన్నిటిని నమ్మును; అన్నిటిని నిరీక్షించును; అన్నిటిని ఓర్చును.",
+      "8. ప్రేమ శాశ్వతకాలముండును. ప్రవచనములైనను నిరర్థకములగును; భాషలైనను నిలిచిపోవును; జ్ఞానమైనను నిరర్థకమగును;",
     ],
   },
 ];

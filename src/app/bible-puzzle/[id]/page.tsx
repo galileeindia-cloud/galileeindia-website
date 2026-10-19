@@ -124,6 +124,13 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
                   </span>
                 ))}
               </div>
+              {puzzle.passage && puzzle.passage.length > 0 && (
+                <div className="mt-5 space-y-2 text-gray-700 leading-relaxed">
+                  {puzzle.passage.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
