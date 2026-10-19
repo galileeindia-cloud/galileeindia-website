@@ -27,11 +27,16 @@ const cell = "padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:to
 const headCell =
   "padding:8px 10px;border-bottom:2px solid #1e3a8a;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280";
 
-/** Subject, HTML and plain-text bodies for the weekly birthday email. */
+/**
+ * Subject, HTML and plain-text bodies for the weekly birthday email.
+ * `slideSrc` is where the HTML shows the LED slide image (a `cid:` for
+ * an inline attachment, or a data URL for a browser preview).
+ */
 export function buildWeeklyReportEmail(
   days: CalendarDay[],
   birthdays: BirthdayEntry[],
-  anniversaries: AnniversaryEntry[]
+  anniversaries: AnniversaryEntry[],
+  slideSrc?: string
 ) {
   const week = formatWeek(days);
   const subject = `Birthdays & Anniversaries: ${week}`;
@@ -89,6 +94,14 @@ export function buildWeeklyReportEmail(
               ${anniversaryRows}
             </table>`
           : `<p style="color:#6b7280;font-size:14px;margin:0 0 20px">No anniversaries this week.</p>`
+      }
+
+      ${
+        slideSrc
+          ? `<h2 style="margin:0 0 8px;font-size:16px;color:#1e3a8a">Slide for the LED screens</h2>
+             <img src="${slideSrc}" alt="Happy Birthday slide for ${week}" width="632" style="width:100%;max-width:632px;height:auto;border-radius:8px;display:block;margin-bottom:6px">
+             <p style="margin:0 0 20px;color:#6b7280;font-size:12px">The full-size image (1920×1080) is attached to this email.</p>`
+          : ""
       }
 
       ${
