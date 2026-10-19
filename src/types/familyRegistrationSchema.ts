@@ -18,7 +18,7 @@ export const SALUTATIONS = ["Mr.", "Mrs.", "Miss"] as const;
 const salutation = z
   .string()
   .refine((value) => (SALUTATIONS as readonly string[]).includes(value), {
-    message: "Please select a salutation",
+    message: "Please select a title",
   });
 
 export const MONTHS = [

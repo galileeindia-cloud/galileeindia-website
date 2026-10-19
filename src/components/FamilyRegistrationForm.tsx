@@ -24,6 +24,10 @@ import {
 
 const inputClass =
   "w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-900";
+// Narrow fields (title, day/month/year) need less side padding so their
+// text isn't clipped on phones.
+const compactInputClass =
+  "w-full rounded-lg border border-gray-300 px-2 py-3 focus:outline-none focus:ring-2 focus:ring-blue-900";
 const labelClass = "block font-medium text-gray-700 mb-2";
 const errorClass = "mt-1 text-sm text-red-600";
 
@@ -228,12 +232,12 @@ export default function FamilyRegistrationForm() {
           </p>
 
           <div className="space-y-6">
-            <div className="grid grid-cols-[7rem_1fr] sm:grid-cols-[9rem_1fr] gap-3 items-start">
+            <div className="grid grid-cols-[5rem_1fr] sm:grid-cols-[7rem_1fr] gap-3 items-start">
               <div>
                 <label htmlFor="head_salutation" className={labelClass}>
-                  Salutation
+                  Title
                 </label>
-                <select id="head_salutation" {...register("head_salutation")} className={inputClass}>
+                <select id="head_salutation" {...register("head_salutation")} className={compactInputClass}>
                   <option value="" disabled>
                     Select
                   </option>
@@ -272,7 +276,7 @@ export default function FamilyRegistrationForm() {
                     aria-label="Day of birth"
                     defaultValue=""
                     {...register("head_birth_day")}
-                    className={inputClass}
+                    className={compactInputClass}
                   >
                     <option value="" disabled>
                       Day
@@ -290,14 +294,14 @@ export default function FamilyRegistrationForm() {
                     aria-label="Month of birth"
                     defaultValue=""
                     {...register("head_birth_month")}
-                    className={inputClass}
+                    className={compactInputClass}
                   >
                     <option value="" disabled>
                       Month
                     </option>
                     {MONTHS.map((month, i) => (
                       <option key={month} value={i + 1}>
-                        {month}
+                        {month.slice(0, 3)}
                       </option>
                     ))}
                   </select>
@@ -307,11 +311,11 @@ export default function FamilyRegistrationForm() {
                     id="head_birth_year"
                     type="number"
                     inputMode="numeric"
-                    placeholder="Year (optional)"
+                    placeholder="Year"
                     min={1900}
                     max={CURRENT_YEAR}
                     {...register("head_birth_year")}
-                    className={inputClass}
+                    className={compactInputClass}
                   />
                 </div>
               </div>
@@ -486,7 +490,7 @@ export default function FamilyRegistrationForm() {
                   <Trash2 size={18} />
                 </button>
 
-                <div className="grid md:grid-cols-2 gap-6 pr-8">
+                <div className="grid md:grid-cols-2 gap-6 md:pr-8">
                   <div>
                     <label htmlFor={`dependents.${index}.relationship`} className={labelClass}>
                       Relationship
@@ -504,15 +508,15 @@ export default function FamilyRegistrationForm() {
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-[7rem_1fr] gap-3 items-start">
+                  <div className="grid grid-cols-[5rem_1fr] gap-3 items-start">
                     <div>
                       <label htmlFor={`dependents.${index}.salutation`} className={labelClass}>
-                        Salutation
+                        Title
                       </label>
                       <select
                         id={`dependents.${index}.salutation`}
                         {...register(`dependents.${index}.salutation` as const)}
-                        className={inputClass}
+                        className={compactInputClass}
                       >
                         <option value="" disabled>
                           Select
@@ -555,7 +559,7 @@ export default function FamilyRegistrationForm() {
                       aria-label="Day of birth"
                       defaultValue=""
                       {...register(`dependents.${index}.birth_day` as const)}
-                      className={inputClass}
+                      className={compactInputClass}
                     >
                       <option value="">Day</option>
                       {DAYS.map((day) => (
@@ -569,12 +573,12 @@ export default function FamilyRegistrationForm() {
                       aria-label="Month of birth"
                       defaultValue=""
                       {...register(`dependents.${index}.birth_month` as const)}
-                      className={inputClass}
+                      className={compactInputClass}
                     >
                       <option value="">Month</option>
                       {MONTHS.map((month, i) => (
                         <option key={month} value={i + 1}>
-                          {month}
+                          {month.slice(0, 3)}
                         </option>
                       ))}
                     </select>
@@ -586,7 +590,7 @@ export default function FamilyRegistrationForm() {
                       min={1900}
                       max={CURRENT_YEAR}
                       {...register(`dependents.${index}.birth_year` as const)}
-                      className={inputClass}
+                      className={compactInputClass}
                     />
                   </div>
                   {errors.dependents?.[index]?.birth_day && (
@@ -671,7 +675,8 @@ export default function FamilyRegistrationForm() {
             />
             I agree, on behalf of myself and the family members listed above, to
             Galilee Prayer Fellowship contacting us with birthday, anniversary,
-            and other occasion greetings.
+            and other occasion greetings, and displaying our names on the church
+            screens during our birthday week.
           </label>
           {errors.consent && <p className={errorClass}>{errors.consent.message}</p>}
         </div>
