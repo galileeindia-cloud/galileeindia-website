@@ -15,14 +15,14 @@ export default function MemberRegistrationPage() {
     <>
       <Navbar />
 
-      <section className="bg-gray-50 min-h-screen py-16">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-blue-900">
+      <section className="bg-gray-50 min-h-screen py-8 sm:py-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 sm:mb-12">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-900">
               Register Your Family
             </h1>
 
-            <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="mt-3 sm:mt-4 text-base sm:text-xl text-gray-600 max-w-2xl mx-auto">
               Help us celebrate with you — tell us about your family so we can
               remember your birthdays, anniversary, and other special
               occasions.

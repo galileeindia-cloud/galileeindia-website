@@ -23,11 +23,11 @@ import {
 } from "@/services/familyService";
 
 const inputClass =
-  "w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-900";
+  "w-full min-w-0 rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-900";
 // Narrow fields (title, day/month/year) need less side padding so their
 // text isn't clipped on phones.
 const compactInputClass =
-  "w-full rounded-lg border border-gray-300 px-2 py-3 focus:outline-none focus:ring-2 focus:ring-blue-900";
+  "w-full min-w-0 rounded-lg border border-gray-300 px-2 py-3 focus:outline-none focus:ring-2 focus:ring-blue-900";
 const labelClass = "block font-medium text-gray-700 mb-2";
 const errorClass = "mt-1 text-sm text-red-600";
 
@@ -180,7 +180,7 @@ export default function FamilyRegistrationForm() {
 
   if (submitted) {
     return (
-      <div className="bg-white p-10 rounded-2xl shadow-lg text-center">
+      <div className="bg-white p-6 sm:p-10 rounded-2xl shadow-lg text-center">
         <CheckCircle2 className="mx-auto text-blue-900" size={48} />
 
         <h2 className="text-2xl font-bold text-blue-900 mt-4">Thank You!</h2>
@@ -222,7 +222,7 @@ export default function FamilyRegistrationForm() {
         onSubmit={handleSubmit(onReview)}
         noValidate
         hidden={review !== null}
-        className="bg-white p-8 md:p-10 rounded-2xl shadow-lg space-y-10"
+        className="bg-white p-5 sm:p-8 md:p-10 rounded-2xl shadow-lg space-y-8 sm:space-y-10"
       >
         {/* ---------- Head of family ---------- */}
         <div>
@@ -232,7 +232,7 @@ export default function FamilyRegistrationForm() {
           </p>
 
           <div className="space-y-6">
-            <div className="grid grid-cols-[5rem_1fr] sm:grid-cols-[7rem_1fr] gap-3 items-start">
+            <div className="grid grid-cols-[5.5rem_1fr] sm:grid-cols-[7rem_1fr] gap-3 items-start">
               <div>
                 <label htmlFor="head_salutation" className={labelClass}>
                   Title
@@ -297,7 +297,7 @@ export default function FamilyRegistrationForm() {
                     className={compactInputClass}
                   >
                     <option value="" disabled>
-                      Month
+                      Mon
                     </option>
                     {MONTHS.map((month, i) => (
                       <option key={month} value={i + 1}>
@@ -479,7 +479,7 @@ export default function FamilyRegistrationForm() {
             {fields.map((field, index) => (
               <div
                 key={field.id}
-                className="relative border border-gray-200 rounded-xl p-5 space-y-4 bg-gray-50"
+                className="relative border border-gray-200 rounded-xl p-4 sm:p-5 space-y-4 bg-gray-50"
               >
                 <button
                   type="button"
@@ -508,7 +508,7 @@ export default function FamilyRegistrationForm() {
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-[5rem_1fr] gap-3 items-start">
+                  <div className="grid grid-cols-[5.5rem_1fr] gap-3 items-start">
                     <div>
                       <label htmlFor={`dependents.${index}.salutation`} className={labelClass}>
                         Title
@@ -575,7 +575,7 @@ export default function FamilyRegistrationForm() {
                       {...register(`dependents.${index}.birth_month` as const)}
                       className={compactInputClass}
                     >
-                      <option value="">Month</option>
+                      <option value="">Mon</option>
                       {MONTHS.map((month, i) => (
                         <option key={month} value={i + 1}>
                           {month.slice(0, 3)}
@@ -717,7 +717,7 @@ function ReviewPanel({
   const sectionTitle = "text-lg font-bold text-blue-900 mb-2";
 
   return (
-    <div className="bg-white p-8 md:p-10 rounded-2xl shadow-lg space-y-8">
+    <div className="bg-white p-5 sm:p-8 md:p-10 rounded-2xl shadow-lg space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-blue-900">Please Review Your Details</h2>
         <p className="mt-1 text-gray-600">

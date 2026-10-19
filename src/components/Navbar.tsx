@@ -22,22 +22,22 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <div className="flex items-center justify-between h-24 lg:h-28">
-          <Link href="/#home" prefetch={false} className="flex items-center gap-4 shrink-0">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="flex items-center justify-between gap-3 h-20 sm:h-24 lg:h-28">
+          <Link href="/#home" prefetch={false} className="flex items-center gap-3 sm:gap-4 min-w-0">
             <Image
               src="/images/logo.png"
               alt="Galilee Prayer Fellowship"
               width={72}
               height={72}
-              className="w-16 h-16 lg:w-20 lg:h-20 object-contain"
+              className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 object-contain shrink-0"
               priority
             />
-            <div>
-              <h1 className="text-lg lg:text-xl font-bold text-blue-900 leading-tight">
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg lg:text-xl font-bold text-blue-900 leading-tight">
                 Galilee Prayer Fellowship
               </h1>
-              <p className="text-xs lg:text-sm text-gray-500">
+              <p className="text-[11px] sm:text-xs lg:text-sm text-gray-500">
                 Lawsons Bay Colony &bull; Visakhapatnam
               </p>
             </div>
