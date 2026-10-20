@@ -41,6 +41,32 @@ export function weekOf(day: CalendarDay, offsetWeeks = 0): CalendarDay[] {
   );
 }
 
+/** "2026-10-25" -> that CalendarDay, or null if it isn't a real date. */
+export function parseIsoDay(value: string | null | undefined): CalendarDay | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? "");
+  if (!match) return null;
+  const [year, month, day] = match.slice(1).map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
+  return fromUtc(date);
+}
+
+/** CalendarDay -> "2026-10-25", the format of <input type="date">. */
+export function toIsoDay(day: CalendarDay) {
+  return day.date.toISOString().slice(0, 10);
+}
+
+/** `day` moved by `count` days. */
+export function addDays(day: CalendarDay, count: number): CalendarDay {
+  return fromUtc(new Date(Date.UTC(day.year, day.month - 1, day.day + count)));
+}
+
+/** Every day from `from` to `to`, both included (empty if `to` is before `from`). */
+export function daysBetween(from: CalendarDay, to: CalendarDay): CalendarDay[] {
+  const count = Math.round((to.date.getTime() - from.date.getTime()) / 86_400_000) + 1;
+  return Array.from({ length: Math.max(0, count) }, (_, i) => addDays(from, i));
+}
+
 function isLeapYear(year: number) {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 }
