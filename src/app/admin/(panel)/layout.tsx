@@ -17,6 +17,9 @@ export default async function AdminPanelLayout({ children }: LayoutProps<"/admin
             <Link href="/admin" className="hover:text-amber-300">
               Reports
             </Link>
+            <Link href="/admin/families" className="hover:text-amber-300">
+              Families
+            </Link>
             {admin.canEdit && (
               <Link href="/admin/members" className="hover:text-amber-300">
                 Members
