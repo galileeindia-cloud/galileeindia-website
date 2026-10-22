@@ -2,6 +2,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { LogIn } from "lucide-react";
 import { getAdmin } from "@/lib/adminAuth";
+import PasswordInput from "@/components/admin/PasswordInput";
 import { loginAction } from "../actions";
 
 export const metadata = { title: "Admin Login" };
@@ -47,10 +48,9 @@ export default async function AdminLoginPage({ searchParams }: PageProps<"/admin
           <label htmlFor="password" className="block font-medium text-gray-700 mb-2">
             Password
           </label>
-          <input
+          <PasswordInput
             id="password"
             name="password"
-            type="password"
             autoComplete="current-password"
             required
             className="w-full min-w-0 rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-900"

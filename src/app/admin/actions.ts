@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { hashPassword, logIn, logOut, requireAdmin } from "@/lib/adminAuth";
+import { hashPassword, logIn, logOut, passwordProblem, renewOwnSession, requireAdmin } from "@/lib/adminAuth";
 import { daysBetween, parseIsoDay } from "@/lib/occasions";
 import { sendOccasionsReport } from "@/lib/sendOccasionsReport";
 import { SALUTATIONS } from "@/types/familyRegistrationSchema";
@@ -129,7 +129,8 @@ export async function updateMemberAction(formData: FormData) {
   }
 
   if (newPassword) {
-    if (newPassword.length < 8) redirect(`${back}?${errorParam("Passwords must be at least 8 characters")}`);
+    const problem = passwordProblem(newPassword);
+    if (problem) redirect(`${back}?${errorParam(problem)}`);
     const level = memberUuid === admin.memberUuid ? admin.accessLevel : accessLevel;
     if (level === 0) redirect(`${back}?${errorParam("Give admin access before setting a password")}`);
     update.password_hash = await hashPassword(newPassword);
@@ -154,6 +155,10 @@ export async function updateMemberAction(formData: FormData) {
   if (error) {
     console.error("Member update failed:", error);
     redirect(`${back}?${errorParam("Couldn't save. Please try again.")}`);
+  }
+
+  if (memberUuid === admin.memberUuid && typeof update.password_hash === "string") {
+    await renewOwnSession(memberUuid, update.password_hash);
   }
 
   revalidatePath("/admin", "layout");

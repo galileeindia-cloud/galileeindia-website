@@ -2,6 +2,9 @@
 -- and run. Do NOT save your real password in this file.
 --
 -- Makes one existing member a full admin (access_level 1) with a password.
+-- Use at least 10 characters including a letter and a number (the rule the
+-- admin site enforces), and change it from /admin/members afterwards, since
+-- the SQL Editor may keep this query -- password included -- in its history.
 -- After this, that admin can grant access to others from /admin/members.
 -- Run admin_access_2026-10-20.sql first.
 

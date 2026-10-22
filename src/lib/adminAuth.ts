@@ -80,6 +80,16 @@ function decodeSession(token: string | undefined): { m: string; p: string; e: nu
   }
 }
 
+export const PASSWORD_RULE = "At least 10 characters, including a letter and a number.";
+
+/** Why `password` is too weak, or null if it meets PASSWORD_RULE. */
+export function passwordProblem(password: string): string | null {
+  if (password.length < 10) return "Passwords must be at least 10 characters";
+  if (!/[A-Za-z]/.test(password)) return "Passwords must include at least one letter";
+  if (!/[0-9]/.test(password)) return "Passwords must include at least one number";
+  return null;
+}
+
 export async function hashPassword(password: string) {
   return bcrypt.hash(password, 10);
 }
@@ -115,14 +125,27 @@ export async function logIn(phone: string, password: string): Promise<boolean> {
   if (candidates.length === 0) await bcrypt.compare(password, DUMMY_HASH);
   if (!match) return false;
 
-  (await cookies()).set(COOKIE, encodeSession(match.member_uuid, match.password_hash!), {
+  await setSessionCookie(match.member_uuid, match.password_hash!);
+  return true;
+}
+
+async function setSessionCookie(memberUuid: string, hash: string) {
+  (await cookies()).set(COOKIE, encodeSession(memberUuid, hash), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/admin",
     maxAge: SESSION_HOURS * 3600,
   });
-  return true;
+}
+
+/**
+ * After admins change their own password: a new session for this browser,
+ * since the old one (tied to the old password) has just stopped working.
+ * Sessions in other browsers still end, as intended.
+ */
+export async function renewOwnSession(memberUuid: string, newHash: string) {
+  await setSessionCookie(memberUuid, newHash);
 }
 
 export async function logOut() {

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
-import { ACCESS_LABELS, requireAdmin } from "@/lib/adminAuth";
+import { ACCESS_LABELS, PASSWORD_RULE, requireAdmin } from "@/lib/adminAuth";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import MemberFields, { adminInput, adminLabel } from "@/components/admin/MemberFields";
+import PasswordInput from "@/components/admin/PasswordInput";
 import { updateMemberAction } from "../../../actions";
 
 export const metadata = { title: "Edit Member" };
@@ -89,16 +90,15 @@ export default async function EditMemberPage({ params, searchParams }: PageProps
               <label htmlFor="new_password" className={adminLabel}>
                 {member.password_hash ? "New password (leave blank to keep)" : "Password"}
               </label>
-              <input
+              <PasswordInput
                 id="new_password"
                 name="new_password"
-                type="password"
                 autoComplete="new-password"
-                minLength={8}
+                minLength={10}
                 className={adminInput}
               />
               <p className="text-xs text-gray-500 mt-1">
-                At least 8 characters. They log in with their phone number and this password.
+                {PASSWORD_RULE} They log in with their phone number and this password.
               </p>
             </div>
           </div>
