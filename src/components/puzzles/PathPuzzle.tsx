@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { LayoutGrid, RotateCcw } from "lucide-react";
+import { Lightbulb, LayoutGrid, RotateCcw, Undo2 } from "lucide-react";
 import Celebration from "./Celebration";
 import Leaderboard from "./Leaderboard";
 import {
@@ -42,6 +42,22 @@ const WORD_COLORS = [
   { fill: "bg-rose-500 border-rose-600 text-white", soft: "bg-rose-50 border-rose-200 text-rose-900", ring: "ring-rose-400" },
 ];
 
+// Same hues as WORD_COLORS (Tailwind 500s), for drawing found words as
+// connected strips in the "board" design.
+const WORD_HEX = [
+  "#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16", "#22c55e", "#10b981", "#14b8a6", "#06b6d4",
+  "#0ea5e9", "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", "#f43f5e",
+];
+
+// The board design picks hues from WORD_COLORS / WORD_HEX in this order, so
+// neighbouring words never get near-identical colours (red, orange, amber
+// and yellow all look alike as strips).
+const BOARD_COLOR_ORDER = [0, 10, 5, 13, 1, 15, 7, 11, 2, 16, 8, 4, 12, 14, 6, 9, 3];
+
+// Each hint reveals one more letter of an unfound word and adds this much
+// to the player's time, so hinted runs don't outrank unhinted ones.
+const HINT_PENALTY_MS = 15_000;
+
 function cellKey([r, c]: GridCell) {
   return `${r},${c}`;
 }
@@ -61,6 +77,7 @@ export default function PathPuzzle({
   words,
   wordPaths: initialWordPaths,
   randomize = false,
+  design,
 }: {
   puzzleId: string;
   cols: number;
@@ -71,7 +88,14 @@ export default function PathPuzzle({
    * is generated each time the puzzle starts or restarts, instead of
    * reusing the same pre-authored grid every play. */
   randomize?: boolean;
+  /** "board": one connected board with found words drawn as strips, plus
+   * Undo and Hint buttons. */
+  design?: "board";
 }) {
+  // Which WORD_COLORS / WORD_HEX entry word `i` uses.
+  const colorIndex = (i: number) =>
+    design === "board" ? BOARD_COLOR_ORDER[i % BOARD_COLOR_ORDER.length] : i % WORD_COLORS.length;
+
   const [layout, setLayout] = useState({ grid: initialGrid, wordPaths: initialWordPaths });
   const { grid, wordPaths } = layout;
 
@@ -93,6 +117,11 @@ export default function PathPuzzle({
   const [phase, setPhase] = useState<Phase>("name");
   const [name, setName] = useState("");
   const [solved, setSolved] = useState<boolean[]>(() => words.map(() => false));
+  // Order words were found in, so Undo removes the most recent one.
+  const [solvedOrder, setSolvedOrder] = useState<number[]>([]);
+  // How many letters of each word a hint has revealed.
+  const [hints, setHints] = useState<number[]>(() => words.map(() => 0));
+  const [penaltyMs, setPenaltyMs] = useState(0);
   const [dragPath, setDragPath] = useState<GridCell[]>([]);
   const dragPathRef = useRef<GridCell[]>([]);
   const draggingRef = useRef(false);
@@ -197,6 +226,7 @@ export default function PathPuzzle({
     );
 
     if (matchIndex !== -1) {
+      setSolvedOrder((prev) => [...prev, matchIndex]);
       setSolved((prevSolved) => {
         const next = [...prevSolved];
         next[matchIndex] = true;
@@ -235,7 +265,7 @@ export default function PathPuzzle({
     if (!solved.every(Boolean)) return;
     if (!startTime) return;
 
-    const elapsed = Date.now() - startTime;
+    const elapsed = Date.now() - startTime + penaltyMs;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFinishedMs(elapsed);
     setPhase("complete");
@@ -250,6 +280,9 @@ export default function PathPuzzle({
     setName(trimmed);
     reshuffleLayout();
     setSolved(words.map(() => false));
+    setSolvedOrder([]);
+    setHints(words.map(() => 0));
+    setPenaltyMs(0);
     setDrag([]);
     setStartTime(Date.now());
     setNow(Date.now());
@@ -261,6 +294,9 @@ export default function PathPuzzle({
   function restart() {
     reshuffleLayout();
     setSolved(words.map(() => false));
+    setSolvedOrder([]);
+    setHints(words.map(() => 0));
+    setPenaltyMs(0);
     setDrag([]);
     setStartTime(Date.now());
     setNow(Date.now());
@@ -269,7 +305,30 @@ export default function PathPuzzle({
     setPhase("playing");
   }
 
-  const elapsedMs = startTime ? now - startTime : 0;
+  const elapsedMs = startTime ? now - startTime + penaltyMs : 0;
+
+  function undo() {
+    const last = solvedOrder[solvedOrder.length - 1];
+    if (last === undefined) return;
+    setSolvedOrder(solvedOrder.slice(0, -1));
+    setSolved((prev) => prev.map((v, i) => (i === last ? false : v)));
+  }
+
+  // Reveals the next letter of the first unfound word that still has
+  // letters left to reveal.
+  function hint() {
+    const index = words.findIndex((_, i) => !solved[i] && hints[i] < wordPaths[i].length);
+    if (index === -1) return;
+    // Skip "-" separators: they're already shown, so a hint on one reveals nothing.
+    let next = hints[index] + 1;
+    while (next < wordPaths[index].length) {
+      const [r, c] = wordPaths[index][next - 1];
+      if (grid[r][c] !== "-") break;
+      next++;
+    }
+    setHints((prev) => prev.map((v, i) => (i === index ? next : v)));
+    setPenaltyMs((ms) => ms + HINT_PENALTY_MS);
+  }
 
   if (phase === "name") {
     return (
@@ -324,7 +383,7 @@ export default function PathPuzzle({
             {words.map((word, i) => (
               <span
                 key={word}
-                className={`px-4 py-2 rounded-full font-semibold border ${WORD_COLORS[i % WORD_COLORS.length].soft}`}
+                className={`px-4 py-2 rounded-full font-semibold border ${WORD_COLORS[colorIndex(i)].soft}`}
               >
                 {word}
               </span>
@@ -358,6 +417,215 @@ export default function PathPuzzle({
             loading={leaderboardLoading}
             error={leaderboardError}
           />
+        </div>
+      </div>
+    );
+  }
+
+  if (design === "board") {
+    const rows = grid.length;
+    const center = ([r, c]: GridCell) => [c * 100 + 50, r * 100 + 50] as const;
+    const isPlayable = (r: number, c: number) =>
+      r >= 0 && r < rows && c >= 0 && c < cols && !isBlockedCell([r, c]);
+    const hintedCells = new Set(
+      wordPaths.flatMap((wp, i) => (solved[i] ? [] : wp.slice(0, hints[i]).map(cellKey)))
+    );
+    const lastFound = solvedOrder[solvedOrder.length - 1];
+    const chipLetters =
+      dragPath.length > 0
+        ? dragPath.map(([r, c]) => grid[r][c])
+        : lastFound !== undefined
+          ? wordPaths[lastFound].map(([r, c]) => grid[r][c])
+          : [];
+    const chipColor = dragPath.length > 0 ? "#818cf8" : lastFound !== undefined ? WORD_HEX[colorIndex(lastFound)] : "";
+    const canHint = words.some((_, i) => !solved[i] && hints[i] < wordPaths[i].length);
+
+    // One strip per found word (and the word being dragged): a thick
+    // rounded line through the cell centers, the first letter circled,
+    // and small chevrons showing the reading direction.
+    const strip = (path: GridCell[], color: string, key: string) => (
+      <g key={key}>
+        {path.length > 1 && (
+          <polyline
+            points={path.map((cell) => center(cell).join(",")).join(" ")}
+            fill="none"
+            stroke={color}
+            strokeWidth={76}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        )}
+        <circle cx={center(path[0])[0]} cy={center(path[0])[1]} r={38} fill={color} stroke="#ffffff" strokeWidth={5} />
+        {path.slice(1).map((cell, i) => {
+          const [x1, y1] = center(path[i]);
+          const [x2, y2] = center(cell);
+          const angle = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
+          return (
+            <path
+              key={i}
+              d="M -6 -10 L 5 0 L -6 10"
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth={5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity={0.85}
+              transform={`translate(${(x1 + x2) / 2} ${(y1 + y2) / 2}) rotate(${angle})`}
+            />
+          );
+        })}
+      </g>
+    );
+
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-gray-600">
+            Go, <span className="font-semibold text-blue-900">{name}</span>!
+          </p>
+          <p className="font-mono text-lg font-bold text-blue-900">
+            ⏱ {formatDuration(elapsedMs)}
+          </p>
+        </div>
+
+        <p className="text-center text-sm text-gray-500 mb-3">
+          Press and drag across connected letters, then release to check.
+        </p>
+
+        <div className="flex justify-center select-none touch-none">
+          <div
+            ref={gridRef}
+            className="relative grid bg-white border-[3px] border-zinc-700 rounded-xl overflow-hidden"
+            style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+          >
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              viewBox={`0 0 ${cols * 100} ${rows * 100}`}
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              {wordPaths.map((wp, i) => (solved[i] ? strip(wp, WORD_HEX[colorIndex(i)], `w${i}`) : null))}
+              {dragPath.length > 0 && strip(dragPath, "#818cf8", "drag")}
+            </svg>
+
+            {grid.map((rowCells, r) =>
+              rowCells.map((letter, c) => {
+                const cell: GridCell = [r, c];
+                const size = "w-9 h-9 sm:w-14 sm:h-14";
+
+                if (!isPlayable(r, c)) {
+                  return <div key={cellKey(cell)} data-row={r} data-col={c} className={`${size} bg-zinc-300`} />;
+                }
+
+                // A thick line wherever the playable area meets a blocked
+                // cell, so the board's outline follows its irregular shape.
+                const edge = "#3f3f46";
+                const shadows = [
+                  r > 0 && !isPlayable(r - 1, c) && `inset 0 3px 0 ${edge}`,
+                  r < rows - 1 && !isPlayable(r + 1, c) && `inset 0 -3px 0 ${edge}`,
+                  c > 0 && !isPlayable(r, c - 1) && `inset 3px 0 0 ${edge}`,
+                  c < cols - 1 && !isPlayable(r, c + 1) && `inset -3px 0 0 ${edge}`,
+                ].filter(Boolean);
+
+                const onStrip =
+                  dragPath.some((dc) => cellKey(dc) === cellKey(cell)) ||
+                  wordPaths.some((wp, i) => solved[i] && wp.some((wc) => cellKey(wc) === cellKey(cell)));
+                const hinted = !onStrip && hintedCells.has(cellKey(cell));
+
+                return (
+                  <div
+                    key={cellKey(cell)}
+                    data-row={r}
+                    data-col={c}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      beginDrag(cell);
+                    }}
+                    className={`${size} relative flex items-center justify-center border-r border-b border-zinc-200 font-bold uppercase text-base sm:text-xl select-none touch-none ${
+                      onStrip ? "text-white" : hinted ? "text-amber-700" : "text-zinc-800"
+                    }`}
+                    style={{ boxShadow: shadows.join(", ") || undefined }}
+                  >
+                    {hinted && (
+                      <span className="absolute inset-1 rounded-full border-2 border-dashed border-amber-500" aria-hidden="true" />
+                    )}
+                    <span className="relative">{letter}</span>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* The letters being traced, or the last word found. */}
+        <div className="flex justify-center gap-1 my-4 min-h-[2rem]">
+          {chipLetters.map((letter, i) => (
+            <span
+              key={i}
+              className="w-7 h-8 flex items-center justify-center rounded-md text-white font-bold uppercase text-sm"
+              style={{ backgroundColor: chipColor }}
+            >
+              {letter}
+            </span>
+          ))}
+        </div>
+
+        {/* One row of tiles per word, showing its length. */}
+        <div className="flex flex-col items-start gap-2 w-fit mx-auto mb-5">
+          {words.map((word, i) => (
+            <div key={word} className="flex gap-px sm:gap-1">
+              {graphemes(word).map((ch, j) => {
+                const isSeparator = ch === "-";
+                const color = WORD_HEX[colorIndex(i)];
+                const shown = solved[i] || isSeparator || j < hints[i];
+                return (
+                  <span
+                    key={j}
+                    className={`w-[18px] h-6 sm:w-7 sm:h-8 flex items-center justify-center rounded font-bold text-[11px] sm:text-sm ${
+                      solved[i] ? "text-white" : shown ? "bg-zinc-200 text-zinc-600" : "bg-zinc-200 text-transparent"
+                    }`}
+                    style={solved[i] ? { backgroundColor: color } : undefined}
+                  >
+                    {shown ? ch : "•"}
+                  </span>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+          <button
+            type="button"
+            onClick={undo}
+            disabled={solvedOrder.length === 0}
+            className="inline-flex items-center justify-center gap-2 py-2.5 rounded-full border border-zinc-600 text-zinc-800 font-medium hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Undo2 size={16} />
+            Undo
+          </button>
+          <button
+            type="button"
+            onClick={hint}
+            disabled={!canHint}
+            className="inline-flex items-center justify-center gap-2 py-2.5 rounded-full border border-zinc-600 text-zinc-800 font-medium hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Lightbulb size={16} />
+            Hint
+          </button>
+        </div>
+        <p className="text-center text-xs text-gray-500 mt-2">
+          Each hint reveals one letter and adds {HINT_PENALTY_MS / 1000} seconds to your time.
+        </p>
+
+        <div className="flex justify-center mt-4">
+          <button
+            type="button"
+            onClick={restart}
+            className="text-sm text-gray-500 hover:text-gray-700 hover:underline"
+          >
+            Start Over
+          </button>
         </div>
       </div>
     );
