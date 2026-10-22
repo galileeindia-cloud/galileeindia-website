@@ -127,6 +127,43 @@ function spreadScore(paths: GridCell[][], rows: number, cols: number) {
   return variance(rowCounts) + variance(colCounts);
 }
 
+// How many extra ways the words can be spelled on this layout, beyond the
+// planned paths. Words that share letters (1-/2-TIMOTHY, or a repeated
+// syllable in Telugu) can often be traced along a second route; a player
+// who takes it spells the word correctly but along cells the puzzle didn't
+// plan, so layouts with no such alternatives are strongly preferred.
+function ambiguity(paths: GridCell[][], wordLetters: string[][]) {
+  const letterAt = new Map<string, string>();
+  paths.forEach((path, i) => path.forEach(([r, c], j) => letterAt.set(key(r, c), wordLetters[i][j])));
+
+  let extra = 0;
+  for (const letters of wordLetters) {
+    let count = 0;
+    const extend = (r: number, c: number, i: number, seen: Set<string>) => {
+      if (count > 1) return;
+      if (i === letters.length - 1) {
+        count++;
+        return;
+      }
+      for (const [dr, dc] of DIRECTIONS) {
+        const k = key(r + dr, c + dc);
+        if (!seen.has(k) && letterAt.get(k) === letters[i + 1]) {
+          seen.add(k);
+          extend(r + dr, c + dc, i + 1, seen);
+          seen.delete(k);
+        }
+      }
+    };
+    for (const [k, letter] of letterAt) {
+      if (letter !== letters[0]) continue;
+      const [r, c] = k.split(",").map(Number);
+      extend(r, c, 0, new Set([k]));
+    }
+    extra += Math.max(0, count - 1);
+  }
+  return extra;
+}
+
 /**
  * Generates a random grid + word paths for a path/word-search puzzle:
  * every word becomes its own connected, non-overlapping path of cells
@@ -146,27 +183,32 @@ export function generateWordSearchLayout(
   rows: number,
   cols: number,
   fallback: { grid: string[][]; wordPaths: GridCell[][] },
-  attempts = 40
+  attempts = 300
 ): { grid: string[][]; wordPaths: GridCell[][] } {
   const wordLetters = words.map((word) => graphemes(word));
   const startsToTry = Math.min(rows * cols, 40);
   const walkBudget = 1000;
 
   let best: GridCell[][] | null = null;
+  let bestAmbiguity = Infinity;
   let bestScore = Infinity;
-  // A handful of full attempts, keeping the best-spread one, rather than
-  // stopping at the first success — the very first attempt almost always
-  // succeeds outright (this is cheap), so this mostly buys a nicer-looking
-  // layout rather than guarding against failure.
+  // Several full attempts (each is cheap), keeping the one where every word
+  // can be spelled only one way, and among those the most evenly spread.
+  // Stops early once an unambiguous layout has been compared against a few
+  // others.
+  let unambiguousSeen = 0;
   for (let i = 0; i < attempts; i++) {
     const layout = tryLayout(wordLetters, rows, cols, startsToTry, walkBudget);
     if (!layout) continue;
+    const extra = ambiguity(layout, wordLetters);
     const score = spreadScore(layout, rows, cols);
-    if (score < bestScore) {
+    if (extra < bestAmbiguity || (extra === bestAmbiguity && score < bestScore)) {
+      bestAmbiguity = extra;
       bestScore = score;
       best = layout;
     }
-    if (i >= 7 && best) break; // enough tries to find a nicely spread layout
+    if (extra === 0) unambiguousSeen++;
+    if (unambiguousSeen >= 8) break;
   }
 
   if (!best) return fallback;

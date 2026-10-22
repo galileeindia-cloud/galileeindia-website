@@ -214,16 +214,100 @@ export default function PathPuzzle({
     setDrag([...prev, cell]);
   }
 
+  const letterAt = ([r, c]: GridCell) => grid[r][c];
+
+  /** Every orthogonal path through `pool` cells spelling `letters`, in order. */
+  function pathsWithin(pool: Set<string>, letters: string[]): GridCell[][] {
+    const found: GridCell[][] = [];
+    const extend = (path: GridCell[]) => {
+      if (found.length >= 200) return;
+      if (path.length === letters.length) {
+        found.push(path);
+        return;
+      }
+      const [r, c] = path[path.length - 1];
+      for (const next of [[r + 1, c], [r - 1, c], [r, c + 1], [r, c - 1]] as GridCell[]) {
+        const key = cellKey(next);
+        if (pool.has(key) && !path.some((p) => cellKey(p) === key) && letterAt(next) === letters[path.length]) {
+          extend([...path, next]);
+        }
+      }
+    };
+    for (const key of pool) {
+      const start = key.split(",").map(Number) as GridCell;
+      if (letterAt(start) === letters[0]) extend([start]);
+    }
+    return found;
+  }
+
+  /**
+   * If `attempt` spells an unfound word along a path other than the planned
+   * one, re-plans that word and every unfound word it overlaps so they still
+   * fit together. Returns the new paths, or null if the attempt spells
+   * nothing or would leave the puzzle unsolvable.
+   */
+  function rerouteWord(attempt: GridCell[]): { index: number; wordPaths: GridCell[][] } | null {
+    const spelled = attempt.map(letterAt);
+    for (let i = 0; i < wordPaths.length; i++) {
+      if (solvedRef.current[i] || wordPaths[i].length !== attempt.length) continue;
+      const target = wordPaths[i].map(letterAt);
+      const same = (a: string[]) => a.every((ch, k) => ch === target[k]);
+      const path = same(spelled) ? attempt : same([...spelled].reverse()) ? [...attempt].reverse() : null;
+      if (!path) continue;
+
+      const used = new Set(path.map(cellKey));
+      const affected = wordPaths
+        .map((_, j) => j)
+        .filter((j) => j !== i && !solvedRef.current[j] && wordPaths[j].some((cell) => used.has(cellKey(cell))));
+      const pool = new Set(
+        [i, ...affected].flatMap((j) => wordPaths[j].map(cellKey)).filter((key) => !used.has(key))
+      );
+
+      // Backtracking: give each displaced word a path from the leftover cells.
+      const assigned = new Map<number, GridCell[]>();
+      const place = (k: number, free: Set<string>): boolean => {
+        if (k === affected.length) return true;
+        const j = affected[k];
+        for (const option of pathsWithin(free, wordPaths[j].map(letterAt))) {
+          const rest = new Set(free);
+          option.forEach((cell) => rest.delete(cellKey(cell)));
+          assigned.set(j, option);
+          if (place(k + 1, rest)) return true;
+        }
+        return false;
+      };
+      if (!place(0, pool)) continue;
+
+      return {
+        index: i,
+        wordPaths: wordPaths.map((wp, j) => (j === i ? path : (assigned.get(j) ?? wp))),
+      };
+    }
+    return null;
+  }
+
   function endDrag() {
     if (!draggingRef.current) return;
     draggingRef.current = false;
 
     const attempt = dragPathRef.current;
-    const matchIndex = wordPaths.findIndex(
+    let matchIndex = wordPaths.findIndex(
       (wp, i) =>
         !solvedRef.current[i] &&
         (pathsEqual(wp, attempt) || pathsEqual(wp, [...attempt].reverse()))
     );
+
+    // Not the planned path, but it may still spell an unfound word: words
+    // often share letters (1-/2-TIMOTHY end the same), so a correct trace
+    // can wander onto another word's cells. Accept it if the words it
+    // displaced can still be completed from the leftover cells.
+    if (matchIndex === -1 && attempt.length > 1) {
+      const rerouted = rerouteWord(attempt);
+      if (rerouted) {
+        matchIndex = rerouted.index;
+        setLayout((prev) => ({ ...prev, wordPaths: rerouted.wordPaths }));
+      }
+    }
 
     if (matchIndex !== -1) {
       setSolvedOrder((prev) => [...prev, matchIndex]);
