@@ -1,6 +1,16 @@
 import { Cake, Download, Heart, Mail, Search } from "lucide-react";
 import { requireAdmin } from "@/lib/adminAuth";
-import { addDays, daysBetween, formatDay, formatWeek, parseIsoDay, todayIn, toIsoDay } from "@/lib/occasions";
+import {
+  addDays,
+  daysBetween,
+  formatDay,
+  formatWeek,
+  parseIsoDay,
+  todayIn,
+  toIsoDay,
+  type CalendarDay,
+} from "@/lib/occasions";
+import { MONTHS } from "@/types/familyRegistrationSchema";
 import { getWeeklyOccasions } from "@/lib/weeklyOccasions";
 import { emailReportAction } from "../actions";
 
@@ -17,9 +27,37 @@ const RELATIONSHIP: Record<string, string> = {
 const NOTICES: Record<string, { tone: "ok" | "error"; text: string }> = {
   emailed: { tone: "ok", text: "The report was emailed." },
   "email-failed": { tone: "error", text: "The email couldn't be sent. Please try again later." },
-  "bad-dates": { tone: "error", text: `Choose a To date on or after the From date, at most ${MAX_REPORT_DAYS} days apart.` },
+  "bad-dates": { tone: "error", text: "That date doesn't exist (for example 31 Feb). Please pick another day." },
   "view-only": { tone: "error", text: "Your access is for reports only, so you can't edit members." },
 };
+
+const DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/** A day + month picked in the form, placed in `year` (null if not a real date, e.g. 31 Feb). */
+function dayIn(year: number, day: unknown, month: unknown): CalendarDay | null {
+  const d = Number(day);
+  const m = Number(month);
+  if (!d || !m) return null;
+  return parseIsoDay(`${year}-${pad(m)}-${pad(d)}`);
+}
+
+/**
+ * The report range. The form picks only day and month: From is in the
+ * current year, and To is too unless it falls before From, in which case
+ * it rolls into next year (so 28 Dec -> 3 Jan works). Full ISO dates in
+ * ?from=&to= are also accepted, as used by the Email Now redirect.
+ */
+function resolveRange(params: Record<string, string | string[] | undefined>, today: CalendarDay) {
+  if (params.fd || params.fm || params.td || params.tm) {
+    const from = dayIn(today.year, params.fd, params.fm);
+    let to = dayIn(today.year, params.td, params.tm);
+    if (from && to && to.date < from.date) to = dayIn(today.year + 1, params.td, params.tm);
+    return { from, to };
+  }
+  const from = parseIsoDay(String(params.from ?? "")) ?? today;
+  return { from, to: parseIsoDay(String(params.to ?? "")) ?? addDays(from, 2) };
+}
 
 function ordinal(n: number) {
   const suffix = ["th", "st", "nd", "rd"];
@@ -33,9 +71,10 @@ export default async function AdminReportsPage({ searchParams }: PageProps<"/adm
 
   // Default: today and the next 2 days.
   const today = todayIn();
-  const from = parseIsoDay(String(params.from ?? "")) ?? today;
-  const to = parseIsoDay(String(params.to ?? "")) ?? addDays(from, 2);
-  const days = daysBetween(from, to);
+  const range = resolveRange(params, today);
+  const from = range.from ?? today;
+  const to = range.to ?? addDays(from, 2);
+  const days = range.from && range.to ? daysBetween(from, to) : [];
   const validRange = days.length > 0 && days.length <= MAX_REPORT_DAYS;
 
   const { birthdays, anniversaries } = validRange
@@ -56,7 +95,9 @@ export default async function AdminReportsPage({ searchParams }: PageProps<"/adm
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-blue-900">Birthday &amp; Anniversary Report</h1>
-        <p className="text-gray-600 mt-1">Pick a date range (both dates included).</p>
+        <p className="text-gray-600 mt-1">
+          Pick a day and month range (both included). A To date before the From date runs into next year.
+        </p>
       </div>
 
       {notice && (
@@ -72,18 +113,44 @@ export default async function AdminReportsPage({ searchParams }: PageProps<"/adm
       )}
 
       <form method="get" className={`${card} p-4 sm:p-5 flex flex-wrap items-end gap-4`}>
-        <div>
-          <label htmlFor="from" className="block text-sm font-medium text-gray-700 mb-1">
-            From
-          </label>
-          <input id="from" name="from" type="date" defaultValue={fromIso} required className="rounded-lg border border-gray-300 px-3 py-2" />
-        </div>
-        <div>
-          <label htmlFor="to" className="block text-sm font-medium text-gray-700 mb-1">
-            To
-          </label>
-          <input id="to" name="to" type="date" defaultValue={toIso} required className="rounded-lg border border-gray-300 px-3 py-2" />
-        </div>
+        <fieldset>
+          <legend className="block text-sm font-medium text-gray-700 mb-1">From</legend>
+          <div className="flex gap-2">
+            <select aria-label="From day" name="fd" defaultValue={from.day} className="rounded-lg border border-gray-300 px-2 py-2">
+              {DAYS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+            <select aria-label="From month" name="fm" defaultValue={from.month} className="rounded-lg border border-gray-300 px-2 py-2">
+              {MONTHS.map((m, i) => (
+                <option key={m} value={i + 1}>
+                  {m.slice(0, 3)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend className="block text-sm font-medium text-gray-700 mb-1">To</legend>
+          <div className="flex gap-2">
+            <select aria-label="To day" name="td" defaultValue={to.day} className="rounded-lg border border-gray-300 px-2 py-2">
+              {DAYS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+            <select aria-label="To month" name="tm" defaultValue={to.month} className="rounded-lg border border-gray-300 px-2 py-2">
+              {MONTHS.map((m, i) => (
+                <option key={m} value={i + 1}>
+                  {m.slice(0, 3)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </fieldset>
         <button
           type="submit"
           className="inline-flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded-lg"
