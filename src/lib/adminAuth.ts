@@ -183,3 +183,75 @@ export async function requireAdmin(options: { edit?: boolean } = {}): Promise<Ad
   if (options.edit && !admin.canEdit) redirect("/admin?notice=view-only");
   return admin;
 }
+
+// ---------- password reset ----------
+
+export const RESET_MINUTES = 30;
+
+// Reset links are signed with a "reset." prefix so a reset token can never
+// be used as a session cookie, or a session cookie as a reset token.
+const signReset = (payload: string) => sign(`reset.${payload}`);
+
+/**
+ * Admins (level 1 or 2) whose phone matches and who have an email to send a
+ * reset link to. Usually zero or one.
+ */
+export async function adminsForReset(phone: string) {
+  const wanted = normalizePhone(phone);
+  if (wanted.length !== 10) return [];
+  const { data, error } = await supabaseAdmin
+    .from("members")
+    .select("member_uuid, salutation, full_name, phone, email, access_level, password_hash")
+    .in("access_level", [1, 2])
+    .not("password_hash", "is", null)
+    .not("email", "is", null);
+  if (error) throw error;
+  return ((data ?? []) as (AdminRow & { email: string })[])
+    .filter((row) => normalizePhone(row.phone) === wanted)
+    .map((row) => ({
+      name: row.salutation ? `${row.salutation} ${row.full_name}` : row.full_name,
+      email: row.email,
+      token: createResetToken(row.member_uuid, row.password_hash!),
+    }));
+}
+
+/**
+ * A reset token valid for RESET_MINUTES. It carries the current password's
+ * stamp, so it stops working the moment the password changes -- which
+ * makes every link single-use.
+ */
+function createResetToken(memberUuid: string, hash: string) {
+  const payload = Buffer.from(
+    JSON.stringify({ m: memberUuid, p: passwordStamp(hash), e: Date.now() + RESET_MINUTES * 60_000 })
+  ).toString("base64url");
+  return `${payload}.${signReset(payload)}`;
+}
+
+
+/** The admin a reset token belongs to, or null if it's invalid, expired or used. */
+export async function adminForResetToken(token: string): Promise<{ memberUuid: string; name: string } | null> {
+  const [payload, signature] = token.split(".");
+  if (!payload || !signature) return null;
+  const expected = Buffer.from(signReset(payload));
+  const given = Buffer.from(signature);
+  if (expected.length !== given.length || !timingSafeEqual(expected, given)) return null;
+
+  let claim: { m?: unknown; p?: unknown; e?: unknown };
+  try {
+    claim = JSON.parse(Buffer.from(payload, "base64url").toString());
+  } catch {
+    return null;
+  }
+  if (typeof claim.m !== "string" || typeof claim.e !== "number" || claim.e < Date.now()) return null;
+
+  const { data } = await supabaseAdmin
+    .from("members")
+    .select("member_uuid, salutation, full_name, phone, access_level, password_hash")
+    .eq("member_uuid", claim.m)
+    .maybeSingle();
+  const row = data as AdminRow | null;
+  if (!row || (row.access_level !== 1 && row.access_level !== 2) || !row.password_hash) return null;
+  if (passwordStamp(row.password_hash) !== claim.p) return null;
+
+  return { memberUuid: row.member_uuid, name: row.salutation ? `${row.salutation} ${row.full_name}` : row.full_name };
+}

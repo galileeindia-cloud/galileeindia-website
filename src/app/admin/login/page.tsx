@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogIn } from "lucide-react";
 import { getAdmin } from "@/lib/adminAuth";
@@ -65,9 +66,9 @@ export default async function AdminLoginPage({ searchParams }: PageProps<"/admin
           Log In
         </button>
 
-        <p className="text-xs text-gray-500 text-center">
-          Forgot your password? Ask another admin to reset it.
-        </p>
+        <Link href="/admin/forgot-password" className="block text-sm text-blue-900 text-center hover:underline">
+          Forgot password?
+        </Link>
       </form>
     </main>
   );

@@ -5,7 +5,18 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { hashPassword, logIn, logOut, passwordProblem, renewOwnSession, requireAdmin } from "@/lib/adminAuth";
+import {
+  RESET_MINUTES,
+  adminForResetToken,
+  adminsForReset,
+  hashPassword,
+  logIn,
+  logOut,
+  passwordProblem,
+  renewOwnSession,
+  requireAdmin,
+} from "@/lib/adminAuth";
+import { sendEmail, siteUrl } from "@/lib/mailer";
 import { daysBetween, parseIsoDay } from "@/lib/occasions";
 import { sendOccasionsReport } from "@/lib/sendOccasionsReport";
 import { SALUTATIONS } from "@/types/familyRegistrationSchema";
@@ -24,6 +35,74 @@ export async function loginAction(formData: FormData) {
     redirect("/admin/login?error=1");
   }
   redirect("/admin");
+}
+
+// ---------- forgot / reset password ----------
+
+function escapeHtml(text: string) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+export async function forgotPasswordAction(formData: FormData) {
+  const phone = String(formData.get("phone") ?? "");
+
+  try {
+    for (const admin of await adminsForReset(phone)) {
+      const link = `${siteUrl()}/admin/reset-password?token=${encodeURIComponent(admin.token)}`;
+      await sendEmail({
+        to: admin.email,
+        subject: "Reset your Galilee admin password",
+        text: [
+          `Hello ${admin.name},`,
+          "",
+          "Someone asked to reset the password for your Galilee Prayer Fellowship admin login.",
+          `To choose a new password, open this link within ${RESET_MINUTES} minutes:`,
+          link,
+          "",
+          "The link works once. If you didn't ask for this, ignore this email; your password stays the same.",
+        ].join(String.fromCharCode(10)),
+        html: `<div style="font-family:Segoe UI,Helvetica,Arial,sans-serif;max-width:520px;color:#111827">
+  <p>Hello ${escapeHtml(admin.name)},</p>
+  <p>Someone asked to reset the password for your Galilee Prayer Fellowship admin login.</p>
+  <p><a href="${link}" style="display:inline-block;background:#1e3a8a;color:#ffffff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">Choose a new password</a></p>
+  <p style="color:#4b5563;font-size:14px">The link works once and expires in ${RESET_MINUTES} minutes. If you didn't ask for this, ignore this email; your password stays the same.</p>
+</div>`,
+      });
+    }
+  } catch (err) {
+    console.error("Password reset email failed:", err);
+  }
+
+  // Same answer and similar timing whether or not the phone belongs to an
+  // admin, so this page can't be used to find out who the admins are.
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  redirect("/admin/forgot-password?sent=1");
+}
+
+export async function resetPasswordAction(formData: FormData) {
+  const token = String(formData.get("token") ?? "");
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+  const back = (message: string) =>
+    `/admin/reset-password?token=${encodeURIComponent(token)}&${errorParam(message)}`;
+
+  const admin = await adminForResetToken(token);
+  if (!admin) redirect("/admin/reset-password?expired=1");
+
+  const problem = passwordProblem(password);
+  if (problem) redirect(back(problem));
+  if (password !== confirm) redirect(back("The two passwords don't match"));
+
+  const hash = await hashPassword(password);
+  const { error } = await supabaseAdmin.from("members").update({ password_hash: hash }).eq("member_uuid", admin.memberUuid);
+  if (error) {
+    console.error("Password reset failed:", error);
+    redirect(back("Couldn't save the new password. Please try again."));
+  }
+
+  // Changing the hash also makes this link (and any other old ones) stop working.
+  await renewOwnSession(admin.memberUuid, hash);
+  redirect("/admin?notice=password-reset");
 }
 
 export async function logoutAction() {

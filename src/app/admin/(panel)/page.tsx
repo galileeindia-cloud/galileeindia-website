@@ -28,6 +28,7 @@ const NOTICES: Record<string, { tone: "ok" | "error"; text: string }> = {
   emailed: { tone: "ok", text: "The report was emailed." },
   "email-failed": { tone: "error", text: "The email couldn't be sent. Please try again later." },
   "bad-dates": { tone: "error", text: "That date doesn't exist (for example 31 Feb). Please pick another day." },
+  "password-reset": { tone: "ok", text: "Your new password is saved, and you're logged in." },
   "view-only": { tone: "error", text: "Your access is for reports only, so you can't edit members." },
 };
 
