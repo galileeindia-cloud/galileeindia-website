@@ -159,7 +159,13 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
             <OrderPuzzle key={puzzle.id} puzzleId={puzzle.id} answerKey={puzzle.items} />
           )}
           {puzzle.type === "match" && (
-            <MatchPuzzle key={puzzle.id} puzzleId={puzzle.id} groups={puzzle.groups} />
+            <MatchPuzzle
+              key={puzzle.id}
+              puzzleId={puzzle.id}
+              groups={puzzle.groups}
+              groupsTitle={puzzle.groupsTitle}
+              poolTitle={puzzle.poolTitle}
+            />
           )}
           {puzzle.type === "path" && (
             <PathPuzzle

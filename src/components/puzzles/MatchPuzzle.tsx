@@ -49,9 +49,15 @@ function shuffle(items: string[]) {
 export default function MatchPuzzle({
   puzzleId,
   groups,
+  groupsTitle = "Sort by Author",
+  poolTitle = "All Books (jumbled)",
 }: {
   puzzleId: string;
   groups: MatchGroup[];
+  /** Heading above the target boxes. */
+  groupsTitle?: string;
+  /** Heading above the items still to be placed. */
+  poolTitle?: string;
 }) {
   const allItems = groups.flatMap((g) => g.items);
   const correctGroupOf = new Map<string, string>();
@@ -300,7 +306,9 @@ export default function MatchPuzzle({
 
       {selectedId && (
         <p className="text-center text-sm font-medium text-blue-700 bg-blue-50 border border-blue-100 rounded-lg py-2 mb-4">
-          &ldquo;{selectedId}&rdquo; selected — tap an author below to place it
+          {/* Items that are already quotations (Bible verses) keep their own quote marks. */}
+          {/^["“]/.test(selectedId) ? selectedId : <>&ldquo;{selectedId}&rdquo;</>} selected — now tap the
+          box where it belongs
         </p>
       )}
 
@@ -310,7 +318,7 @@ export default function MatchPuzzle({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <h3 className="font-bold text-blue-900 mb-3 text-center">Sort by Author</h3>
+        <h3 className="font-bold text-blue-900 mb-3 text-center">{groupsTitle}</h3>
         {/* items-start: without it, CSS Grid stretches every cell in a row
             to match its tallest sibling — since "Paul" can hold far more
             books than "John" or "James" sitting next to it, that stretch
@@ -350,7 +358,7 @@ export default function MatchPuzzle({
 
         <PuzzleColumn
           id={POOL}
-          title="All Books (jumbled)"
+          title={poolTitle}
           items={containers[POOL]}
           emptyHint="All books placed!"
         >

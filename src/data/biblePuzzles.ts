@@ -16,6 +16,10 @@ export type MatchPuzzleData = {
   description: string;
   type: "match";
   groups: MatchGroup[];
+  /** Headings above the target boxes and the items to place; default to
+   * "Sort by Author" and "All Books (jumbled)". */
+  groupsTitle?: string;
+  poolTitle?: string;
 };
 
 export type GridCell = [number, number];
@@ -1466,6 +1470,27 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       [[2, 6], [3, 6], [3, 5], [3, 4], [3, 3], [3, 2]],
       [[3, 1], [3, 0], [4, 0], [4, 1], [4, 2], [4, 3]],
       [[4, 4], [4, 5], [4, 6]],
+    ],
+  },
+  {
+    id: "35",
+    number: "N35",
+    title: "Match the Bible Verse to Its Reference",
+    description: "Drag each verse down below into the Bible reference it comes from.",
+    type: "match",
+    groupsTitle: "References",
+    poolTitle: "All Verses (jumbled)",
+    groups: [
+      { label: "John 14:6", items: ["“I am the way and the truth and the life.”"] },
+      { label: "Genesis 1:1", items: ["“In the beginning God created the heavens and the earth.”"] },
+      { label: "Psalm 23:1", items: ["“The LORD is my shepherd.”"] },
+      { label: "1 Peter 5:7", items: ["“Cast all your anxiety on him because he cares for you.”"] },
+      { label: "Proverbs 3:6", items: ["“In all your ways acknowledge him, and he will make your paths straight.”"] },
+      { label: "Matthew 7:7", items: ["“Ask and it will be given to you.”"] },
+      { label: "Matthew 6:33", items: ["“Seek first his kingdom and his righteousness.”"] },
+      { label: "Romans 6:23", items: ["“For the wages of sin is death…”"] },
+      { label: "Matthew 5:3", items: ["“Blessed are the poor in spirit, for theirs is the kingdom of heaven.”"] },
+      { label: "Matthew 5:14", items: ["“You are the light of the world.”"] },
     ],
   },
 ];
