@@ -9,9 +9,11 @@ type Props = {
   onTap: () => void;
   index?: number;
   selected?: boolean;
+  /** Smaller chip on phones (normal size from sm up). */
+  small?: boolean;
 };
 
-export default function SortableItem({ id, label, onTap, index, selected }: Props) {
+export default function SortableItem({ id, label, onTap, index, selected, small }: Props) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id });
 
@@ -36,7 +38,7 @@ export default function SortableItem({ id, label, onTap, index, selected }: Prop
       }}
       {...attributes}
       {...listeners}
-      className={`touch-none select-none inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm sm:text-base font-medium text-gray-900 shadow-sm cursor-grab active:cursor-grabbing transition ${
+      className={`touch-none select-none inline-flex items-center gap-2 rounded-full border ${small ? "px-3 py-1.5 sm:px-4 sm:py-2.5" : "px-4 py-2.5"} text-sm sm:text-base font-medium text-gray-900 shadow-sm cursor-grab active:cursor-grabbing transition ${
         selected ? "border-blue-500 bg-blue-50 ring-2 ring-blue-300" : "border-gray-200 bg-white hover:border-blue-300"
       } ${isDragging ? "opacity-40" : ""}`}
     >

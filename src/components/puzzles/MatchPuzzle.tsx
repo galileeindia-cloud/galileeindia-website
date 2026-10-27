@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -51,6 +51,8 @@ export default function MatchPuzzle({
   groups,
   groupsTitle = "Sort by Author",
   poolTitle = "All Books (jumbled)",
+  poolDoneHint = "All books placed!",
+  stickyPool = false,
 }: {
   puzzleId: string;
   groups: MatchGroup[];
@@ -58,6 +60,12 @@ export default function MatchPuzzle({
   groupsTitle?: string;
   /** Heading above the items still to be placed. */
   poolTitle?: string;
+  /** Shown in the pool once every item has been placed. */
+  poolDoneHint?: string;
+  /** For puzzles with a few short items: on phones, the targets go one per
+   * row and the pool sticks to the bottom of the screen, so a player can
+   * tap an item and then its target without scrolling back and forth. */
+  stickyPool?: boolean;
 }) {
   const allItems = groups.flatMap((g) => g.items);
   const correctGroupOf = new Map<string, string>();
@@ -74,6 +82,30 @@ export default function MatchPuzzle({
     ...emptyBins(),
   }));
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // While the pool is pinned to the bottom of a phone screen, publish its
+  // height as --bottom-bar-h so floating buttons (Verse Lookup) sit just
+  // above it instead of covering the chips.
+  const poolBarRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = poolBarRef.current;
+    if (!stickyPool || !el) return;
+    const root = document.documentElement;
+    const update = () =>
+      root.style.setProperty(
+        "--bottom-bar-h",
+        getComputedStyle(el).position === "sticky" ? `${el.offsetHeight}px` : "0px"
+      );
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    window.addEventListener("resize", update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", update);
+      root.style.removeProperty("--bottom-bar-h");
+    };
+  }, [stickyPool, phase]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
@@ -324,7 +356,9 @@ export default function MatchPuzzle({
             books than "John" or "James" sitting next to it, that stretch
             distorted their drop-target geometry mid-drag as items were
             added, occasionally causing a drop to resolve to the wrong bin. */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10 items-start">
+        <div
+          className={`grid ${stickyPool ? "grid-cols-1 gap-3 mb-6" : "grid-cols-2 gap-4 mb-10"} sm:grid-cols-3 sm:gap-4 sm:mb-10 items-start`}
+        >
           {groups.map((g) => (
             // Groups with many items (e.g. Paul's 13 epistles) span the full
             // row width instead of squeezing into one grid cell — otherwise
@@ -356,22 +390,33 @@ export default function MatchPuzzle({
           ))}
         </div>
 
-        <PuzzleColumn
-          id={POOL}
-          title={poolTitle}
-          items={containers[POOL]}
-          emptyHint="All books placed!"
+        <div
+          ref={poolBarRef}
+          className={
+            stickyPool
+              ? "sticky bottom-0 z-30 -mx-4 px-4 pt-2 pb-2 bg-gray-50/95 backdrop-blur border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] sm:static sm:mx-0 sm:px-0 sm:pt-0 sm:pb-0 sm:bg-transparent sm:backdrop-blur-none sm:border-0 sm:shadow-none"
+              : undefined
+          }
         >
-          {containers[POOL].map((id) => (
-            <SortableItem
-              key={id}
-              id={id}
-              label={id}
-              selected={selectedId === id}
-              onTap={() => tapPoolItem(id)}
-            />
-          ))}
-        </PuzzleColumn>
+          <PuzzleColumn
+            id={POOL}
+            title={poolTitle}
+            items={containers[POOL]}
+            emptyHint={poolDoneHint}
+            dense={stickyPool}
+          >
+            {containers[POOL].map((id) => (
+              <SortableItem
+                key={id}
+                id={id}
+                label={id}
+                selected={selectedId === id}
+                small={stickyPool}
+                onTap={() => tapPoolItem(id)}
+              />
+            ))}
+          </PuzzleColumn>
+        </div>
 
         <DragOverlay>
           {activeId ? (

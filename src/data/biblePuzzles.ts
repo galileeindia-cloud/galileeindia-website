@@ -20,6 +20,11 @@ export type MatchPuzzleData = {
    * "Sort by Author" and "All Books (jumbled)". */
   groupsTitle?: string;
   poolTitle?: string;
+  /** Shown in the pool once everything is placed; default "All books placed!". */
+  poolDoneHint?: string;
+  /** Phone layout for a few short items: targets one per row, pool pinned to
+   * the bottom of the screen. */
+  stickyPool?: boolean;
 };
 
 export type GridCell = [number, number];
@@ -1480,6 +1485,8 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
     type: "match",
     groupsTitle: "Verses",
     poolTitle: "References (jumbled)",
+    poolDoneHint: "All references placed!",
+    stickyPool: true,
     groups: [
       { label: "“In the beginning God created the heavens and the earth.”", items: ["Genesis 1:1"] },
       { label: "“The LORD is my shepherd.”", items: ["Psalm 23:1"] },
@@ -1496,6 +1503,8 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
     type: "match",
     groupsTitle: "వచనాలు",
     poolTitle: "బైబిల్ సూచనలు (కలగలిపి)",
+    poolDoneHint: "అన్ని సూచనలు ఉంచబడ్డాయి!",
+    stickyPool: true,
     groups: [
       { label: "“నేనే మార్గమును, సత్యమును, జీవమును.”", items: ["యోహాను 14:6"] },
       { label: "“ఆదియందు దేవుడు భూమ్యాకాశములను సృజించెను.”", items: ["ఆదికాండము 1:1"] },

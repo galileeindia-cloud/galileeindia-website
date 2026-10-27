@@ -13,7 +13,7 @@ export default function FloatingVerseLookup() {
   return (
     <>
       {open && (
-        <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] max-w-sm max-h-[70vh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-gray-200 animate-fade-in">
+        <div className="fixed bottom-[calc(6rem+var(--bottom-bar-h,0px))] right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] max-w-sm max-h-[70vh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-gray-200 animate-fade-in">
           <div className="sticky top-0 flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-white rounded-t-2xl">
             <p className="font-bold text-blue-900 text-sm">Bible Verse Lookup</p>
             <button
@@ -36,7 +36,7 @@ export default function FloatingVerseLookup() {
         onClick={() => setOpen((prev) => !prev)}
         aria-label={open ? "Close Bible verse lookup" : "Open Bible verse lookup"}
         aria-expanded={open}
-        className="fixed bottom-6 right-4 sm:right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-blue-900 text-white shadow-lg hover:bg-blue-800 transition"
+        className="fixed bottom-[calc(1.5rem+var(--bottom-bar-h,0px))] right-4 sm:right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-blue-900 text-white shadow-lg hover:bg-blue-800 transition"
       >
         {open ? <X size={20} /> : <BookOpen size={20} />}
         <span className="hidden sm:inline text-sm font-semibold whitespace-nowrap">

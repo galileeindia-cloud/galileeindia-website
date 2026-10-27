@@ -165,6 +165,8 @@ export default async function BiblePuzzlePlayPage({ params }: Props) {
               groups={puzzle.groups}
               groupsTitle={puzzle.groupsTitle}
               poolTitle={puzzle.poolTitle}
+              poolDoneHint={puzzle.poolDoneHint}
+              stickyPool={puzzle.stickyPool}
             />
           )}
           {puzzle.type === "path" && (
