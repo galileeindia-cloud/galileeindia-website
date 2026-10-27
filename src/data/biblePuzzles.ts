@@ -1488,6 +1488,22 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       { label: "“Ask and it will be given to you.”", items: ["Matthew 7:7"] },
     ],
   },
+  {
+    id: "36",
+    number: "N36",
+    title: "బైబిల్ వచనాన్ని దాని సూచనతో జతపరచండి",
+    description: "క్రింద ఉన్న ప్రతి బైబిల్ సూచనను అది ఉన్న వచనం పైకి లాగండి.",
+    type: "match",
+    groupsTitle: "వచనాలు",
+    poolTitle: "బైబిల్ సూచనలు (కలగలిపి)",
+    groups: [
+      { label: "“నేనే మార్గమును, సత్యమును, జీవమును.”", items: ["యోహాను 14:6"] },
+      { label: "“ఆదియందు దేవుడు భూమ్యాకాశములను సృజించెను.”", items: ["ఆదికాండము 1:1"] },
+      { label: "“యెహోవా నా కాపరి.”", items: ["కీర్తనలు 23:1"] },
+      { label: "“నీ ప్రవర్తన అంతటియందు ఆయన అధికారమునకు ఒప్పుకొనుము; అప్పుడు ఆయన నీ త్రోవలను సరాళము చేయును.”", items: ["సామెతలు 3:6"] },
+      { label: "“అడుగుడి మీకియ్యబడును.”", items: ["మత్తయి 7:7"] },
+    ],
+  },
 ];
 
 export function getPuzzleById(id: string | undefined) {
