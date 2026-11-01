@@ -8,10 +8,12 @@ import Events from "@/components/Events";
 import Pastors from "@/components/Pastors";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import AnnouncementPopup from "@/components/AnnouncementPopup";
 
 export default function Home() {
   return (
     <>
+      <AnnouncementPopup />
       <BreakingNews />
       <Navbar />
       <Hero />

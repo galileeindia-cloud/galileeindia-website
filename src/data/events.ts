@@ -37,5 +37,12 @@ export function getEventsNewestFirst(): ChurchEvent[] {
   return [...CHURCH_EVENTS].sort((a, b) => eventTime(b) - eventTime(a));
 }
 
+/** Poster shown in a pop-up on the homepage, up to and including `until` (IST). */
+export const ANNOUNCEMENT = {
+  image: "/images/year-end-revival-2026.png",
+  alt: "Year End Revival Meeting, 13 to 15 November 2026, Galilee Prayer Fellowship",
+  until: "2026-11-15",
+};
+
 export const NEWS_MESSAGE =
-  "Year End Special Prayer Meetings on 13th Nov 2026 and 14th Nov 2026 in our Church Premises";
+  "Year End Revival Meeting on 13th, 14th and 15th Nov 2026 in our Church Premises";
