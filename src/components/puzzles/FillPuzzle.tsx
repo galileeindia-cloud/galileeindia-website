@@ -56,8 +56,12 @@ function shuffle<T>(items: T[]): T[] {
   return copy;
 }
 
-const chipClass = (selected: boolean, dragging: boolean) =>
-  `touch-none select-none inline-flex items-center rounded-full border px-3 py-1.5 sm:px-3.5 sm:py-1 text-[15px] sm:text-lg font-medium text-gray-900 shadow-sm [-webkit-touch-callout:none] cursor-grab active:cursor-grabbing transition ${
+// `inBank`: tiles in the word tray are a little smaller on phones, so every
+// word fits in the pinned tray without scrolling inside it.
+const chipClass = (selected: boolean, dragging: boolean, inBank = false) =>
+  `touch-none select-none inline-flex items-center rounded-full border ${
+    inBank ? "px-2.5 py-1 text-sm" : "px-3 py-1.5 text-[15px]"
+  } sm:px-3.5 sm:py-1 sm:text-lg font-medium text-gray-900 shadow-sm [-webkit-touch-callout:none] cursor-grab active:cursor-grabbing transition ${
     selected
       ? "border-blue-500 bg-blue-50 ring-2 ring-blue-300"
       : "border-gray-200 bg-white hover:border-blue-300"
@@ -70,10 +74,12 @@ function Chip({
   word,
   selected = false,
   onTap,
+  inBank = false,
 }: {
   word: string;
   selected?: boolean;
   onTap?: () => void;
+  inBank?: boolean;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: word });
 
@@ -89,7 +95,7 @@ function Chip({
       }}
       {...attributes}
       {...listeners}
-      className={chipClass(selected, isDragging)}
+      className={chipClass(selected, isDragging, inBank)}
     >
       {word}
     </span>
@@ -150,9 +156,9 @@ function WordBank({ words, selected, onTap, dragging, emptyText }: {
       {words.length === 0 ? (
         <p className="text-center text-sm lg:text-base text-gray-500 py-1 lg:py-2">{emptyText}</p>
       ) : (
-        <div className="flex flex-wrap gap-1.5 lg:gap-2 max-h-[30vh] overflow-y-auto lg:max-h-none lg:overflow-visible">
+        <div className="flex flex-wrap gap-1.5 lg:gap-2 max-h-[40vh] overflow-y-auto lg:max-h-none lg:overflow-visible">
           {words.map((word) => (
-            <Chip key={word} word={word} selected={selected === word} onTap={() => onTap(word)} />
+            <Chip key={word} word={word} selected={selected === word} onTap={() => onTap(word)} inBank />
           ))}
         </div>
       )}
@@ -224,6 +230,16 @@ export default function FillPuzzle({
     observer.observe(tray);
     return () => observer.disconnect();
   }, [phase]);
+
+  // Publish the pinned tray's height as --bottom-bar-h so floating buttons
+  // (Verse Lookup) sit just above it instead of covering words.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--bottom-bar-h", isCompact && phase === "playing" ? `${trayHeight}px` : "0px");
+    return () => {
+      root.style.removeProperty("--bottom-bar-h");
+    };
+  }, [isCompact, phase, trayHeight]);
 
   useEffect(() => {
     if (phase !== "playing") return;

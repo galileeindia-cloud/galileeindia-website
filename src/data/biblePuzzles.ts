@@ -1513,6 +1513,38 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       { label: "“అడుగుడి మీకియ్యబడును.”", items: ["మత్తయి 7:7"] },
     ],
   },
+  {
+    id: "37",
+    number: "N37",
+    title: "యెహోవా నా కాపరి — కీర్తనలు 23: ఖాళీలను పూరించండి",
+    description:
+      "కీర్తనలు 23వ అధ్యాయములోని ఖాళీలలో సరైన పదాన్ని ఉంచండి. క్రింద ఉన్న పదాన్ని లాగండి, లేదా పదాన్ని తాకి తర్వాత ఖాళీని తాకండి.",
+    type: "fill",
+    sentences: [
+      { text: "యెహోవా నా ___ నాకు లేమి కలుగదు.", answers: ["కాపరి"] },
+      { text: "___ ఆయన నన్ను పరుండజేయు చున్నాడు ___యొద్ద నన్ను నడిపించుచున్నాడు.", answers: ["పచ్చికగల చోట్లను", "శాంతికరమైన జలముల"] },
+      { text: "నా ప్రాణమునకు ఆయన సేదదీర్చుచున్నాడు తన నామమునుబట్టి ___ నన్ను నడిపించుచున్నాడు.", answers: ["నీతిమార్గములలో"] },
+      { text: "గాఢాంధకారపు ___ నేను సంచరించినను ఏ అపాయమునకు భయపడను నీవు నాకు తోడైయుందువు నీ దుడ్డుకఱ్ఱయు నీదండమును నన్ను ___.", answers: ["లోయలో", "ఆదరించును"] },
+      { text: "నా ___ యెదుట నీవు నాకు భోజనము సిద్ధపరచుదువు నూనెతో నా తల ___ నా గిన్నె నిండి పొర్లుచున్నది.", answers: ["శత్రువుల", "అంటియున్నావు"] },
+      { text: "నేను బ్రదుకు దినములన్నియు ___ నా వెంట వచ్చును చిరకాలము యెహోవా మందిరములో నేను ___ చేసెదను.", answers: ["కృపాక్షేమములే", "నివాసము"] },
+    ],
+  },
+  {
+    id: "38",
+    number: "N38",
+    title: "The LORD Is My Shepherd — Psalm 23: Fill in the Blanks",
+    description:
+      "Fill each blank in Psalm 23 with the right word. Drag a word from below, or tap a word and then tap its blank.",
+    type: "fill",
+    sentences: [
+      { text: "The LORD is my ___, I shall not be in want.", answers: ["Shepherd"] },
+      { text: "He makes me lie down in ___, he leads me beside ___,", answers: ["green pastures", "quiet waters"] },
+      { text: "He restores my soul. He guides me in paths of ___ for his name's sake.", answers: ["righteousness"] },
+      { text: "Even though I walk through the ___ of the shadow of death, I will fear no evil, for you are with me; your rod and your staff, they ___ me.", answers: ["valley", "comfort"] },
+      { text: "You prepare a table before me in the presence of my ___. You ___ my head with oil; my cup overflows.", answers: ["enemies", "anoint"] },
+      { text: "Surely ___ will follow me all the days of my life, and I will ___ in the house of the LORD forever.", answers: ["goodness and love", "dwell"] },
+    ],
+  },
 ];
 
 export function getPuzzleById(id: string | undefined) {
