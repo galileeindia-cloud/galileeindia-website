@@ -73,8 +73,10 @@ export const familyRegistrationSchema = z
   .object({
     head_salutation: salutation,
     head_name: z.string().min(2, "Please enter the head of family's name"),
-    head_birth_day: z.string().min(1, "Please select a day"),
-    head_birth_month: z.string().min(1, "Please select a month"),
+    // Optional, like a dependent's: someone may prefer not to share it. A
+    // head with no birthday simply won't appear in birthday reports.
+    head_birth_day: z.string().optional(),
+    head_birth_month: z.string().optional(),
     head_birth_year: z.string().optional(),
     head_phone: z.string().min(10, "Please enter a valid phone number"),
     head_email: optionalEmail,
@@ -95,6 +97,10 @@ export const familyRegistrationSchema = z
   .refine((data) => data.city !== OTHER_CITY || Boolean(data.city_other?.trim()), {
     message: "Please enter your city",
     path: ["city_other"],
+  })
+  .refine((data) => Boolean(data.head_birth_day) === Boolean(data.head_birth_month), {
+    message: "Enter both day and month, or leave both blank",
+    path: ["head_birth_day"],
   });
 
 export type DependentSchema = z.infer<typeof dependentSchema>;

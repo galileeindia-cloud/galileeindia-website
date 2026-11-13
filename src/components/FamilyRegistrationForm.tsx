@@ -268,7 +268,9 @@ export default function FamilyRegistrationForm() {
             </div>
 
             <div>
-              <label className={labelClass}>Date of Birth</label>
+              <label className={labelClass}>
+                Date of Birth <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <select
@@ -278,9 +280,7 @@ export default function FamilyRegistrationForm() {
                     {...register("head_birth_day")}
                     className={compactInputClass}
                   >
-                    <option value="" disabled>
-                      Day
-                    </option>
+                    <option value="">Day</option>
                     {DAYS.map((day) => (
                       <option key={day} value={day}>
                         {day}
@@ -296,9 +296,7 @@ export default function FamilyRegistrationForm() {
                     {...register("head_birth_month")}
                     className={compactInputClass}
                   >
-                    <option value="" disabled>
-                      Mon
-                    </option>
+                    <option value="">Mon</option>
                     {MONTHS.map((month, i) => (
                       <option key={month} value={i + 1}>
                         {month.slice(0, 3)}
