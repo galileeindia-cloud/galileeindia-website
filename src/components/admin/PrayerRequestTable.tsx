@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, Eye, Pencil, RotateCcw, Save, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle2, Eye, Pencil, RotateCcw, Save, X } from "lucide-react";
 import { setPrayerRequestClosedAction, updatePrayerRequestAction } from "@/app/admin/actions";
 import { PRAYER_REQUEST_TYPES } from "@/lib/prayerRequestTypes";
 
@@ -172,7 +172,6 @@ function ViewWindow({ row, show, onDismiss }: { row: PrayerRequestView; show: st
   );
 }
 
-/** Saved prayer requests as a table, with Close and View on every row. */
 /**
  * Groups requests by family, keeping the incoming (newest-first) order: a
  * family appears where its newest request would, with all its requests
@@ -188,56 +187,171 @@ function groupByFamily(rows: PrayerRequestView[]) {
   return [...groups.values()];
 }
 
+type SortKey = "family" | "name" | "date" | "problem";
+type Sort = { key: SortKey; dir: "asc" | "desc" } | null;
+
+const byText = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: "base" });
+
+/** Ascending comparison for one column. Requests without a type sort last. */
+function compare(a: PrayerRequestView, b: PrayerRequestView, key: SortKey) {
+  switch (key) {
+    case "family":
+      return byText(a.familyHead, b.familyHead);
+    case "name":
+      return byText(a.name, b.name);
+    case "date":
+      return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+    case "problem":
+      if (a.type !== b.type) {
+        if (!a.type) return 1;
+        if (!b.type) return -1;
+        return byText(a.type, b.type);
+      }
+      return byText(a.request, b.request);
+  }
+}
+
+// Choices for the phone "Sort by" dropdown, which stands in for the headings.
+const PHONE_SORTS: { value: string; label: string; sort: Sort }[] = [
+  { value: "", label: "Family (newest first)", sort: null },
+  { value: "family-asc", label: "Family Head (A–Z)", sort: { key: "family", dir: "asc" } },
+  { value: "name-asc", label: "Name (A–Z)", sort: { key: "name", dir: "asc" } },
+  { value: "date-desc", label: "Date (newest first)", sort: { key: "date", dir: "desc" } },
+  { value: "date-asc", label: "Date (oldest first)", sort: { key: "date", dir: "asc" } },
+  { value: "problem-asc", label: "Problem (A–Z)", sort: { key: "problem", dir: "asc" } },
+];
+
+/**
+ * Saved prayer requests, with Close and View on every request. By default
+ * they're grouped by family (one merged Family Head cell per family);
+ * clicking a column heading sorts by it, and sorting by anything other
+ * than Family Head lists one row per request instead.
+ */
 export default function PrayerRequestTable({ rows, show }: { rows: PrayerRequestView[]; show: string }) {
   const [viewing, setViewing] = useState<PrayerRequestView | null>(null);
+  const [sort, setSort] = useState<Sort>(null);
+
+  const grouped = !sort || sort.key === "family";
   const families = groupByFamily(rows);
+  if (sort?.key === "family") {
+    families.sort((a, b) => (sort.dir === "asc" ? 1 : -1) * compare(a[0], b[0], "family"));
+  }
+  // Array sort is stable, so ties keep the incoming newest-first order.
+  const flat = sort && !grouped ? [...rows].sort((a, b) => (sort.dir === "asc" ? 1 : -1) * compare(a, b, sort.key)) : rows;
+
   const th = "text-left text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2 whitespace-nowrap";
   const td = "px-3 py-2.5 text-sm text-gray-800 align-top";
 
+  function toggle(key: SortKey) {
+    setSort((current) =>
+      current?.key === key
+        ? { key, dir: current.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: key === "date" ? "desc" : "asc" }
+    );
+  }
+
+  const header = (key: SortKey, label: string) => {
+    const active = sort?.key === key;
+    const Arrow = !active ? ArrowUpDown : sort.dir === "asc" ? ArrowUp : ArrowDown;
+    return (
+      <th className={th} aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}>
+        <button
+          type="button"
+          onClick={() => toggle(key)}
+          className={`inline-flex items-center gap-1 uppercase tracking-wide hover:text-blue-900 ${active ? "text-blue-900" : ""}`}
+        >
+          {label}
+          <Arrow size={13} className={active ? "" : "opacity-40"} />
+        </button>
+      </th>
+    );
+  };
+
+  const nameCell = (r: PrayerRequestView) => (
+    <>
+      {r.name}
+      {r.isClosed && (
+        <span className="ml-2 text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-green-50 text-green-800 border border-green-200">
+          Closed
+        </span>
+      )}
+    </>
+  );
+  const problemCell = (r: PrayerRequestView) => (
+    <>
+      {r.type && <span className="block text-xs font-semibold text-blue-900 mb-0.5">{r.type}</span>}
+      <span className="line-clamp-2 text-gray-700">{r.request}</span>
+    </>
+  );
+  const actions = (r: PrayerRequestView, layout: "row" | "grid") => (
+    <div className={layout === "row" ? "flex justify-end gap-2" : "grid grid-cols-2 gap-2 pt-1"}>
+      <CloseToggle row={r} show={show} />
+      <button
+        type="button"
+        onClick={() => setViewing(r)}
+        className={`${button} border border-blue-900 text-blue-900 hover:bg-blue-50`}
+      >
+        <Eye size={14} />
+        View
+      </button>
+    </div>
+  );
+  const card = (r: PrayerRequestView, withFamily: boolean) => (
+    <li key={r.id} className="p-4 space-y-2">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-semibold text-gray-900">{nameCell(r)}</p>
+          {withFamily && <p className="text-xs text-gray-500">Family of {r.familyHead}</p>}
+        </div>
+        <span className="text-xs text-gray-500 whitespace-nowrap">{r.dateLabel}</span>
+      </div>
+      <div className="text-sm">{problemCell(r)}</div>
+      {actions(r, "grid")}
+    </li>
+  );
+  const phoneSortValue = PHONE_SORTS.find((o) => o.sort?.key === sort?.key && o.sort?.dir === sort?.dir)?.value ?? "";
+
   return (
     <>
-      {/* Phones: one card per request, so nothing hides off the right edge. */}
+      <div className="flex items-center justify-end gap-3 text-sm">
+        <label className="md:hidden flex items-center gap-2 text-gray-600">
+          Sort by
+          <select
+            value={phoneSortValue}
+            onChange={(e) => setSort(PHONE_SORTS.find((o) => o.value === e.target.value)?.sort ?? null)}
+            className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-gray-900"
+          >
+            {PHONE_SORTS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        {sort && (
+          <button type="button" onClick={() => setSort(null)} className="hidden md:inline text-blue-900 hover:underline">
+            Reset to family view
+          </button>
+        )}
+      </div>
+
+      {/* Phones: cards, so nothing hides off the right edge. */}
       <div className="md:hidden space-y-4">
-        {families.map((group) => (
-          <section key={group[0].familyId} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <h3 className="px-4 py-2 bg-gray-50 border-b border-gray-100 text-sm font-semibold text-blue-900">
-              Family of {group[0].familyHead}
-              {group.length > 1 && <span className="font-normal text-gray-500"> · {group.length} requests</span>}
-            </h3>
-            <ul className="divide-y divide-gray-100">
-              {group.map((r) => (
-                <li key={r.id} className="p-4 space-y-2">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="font-semibold text-gray-900 min-w-0">
-                      {r.name}
-                      {r.isClosed && (
-                        <span className="ml-2 text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-green-50 text-green-800 border border-green-200">
-                          Closed
-                        </span>
-                      )}
-                    </p>
-                    <span className="text-xs text-gray-500 whitespace-nowrap">{r.dateLabel}</span>
-                  </div>
-                  <div className="text-sm">
-                    {r.type && <span className="block text-xs font-semibold text-blue-900">{r.type}</span>}
-                    <span className="line-clamp-2 text-gray-700">{r.request}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <CloseToggle row={r} show={show} />
-                    <button
-                      type="button"
-                      onClick={() => setViewing(r)}
-                      className={`${button} border border-blue-900 text-blue-900 hover:bg-blue-50`}
-                    >
-                      <Eye size={14} />
-                      View
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
+        {grouped ? (
+          families.map((group) => (
+            <section key={group[0].familyId} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <h3 className="px-4 py-2 bg-gray-50 border-b border-gray-100 text-sm font-semibold text-blue-900">
+                Family of {group[0].familyHead}
+                {group.length > 1 && <span className="font-normal text-gray-500"> · {group.length} requests</span>}
+              </h3>
+              <ul className="divide-y divide-gray-100">{group.map((r) => card(r, false))}</ul>
+            </section>
+          ))
+        ) : (
+          <ul className="bg-white rounded-2xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+            {flat.map((r) => card(r, true))}
+          </ul>
+        )}
       </div>
 
       {/* Tablets and computers: the table. */}
@@ -245,57 +359,49 @@ export default function PrayerRequestTable({ rows, show }: { rows: PrayerRequest
         <table className="w-full min-w-[640px]">
           <thead className="bg-gray-50">
             <tr>
-              <th className={th}>Family Head</th>
-              <th className={th}>Name of the Person</th>
-              <th className={th}>Date</th>
-              <th className={th}>Problem</th>
+              {header("family", "Family Head")}
+              {header("name", "Name of the Person")}
+              {header("date", "Date")}
+              {header("problem", "Problem")}
               <th className={`${th} text-right`}></th>
             </tr>
           </thead>
-          {/* One tbody per family, so the merged Family Head cell and a
-              stronger divider mark where each family's requests start. */}
-          {families.map((group) => (
-            <tbody key={group[0].familyId} className="border-t-2 border-gray-200">
-              {group.map((r, i) => (
-                <tr key={r.id} className={i > 0 ? "border-t border-gray-100" : undefined}>
-                  {i === 0 && (
-                    <td rowSpan={group.length} className={`${td} font-medium text-gray-900 bg-gray-50/60 border-r border-gray-100`}>
-                      {r.familyHead}
-                      {group.length > 1 && (
-                        <span className="block text-xs font-normal text-gray-500">{group.length} requests</span>
-                      )}
-                    </td>
-                  )}
-                  <td className={`${td} font-semibold text-gray-900`}>
-                    {r.name}
-                    {r.isClosed && (
-                      <span className="ml-2 text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-green-50 text-green-800 border border-green-200">
-                        Closed
-                      </span>
+          {grouped ? (
+            // One tbody per family, so the merged Family Head cell and a
+            // stronger divider mark where each family's requests start.
+            families.map((group) => (
+              <tbody key={group[0].familyId} className="border-t-2 border-gray-200">
+                {group.map((r, i) => (
+                  <tr key={r.id} className={i > 0 ? "border-t border-gray-100" : undefined}>
+                    {i === 0 && (
+                      <td rowSpan={group.length} className={`${td} font-medium text-gray-900 bg-gray-50/60 border-r border-gray-100`}>
+                        {r.familyHead}
+                        {group.length > 1 && (
+                          <span className="block text-xs font-normal text-gray-500">{group.length} requests</span>
+                        )}
+                      </td>
                     )}
-                  </td>
+                    <td className={`${td} font-semibold text-gray-900`}>{nameCell(r)}</td>
+                    <td className={`${td} whitespace-nowrap`}>{r.dateLabel}</td>
+                    <td className={`${td} max-w-xs`}>{problemCell(r)}</td>
+                    <td className={`${td} text-right`}>{actions(r, "row")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            ))
+          ) : (
+            <tbody>
+              {flat.map((r) => (
+                <tr key={r.id} className="border-t border-gray-100 hover:bg-gray-50">
+                  <td className={td}>{r.familyHead}</td>
+                  <td className={`${td} font-semibold text-gray-900`}>{nameCell(r)}</td>
                   <td className={`${td} whitespace-nowrap`}>{r.dateLabel}</td>
-                  <td className={`${td} max-w-xs`}>
-                    {r.type && <span className="block text-xs font-semibold text-blue-900 mb-0.5">{r.type}</span>}
-                    <span className="line-clamp-2 text-gray-700">{r.request}</span>
-                  </td>
-                  <td className={`${td} text-right`}>
-                    <div className="flex justify-end gap-2">
-                      <CloseToggle row={r} show={show} />
-                      <button
-                        type="button"
-                        onClick={() => setViewing(r)}
-                        className={`${button} border border-blue-900 text-blue-900 hover:bg-blue-50`}
-                      >
-                        <Eye size={14} />
-                        View
-                      </button>
-                    </div>
-                  </td>
+                  <td className={`${td} max-w-xs`}>{problemCell(r)}</td>
+                  <td className={`${td} text-right`}>{actions(r, "row")}</td>
                 </tr>
               ))}
             </tbody>
-          ))}
+          )}
         </table>
       </div>
 
