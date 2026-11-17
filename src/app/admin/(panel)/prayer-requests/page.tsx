@@ -148,6 +148,7 @@ export default async function PrayerRequestsPage({ searchParams }: PageProps<"/a
                 id: r.request_uuid,
                 date: r.request_date,
                 dateLabel: DATE.format(new Date(`${r.request_date}T00:00:00Z`)),
+                familyId: person?.family_uuid ?? r.member_uuid,
                 familyHead: person ? displayName(headOf.get(person.family_uuid)) : "—",
                 name: displayName(person),
                 type: r.request_type,

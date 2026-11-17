@@ -9,6 +9,7 @@ export interface PrayerRequestView {
   id: string;
   date: string; // YYYY-MM-DD
   dateLabel: string;
+  familyId: string;
   familyHead: string;
   name: string;
   type: string | null;
@@ -172,81 +173,56 @@ function ViewWindow({ row, show, onDismiss }: { row: PrayerRequestView; show: st
 }
 
 /** Saved prayer requests as a table, with Close and View on every row. */
+/**
+ * Groups requests by family, keeping the incoming (newest-first) order: a
+ * family appears where its newest request would, with all its requests
+ * together under it.
+ */
+function groupByFamily(rows: PrayerRequestView[]) {
+  const groups = new Map<string, PrayerRequestView[]>();
+  for (const row of rows) {
+    const list = groups.get(row.familyId) ?? [];
+    list.push(row);
+    groups.set(row.familyId, list);
+  }
+  return [...groups.values()];
+}
+
 export default function PrayerRequestTable({ rows, show }: { rows: PrayerRequestView[]; show: string }) {
   const [viewing, setViewing] = useState<PrayerRequestView | null>(null);
+  const families = groupByFamily(rows);
   const th = "text-left text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2 whitespace-nowrap";
   const td = "px-3 py-2.5 text-sm text-gray-800 align-top";
 
   return (
     <>
       {/* Phones: one card per request, so nothing hides off the right edge. */}
-      <ul className="md:hidden space-y-3">
-        {rows.map((r) => (
-          <li key={r.id} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 space-y-2">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-semibold text-gray-900">
-                  {r.name}
-                  {r.isClosed && (
-                    <span className="ml-2 text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-green-50 text-green-800 border border-green-200">
-                      Closed
-                    </span>
-                  )}
-                </p>
-                <p className="text-xs text-gray-500">Family of {r.familyHead}</p>
-              </div>
-              <span className="text-xs text-gray-500 whitespace-nowrap">{r.dateLabel}</span>
-            </div>
-            <div className="text-sm">
-              {r.type && <span className="block text-xs font-semibold text-blue-900">{r.type}</span>}
-              <span className="line-clamp-2 text-gray-700">{r.request}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <CloseToggle row={r} show={show} />
-              <button
-                type="button"
-                onClick={() => setViewing(r)}
-                className={`${button} border border-blue-900 text-blue-900 hover:bg-blue-50`}
-              >
-                <Eye size={14} />
-                View
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      {/* Tablets and computers: the table. */}
-      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
-        <table className="w-full min-w-[640px]">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className={th}>Date</th>
-              <th className={th}>Family Head</th>
-              <th className={th}>Name of the Person</th>
-              <th className={th}>Problem</th>
-              <th className={`${th} text-right`}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.id} className="border-t border-gray-100 hover:bg-gray-50">
-                <td className={`${td} whitespace-nowrap`}>{r.dateLabel}</td>
-                <td className={td}>{r.familyHead}</td>
-                <td className={`${td} font-semibold text-gray-900`}>
-                  {r.name}
-                  {r.isClosed && (
-                    <span className="ml-2 text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-green-50 text-green-800 border border-green-200">
-                      Closed
-                    </span>
-                  )}
-                </td>
-                <td className={`${td} max-w-xs`}>
-                  {r.type && <span className="block text-xs font-semibold text-blue-900 mb-0.5">{r.type}</span>}
-                  <span className="line-clamp-2 text-gray-700">{r.request}</span>
-                </td>
-                <td className={`${td} text-right`}>
-                  <div className="flex justify-end gap-2">
+      <div className="md:hidden space-y-4">
+        {families.map((group) => (
+          <section key={group[0].familyId} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <h3 className="px-4 py-2 bg-gray-50 border-b border-gray-100 text-sm font-semibold text-blue-900">
+              Family of {group[0].familyHead}
+              {group.length > 1 && <span className="font-normal text-gray-500"> · {group.length} requests</span>}
+            </h3>
+            <ul className="divide-y divide-gray-100">
+              {group.map((r) => (
+                <li key={r.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-semibold text-gray-900 min-w-0">
+                      {r.name}
+                      {r.isClosed && (
+                        <span className="ml-2 text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-green-50 text-green-800 border border-green-200">
+                          Closed
+                        </span>
+                      )}
+                    </p>
+                    <span className="text-xs text-gray-500 whitespace-nowrap">{r.dateLabel}</span>
+                  </div>
+                  <div className="text-sm">
+                    {r.type && <span className="block text-xs font-semibold text-blue-900">{r.type}</span>}
+                    <span className="line-clamp-2 text-gray-700">{r.request}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
                     <CloseToggle row={r} show={show} />
                     <button
                       type="button"
@@ -257,10 +233,69 @@ export default function PrayerRequestTable({ rows, show }: { rows: PrayerRequest
                       View
                     </button>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+
+      {/* Tablets and computers: the table. */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table className="w-full min-w-[640px]">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className={th}>Family Head</th>
+              <th className={th}>Name of the Person</th>
+              <th className={th}>Date</th>
+              <th className={th}>Problem</th>
+              <th className={`${th} text-right`}></th>
+            </tr>
+          </thead>
+          {/* One tbody per family, so the merged Family Head cell and a
+              stronger divider mark where each family's requests start. */}
+          {families.map((group) => (
+            <tbody key={group[0].familyId} className="border-t-2 border-gray-200">
+              {group.map((r, i) => (
+                <tr key={r.id} className={i > 0 ? "border-t border-gray-100" : undefined}>
+                  {i === 0 && (
+                    <td rowSpan={group.length} className={`${td} font-medium text-gray-900 bg-gray-50/60 border-r border-gray-100`}>
+                      {r.familyHead}
+                      {group.length > 1 && (
+                        <span className="block text-xs font-normal text-gray-500">{group.length} requests</span>
+                      )}
+                    </td>
+                  )}
+                  <td className={`${td} font-semibold text-gray-900`}>
+                    {r.name}
+                    {r.isClosed && (
+                      <span className="ml-2 text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-green-50 text-green-800 border border-green-200">
+                        Closed
+                      </span>
+                    )}
+                  </td>
+                  <td className={`${td} whitespace-nowrap`}>{r.dateLabel}</td>
+                  <td className={`${td} max-w-xs`}>
+                    {r.type && <span className="block text-xs font-semibold text-blue-900 mb-0.5">{r.type}</span>}
+                    <span className="line-clamp-2 text-gray-700">{r.request}</span>
+                  </td>
+                  <td className={`${td} text-right`}>
+                    <div className="flex justify-end gap-2">
+                      <CloseToggle row={r} show={show} />
+                      <button
+                        type="button"
+                        onClick={() => setViewing(r)}
+                        className={`${button} border border-blue-900 text-blue-900 hover:bg-blue-50`}
+                      >
+                        <Eye size={14} />
+                        View
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          ))}
         </table>
       </div>
 
