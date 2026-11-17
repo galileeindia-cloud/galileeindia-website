@@ -13,9 +13,12 @@ export default async function AdminPanelLayout({ children }: LayoutProps<"/admin
           <Link href="/admin" className="font-bold text-lg">
             Galilee Admin
           </Link>
-          <nav className="flex gap-4 text-sm font-medium">
+          <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-medium">
             <Link href="/admin" className="hover:text-amber-300">
               Reports
+            </Link>
+            <Link href="/admin/prayer-requests" className="hover:text-amber-300">
+              Prayer Requests
             </Link>
             <Link href="/admin/families" className="hover:text-amber-300">
               Families

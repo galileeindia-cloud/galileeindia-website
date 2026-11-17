@@ -17,6 +17,7 @@ import {
   requireAdmin,
 } from "@/lib/adminAuth";
 import { sendEmail, siteUrl } from "@/lib/mailer";
+import { PRAYER_REQUEST_TYPES } from "@/lib/prayerRequestTypes";
 import { daysBetween, parseIsoDay } from "@/lib/occasions";
 import { sendOccasionsReport } from "@/lib/sendOccasionsReport";
 import { SALUTATIONS } from "@/types/familyRegistrationSchema";
@@ -309,4 +310,60 @@ export async function updateFamilyAction(formData: FormData) {
 
   revalidatePath("/admin", "layout");
   redirect(`${back}?saved=1`);
+}
+
+// ---------- prayer requests ----------
+
+const prayerFields = z.object({
+  request_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a date"),
+  member_uuid: z.string().uuid("Choose the person this request is for"),
+  request_type: z.enum(PRAYER_REQUEST_TYPES, { errorMap: () => ({ message: "Choose the type of request" }) }),
+  prayer_request: z.string().trim().min(1, "Enter the prayer request"),
+});
+
+export async function addPrayerRequestAction(formData: FormData) {
+  const admin = await requireAdmin();
+  const back = "/admin/prayer-requests";
+
+  const parsed = prayerFields.safeParse({
+    request_date: formData.get("request_date"),
+    member_uuid: formData.get("member_uuid"),
+    request_type: formData.get("request_type"),
+    prayer_request: formData.get("prayer_request"),
+  });
+  if (!parsed.success) redirect(`${back}?${errorParam(parsed.error.issues[0].message)}#new`);
+
+  // New requests always start open; they're closed later from the list.
+  const { error } = await supabaseAdmin.from("member_prayer_requests").insert([
+    { request_uuid: randomUUID(), ...parsed.data, is_closed: false, created_by: admin.memberUuid },
+  ]);
+  if (error) {
+    // Postgres unique_violation: (member_uuid, request_date) is unique.
+    if (error.code === "23505") {
+      redirect(
+        `${back}?${errorParam("This person already has a prayer request on this date. Choose a different date.")}#new`
+      );
+    }
+    console.error("Add prayer request failed:", error);
+    redirect(`${back}?${errorParam("Couldn't save the prayer request. Please try again.")}#new`);
+  }
+
+  revalidatePath(back);
+  redirect(`${back}?saved=1`);
+}
+
+export async function setPrayerRequestClosedAction(formData: FormData) {
+  await requireAdmin();
+  const requestUuid = String(formData.get("request_uuid"));
+  const close = formData.get("close") === "1";
+  const show = String(formData.get("show") ?? "");
+
+  const { error } = await supabaseAdmin
+    .from("member_prayer_requests")
+    .update({ is_closed: close, closed_at: close ? new Date().toISOString() : null })
+    .eq("request_uuid", requestUuid);
+  if (error) console.error("Update prayer request failed:", error);
+
+  revalidatePath("/admin/prayer-requests");
+  redirect(`/admin/prayer-requests${show ? `?show=${encodeURIComponent(show)}` : ""}`);
 }
