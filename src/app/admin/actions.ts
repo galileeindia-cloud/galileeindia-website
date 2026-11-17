@@ -367,3 +367,32 @@ export async function setPrayerRequestClosedAction(formData: FormData) {
   revalidatePath("/admin/prayer-requests");
   redirect(`/admin/prayer-requests${show ? `?show=${encodeURIComponent(show)}` : ""}`);
 }
+
+export async function updatePrayerRequestAction(formData: FormData) {
+  await requireAdmin();
+  const requestUuid = String(formData.get("request_uuid"));
+  const show = String(formData.get("show") ?? "");
+  const back = `/admin/prayer-requests${show ? `?show=${encodeURIComponent(show)}&` : "?"}`;
+
+  const parsed = prayerFields.omit({ member_uuid: true }).safeParse({
+    request_date: formData.get("request_date"),
+    request_type: formData.get("request_type"),
+    prayer_request: formData.get("prayer_request"),
+  });
+  if (!parsed.success) redirect(`${back}${errorParam(parsed.error.issues[0].message)}`);
+
+  const { error } = await supabaseAdmin
+    .from("member_prayer_requests")
+    .update(parsed.data)
+    .eq("request_uuid", requestUuid);
+  if (error) {
+    if (error.code === "23505") {
+      redirect(`${back}${errorParam("This person already has a prayer request on that date. Choose a different date.")}`);
+    }
+    console.error("Edit prayer request failed:", error);
+    redirect(`${back}${errorParam("Couldn't save the changes. Please try again.")}`);
+  }
+
+  revalidatePath("/admin/prayer-requests");
+  redirect(`${back}updated=1`);
+}

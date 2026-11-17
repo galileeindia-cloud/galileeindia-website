@@ -1,0 +1,270 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { CheckCircle2, Eye, Pencil, RotateCcw, Save, X } from "lucide-react";
+import { setPrayerRequestClosedAction, updatePrayerRequestAction } from "@/app/admin/actions";
+import { PRAYER_REQUEST_TYPES } from "@/lib/prayerRequestTypes";
+
+export interface PrayerRequestView {
+  id: string;
+  date: string; // YYYY-MM-DD
+  dateLabel: string;
+  familyHead: string;
+  name: string;
+  type: string | null;
+  request: string;
+  isClosed: boolean;
+  recorded: string;
+  closedLabel: string | null;
+}
+
+const button =
+  "inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition disabled:opacity-60";
+
+/** Marks one request closed (or reopens it). A small form so it works without JS too. */
+function CloseToggle({ row, show, className = "" }: { row: PrayerRequestView; show: string; className?: string }) {
+  return (
+    <form action={setPrayerRequestClosedAction} className={className}>
+      <input type="hidden" name="request_uuid" value={row.id} />
+      <input type="hidden" name="close" value={row.isClosed ? "0" : "1"} />
+      <input type="hidden" name="show" value={show} />
+      <button
+        type="submit"
+        className={`${button} w-full ${
+          row.isClosed
+            ? "border border-gray-300 text-gray-700 hover:bg-gray-50"
+            : "border border-green-600 text-green-700 hover:bg-green-50"
+        }`}
+      >
+        {row.isClosed ? <RotateCcw size={14} /> : <CheckCircle2 size={14} />}
+        {row.isClosed ? "Reopen" : "Close"}
+      </button>
+    </form>
+  );
+}
+
+/** The "View" window: full details, with Edit, Close (the request) and Close Window. */
+function ViewWindow({ row, show, onDismiss }: { row: PrayerRequestView; show: string; onDismiss: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const dismissRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    dismissRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onDismiss();
+    window.addEventListener("keydown", onKey);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [onDismiss]);
+
+  const label = "block text-sm font-medium text-gray-700 mb-1";
+  const input =
+    "w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-900";
+  const detail = (term: string, value: React.ReactNode) => (
+    <div className="py-2 sm:flex sm:gap-4">
+      <dt className="sm:w-36 shrink-0 text-sm text-gray-500">{term}</dt>
+      <dd className="font-medium text-gray-900 whitespace-pre-wrap break-words">{value}</dd>
+    </div>
+  );
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-3 sm:p-6"
+      onClick={(e) => e.target === e.currentTarget && onDismiss()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Prayer request for ${row.name}`}
+        className="w-full max-w-lg max-h-full overflow-y-auto bg-white rounded-2xl shadow-2xl animate-pop-in"
+      >
+        <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-gray-100">
+          <h3 className="font-bold text-blue-900">{editing ? "Edit Prayer Request" : "Prayer Request"}</h3>
+          <button
+            ref={dismissRef}
+            type="button"
+            onClick={onDismiss}
+            aria-label="Close window"
+            className="p-1 rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {editing ? (
+          <form action={updatePrayerRequestAction} onSubmit={() => setSaving(true)} className="p-5 space-y-4">
+            <input type="hidden" name="request_uuid" value={row.id} />
+            <input type="hidden" name="show" value={show} />
+            <p className="text-sm text-gray-600">
+              For <span className="font-semibold text-gray-900">{row.name}</span> (family of {row.familyHead})
+            </p>
+            <div>
+              <label htmlFor="edit_date" className={label}>Date</label>
+              <input id="edit_date" name="request_date" type="date" defaultValue={row.date} required className={input} />
+            </div>
+            <div>
+              <label htmlFor="edit_type" className={label}>Type of Request</label>
+              <select id="edit_type" name="request_type" defaultValue={row.type ?? ""} required className={input}>
+                <option value="" disabled>Select a type…</option>
+                {PRAYER_REQUEST_TYPES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="edit_request" className={label}>Prayer Request</label>
+              <textarea id="edit_request" name="prayer_request" rows={5} defaultValue={row.request} required className={input} />
+            </div>
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={() => setEditing(false)}
+                disabled={saving}
+                className={`${button} py-2.5 sm:w-32 border border-gray-300 text-gray-700 hover:bg-gray-50`}
+              >
+                Cancel
+              </button>
+              <button type="submit" disabled={saving} className={`${button} py-2.5 flex-1 bg-blue-900 text-white hover:bg-blue-800`}>
+                <Save size={16} />
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="p-5 space-y-4">
+            <dl className="divide-y divide-gray-100">
+              {detail("Date", row.dateLabel)}
+              {detail("Family Head", row.familyHead)}
+              {detail("Name", row.name)}
+              {detail("Type of Request", row.type ?? "—")}
+              {detail("Prayer Request", row.request)}
+              {detail("Status", row.isClosed ? `Closed${row.closedLabel ? ` · ${row.closedLabel}` : ""}` : "Open")}
+              {detail("Recorded", row.recorded)}
+            </dl>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className={`${button} py-2.5 border border-blue-900 text-blue-900 hover:bg-blue-50`}
+              >
+                <Pencil size={15} />
+                Edit
+              </button>
+              <CloseToggle row={row} show={show} />
+              <button
+                type="button"
+                onClick={onDismiss}
+                className={`${button} py-2.5 col-span-2 sm:col-span-1 bg-gray-100 text-gray-800 hover:bg-gray-200`}
+              >
+                <X size={15} />
+                Close Window
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Saved prayer requests as a table, with Close and View on every row. */
+export default function PrayerRequestTable({ rows, show }: { rows: PrayerRequestView[]; show: string }) {
+  const [viewing, setViewing] = useState<PrayerRequestView | null>(null);
+  const th = "text-left text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2 whitespace-nowrap";
+  const td = "px-3 py-2.5 text-sm text-gray-800 align-top";
+
+  return (
+    <>
+      {/* Phones: one card per request, so nothing hides off the right edge. */}
+      <ul className="md:hidden space-y-3">
+        {rows.map((r) => (
+          <li key={r.id} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 space-y-2">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-semibold text-gray-900">
+                  {r.name}
+                  {r.isClosed && (
+                    <span className="ml-2 text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-green-50 text-green-800 border border-green-200">
+                      Closed
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs text-gray-500">Family of {r.familyHead}</p>
+              </div>
+              <span className="text-xs text-gray-500 whitespace-nowrap">{r.dateLabel}</span>
+            </div>
+            <div className="text-sm">
+              {r.type && <span className="block text-xs font-semibold text-blue-900">{r.type}</span>}
+              <span className="line-clamp-2 text-gray-700">{r.request}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <CloseToggle row={r} show={show} />
+              <button
+                type="button"
+                onClick={() => setViewing(r)}
+                className={`${button} border border-blue-900 text-blue-900 hover:bg-blue-50`}
+              >
+                <Eye size={14} />
+                View
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* Tablets and computers: the table. */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table className="w-full min-w-[640px]">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className={th}>Date</th>
+              <th className={th}>Family Head</th>
+              <th className={th}>Name of the Person</th>
+              <th className={th}>Problem</th>
+              <th className={`${th} text-right`}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id} className="border-t border-gray-100 hover:bg-gray-50">
+                <td className={`${td} whitespace-nowrap`}>{r.dateLabel}</td>
+                <td className={td}>{r.familyHead}</td>
+                <td className={`${td} font-semibold text-gray-900`}>
+                  {r.name}
+                  {r.isClosed && (
+                    <span className="ml-2 text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-green-50 text-green-800 border border-green-200">
+                      Closed
+                    </span>
+                  )}
+                </td>
+                <td className={`${td} max-w-xs`}>
+                  {r.type && <span className="block text-xs font-semibold text-blue-900 mb-0.5">{r.type}</span>}
+                  <span className="line-clamp-2 text-gray-700">{r.request}</span>
+                </td>
+                <td className={`${td} text-right`}>
+                  <div className="flex justify-end gap-2">
+                    <CloseToggle row={r} show={show} />
+                    <button
+                      type="button"
+                      onClick={() => setViewing(r)}
+                      className={`${button} border border-blue-900 text-blue-900 hover:bg-blue-50`}
+                    >
+                      <Eye size={14} />
+                      View
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {viewing && <ViewWindow row={viewing} show={show} onDismiss={() => setViewing(null)} />}
+    </>
+  );
+}
