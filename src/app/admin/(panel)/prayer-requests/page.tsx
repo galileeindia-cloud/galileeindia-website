@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HandHeart } from "lucide-react";
+import { FileText, HandHeart } from "lucide-react";
 import { requireAdmin } from "@/lib/adminAuth";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { CHURCH_TIME_ZONE, todayIn, toIsoDay } from "@/lib/occasions";
@@ -122,6 +122,15 @@ export default async function PrayerRequestsPage({ searchParams }: PageProps<"/a
       <section className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="font-bold text-blue-900 mr-auto">Saved Requests</h2>
+          <a
+            href="/admin/prayer-report"
+            target="_blank"
+            rel="noopener"
+            className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border border-blue-900 text-blue-900 bg-white hover:bg-blue-50 font-medium"
+          >
+            <FileText size={15} />
+            PDF Report
+          </a>
           {FILTERS.map((f) => (
             <Link
               key={f.key}
