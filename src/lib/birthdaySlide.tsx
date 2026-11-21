@@ -5,8 +5,8 @@ import { join } from "node:path";
 import type { CalendarDay } from "@/lib/occasions";
 
 // A 1920x1080 "Happy Birthday" slide for the church LED screens. It shows
-// names only -- the pilot document promises members that dates of birth
-// are never displayed.
+// each name with the day and month of the birthday (DD/MM) -- never the
+// year.
 
 const [greatVibes, notoBold, notoMedium, logo] = await Promise.all([
   readFile(join(process.cwd(), "src/fonts/GreatVibes-Regular.ttf")),
@@ -35,18 +35,36 @@ function weekLabel(days: CalendarDay[]) {
   return `${first.day} – ${last.day} ${month(last)} ${last.year}`;
 }
 
-/** More names -> more columns and smaller text, so a busy week still fits. */
-function layoutFor(count: number) {
-  if (count <= 4) return { columns: 1, fontSize: 68 };
-  if (count <= 8) return { columns: 2, fontSize: 58 };
-  if (count <= 12) return { columns: 2, fontSize: 46 };
-  if (count <= 18) return { columns: 3, fontSize: 40 };
-  return { columns: 3, fontSize: 32 };
+/**
+ * Picks the largest text size (and fewest columns) at which every
+ * "name  DD/MM" line fits its column and all rows fit the names area.
+ * Widths are estimated generously (0.62 em per character) since the
+ * renderer can't measure text in advance.
+ */
+function layoutFor(labels: string[]) {
+  const AREA_WIDTH = 1640;
+  const AREA_HEIGHT = 450;
+  const longest = Math.max(0, ...labels.map((l) => l.length));
+  for (let fontSize = 68; fontSize >= 20; fontSize -= 2) {
+    for (let columns = 1; columns <= 3; columns++) {
+      const rows = Math.ceil(labels.length / columns);
+      const fitsWide = longest * 0.62 * fontSize <= AREA_WIDTH / columns - 30;
+      const fitsTall = rows * (fontSize * 1.36 + 18) <= AREA_HEIGHT;
+      if (fitsWide && fitsTall) return { columns, fontSize };
+    }
+  }
+  return { columns: 3, fontSize: 20 };
 }
 
-/** PNG bytes of the birthday slide for `names` in the week `days`. */
-export async function renderBirthdaySlide(names: string[], days: CalendarDay[]): Promise<Buffer> {
-  const { columns, fontSize } = layoutFor(names.length);
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/** PNG bytes of the birthday slide for `people` in the week `days`. */
+export async function renderBirthdaySlide(
+  people: { name: string; on: CalendarDay }[],
+  days: CalendarDay[]
+): Promise<Buffer> {
+  // Each line is the name plus about 7 characters of space and date.
+  const { columns, fontSize } = layoutFor(people.map((p) => `${p.name}       `));
 
   const image = new ImageResponse(
     (
@@ -76,15 +94,17 @@ export async function renderBirthdaySlide(names: string[], days: CalendarDay[]):
           }}
         />
 
-        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={logoSrc}
-            width={120}
-            height={120}
-            alt=""
-            style={{ borderRadius: 60, background: "#ffffff", padding: 6 }}
-          />
+        {/* The logo sits in the top-left corner; everything else stays centred. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logoSrc}
+          width={170}
+          height={170}
+          alt=""
+          style={{ position: "absolute", top: 70, left: 80, borderRadius: 85, background: "#ffffff", padding: 8 }}
+        />
+
+        <div style={{ display: "flex", alignItems: "center", minHeight: 120 }}>
           <div style={{ fontSize: 40, fontWeight: 700, letterSpacing: 2, color: GOLD }}>
             GALILEE PRAYER FELLOWSHIP
           </div>
@@ -118,16 +138,17 @@ export async function renderBirthdaySlide(names: string[], days: CalendarDay[]):
             rowGap: 18,
           }}
         >
-          {names.length === 0 ? (
+          {people.length === 0 ? (
             <div style={{ fontSize: 48, color: SOFT }}>God bless every member this week!</div>
           ) : (
-            names.map((name) => (
+            people.map(({ name, on }, i) => (
               <div
-                key={name}
+                key={i}
                 style={{
                   width: `${100 / columns}%`,
                   display: "flex",
                   justifyContent: "center",
+                  alignItems: "baseline",
                   fontSize,
                   fontWeight: 700,
                 }}
@@ -136,6 +157,9 @@ export async function renderBirthdaySlide(names: string[], days: CalendarDay[]):
                     drawing but not when measuring word widths, which leaves a
                     visible gap after whichever word contains it. */}
                 {name.replaceAll(" ", NBSP)}
+                <span style={{ marginLeft: fontSize * 0.45, fontSize: fontSize * 0.8, fontWeight: 500, color: GOLD }}>
+                  {`${pad(on.day)}/${pad(on.month)}`}
+                </span>
               </div>
             ))
           )}

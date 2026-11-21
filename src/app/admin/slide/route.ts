@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
   const { birthdays } = await getWeeklyOccasions(days);
   const slide = await renderBirthdaySlide(
-    birthdays.map((b) => b.name),
+    birthdays,
     days
   );
 

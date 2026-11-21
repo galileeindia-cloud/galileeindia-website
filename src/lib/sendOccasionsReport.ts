@@ -18,7 +18,7 @@ export async function sendOccasionsReport(days: CalendarDay[]) {
 
   const { birthdays, anniversaries } = await getWeeklyOccasions(days);
   const slide = await renderBirthdaySlide(
-    birthdays.map((b) => b.name),
+    birthdays,
     days
   );
   const email = buildWeeklyReportEmail(days, birthdays, anniversaries, `cid:${SLIDE_CID}`);

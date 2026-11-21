@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   if (params.get("slide") === "1" || params.get("dryRun") === "1") {
     const { birthdays, anniversaries } = await getWeeklyOccasions(days);
     const slide = await renderBirthdaySlide(
-      birthdays.map((b) => b.name),
+      birthdays,
       days
     );
     if (params.get("slide") === "1") {
