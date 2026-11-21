@@ -5,7 +5,7 @@ import { join } from "node:path";
 import type { CalendarDay } from "@/lib/occasions";
 
 // A 1920x1080 "Happy Birthday" slide for the church LED screens. It shows
-// each name with the day and month of the birthday (DD/MM) -- never the
+// each name with the day and month of the birthday (", 24 Nov") -- never the
 // year.
 
 const [greatVibes, notoBold, notoMedium, logo] = await Promise.all([
@@ -56,7 +56,9 @@ function layoutFor(labels: string[]) {
   return { columns: 3, fontSize: 20 };
 }
 
-const pad = (n: number) => String(n).padStart(2, "0");
+const SHORT_MONTH = new Intl.DateTimeFormat("en-IN", { month: "short", timeZone: "UTC" });
+/** "24 Nov" -- day and month only, never the year. */
+const dateLabel = (on: CalendarDay) => `${on.day}${NBSP}${SHORT_MONTH.format(on.date)}`;
 
 /** PNG bytes of the birthday slide for `people` in the week `days`. */
 export async function renderBirthdaySlide(
@@ -64,7 +66,9 @@ export async function renderBirthdaySlide(
   days: CalendarDay[]
 ): Promise<Buffer> {
   // Each line is the name plus about 7 characters of space and date.
-  const { columns, fontSize } = layoutFor(people.map((p) => `${p.name}       `));
+  // Some stored names carry stray spaces, which would show before the comma.
+  people = people.map((p) => ({ ...p, name: p.name.replace(/\s+/g, " ").trim() }));
+  const { columns, fontSize } = layoutFor(people.map((p) => `${p.name}, ${dateLabel(p.on)}`));
 
   const image = new ImageResponse(
     (
@@ -156,9 +160,11 @@ export async function renderBirthdaySlide(
                 {/* One unbreakable "word": the renderer kerns "r." in "Mr." when
                     drawing but not when measuring word widths, which leaves a
                     visible gap after whichever word contains it. */}
-                {name.replaceAll(" ", NBSP)}
-                <span style={{ marginLeft: fontSize * 0.45, fontSize: fontSize * 0.8, fontWeight: 500, color: GOLD }}>
-                  {`${pad(on.day)}/${pad(on.month)}`}
+                {/* The comma rides on the name, so any measuring gap after
+                    "Mr." lands after the comma, where a space belongs. */}
+                {`${name},`.replaceAll(" ", NBSP)}
+                <span style={{ marginLeft: fontSize * 0.25, fontSize: fontSize * 0.8, fontWeight: 500, color: GOLD }}>
+                  {dateLabel(on)}
                 </span>
               </div>
             ))
