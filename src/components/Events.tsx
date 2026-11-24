@@ -1,5 +1,14 @@
 import { CalendarDays } from "lucide-react";
-import { getEventsNewestFirst } from "@/data/events";
+import { getEventsNewestFirst, type ChurchEvent } from "@/data/events";
+
+/** One entry per date, keeping the events' order within each day. */
+function groupByDate(events: ChurchEvent[]) {
+  const byDate = new Map<string, ChurchEvent[]>();
+  for (const event of events) {
+    byDate.set(event.date, [...(byDate.get(event.date) ?? []), event]);
+  }
+  return [...byDate.entries()];
+}
 
 export default function Events() {
   return (
@@ -19,11 +28,11 @@ export default function Events() {
         </h2>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {getEventsNewestFirst().map((item, index) => {
-            const [day, month, year] = item.date.split(" ");
+          {groupByDate(getEventsNewestFirst()).map(([date, items]) => {
+            const [day, month, year] = date.split(" ");
             return (
               <div
-                key={index}
+                key={date}
                 className="group bg-gray-50 rounded-2xl shadow-md hover:shadow-xl border border-gray-100 p-6 flex flex-col items-center text-center transition hover:-translate-y-1"
               >
                 <div className="flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-blue-900 text-white mb-4">
@@ -35,16 +44,22 @@ export default function Events() {
                   {year}
                 </p>
 
-                <p className="font-semibold text-gray-900 leading-snug">
-                  {item.event}
-                </p>
-
-                {item.time && (
-                  <p className="mt-2 text-sm font-medium text-blue-900">{item.time}</p>
-                )}
-                {item.speaker && (
-                  <p className="mt-1 text-sm text-gray-600">Speaker: {item.speaker}</p>
-                )}
+                {/* Several events on one day share the card, divided by a line. */}
+                <div className="w-full divide-y divide-gray-200">
+                  {items.map((item, index) => (
+                    <div key={index} className={index > 0 ? "pt-3 mt-3" : undefined}>
+                      <p className="font-semibold text-gray-900 leading-snug">
+                        {item.event}
+                      </p>
+                      {item.time && (
+                        <p className="mt-2 text-sm font-medium text-blue-900">{item.time}</p>
+                      )}
+                      {item.speaker && (
+                        <p className="mt-1 text-sm text-gray-600">Speaker: {item.speaker}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             );
           })}
