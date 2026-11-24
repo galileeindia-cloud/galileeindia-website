@@ -1548,7 +1548,7 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
   {
     id: "39",
     number: "N39",
-    title: "Under His Wings — Psalm 91:1–6: Fill in the Blanks",
+    title: "Psalm 91:1–6: Fill in the Blanks",
     description:
       "Fill each blank in Psalm 91, verses 1–6, with the right word. Drag a word from below, or tap a word and then tap its blank.",
     type: "fill",
@@ -1564,7 +1564,7 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
   {
     id: "40",
     number: "N40",
-    title: "ఆయన రెక్కల క్రింద — కీర్తనలు 91:1–6: ఖాళీలను పూరించండి",
+    title: "కీర్తనలు 91:1–6: ఖాళీలను పూరించండి",
     description:
       "కీర్తనలు 91వ అధ్యాయము 1–6 వచనములలోని ఖాళీలలో సరైన పదాన్ని ఉంచండి. క్రింద ఉన్న పదాన్ని లాగండి, లేదా పదాన్ని తాకి తర్వాత ఖాళీని తాకండి.",
     type: "fill",
