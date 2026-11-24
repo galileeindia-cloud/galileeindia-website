@@ -38,6 +38,13 @@ export default function Events() {
                 <p className="font-semibold text-gray-900 leading-snug">
                   {item.event}
                 </p>
+
+                {item.time && (
+                  <p className="mt-2 text-sm font-medium text-blue-900">{item.time}</p>
+                )}
+                {item.speaker && (
+                  <p className="mt-1 text-sm text-gray-600">Speaker: {item.speaker}</p>
+                )}
               </div>
             );
           })}

@@ -1,6 +1,10 @@
 export type ChurchEvent = {
   date: string;
   event: string;
+  /** e.g. "11:00 AM – 2:00 PM" */
+  time?: string;
+  /** e.g. "Sis. G Prasanna Franklin, Visakhapatnam" */
+  speaker?: string;
 };
 
 export const CHURCH_EVENTS: ChurchEvent[] = [
@@ -20,6 +24,36 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
   { date: "07 Aug 2026", event: "Whole Night Prayer" },
   { date: "11 Sep 2026", event: "Whole night prayer" },
   { date: "09 Oct 2026", event: "Whole Night Fasting Prayer" },
+  // Year End Revival Meeting. Same-day sessions are listed in time order.
+  {
+    date: "13 Nov 2026",
+    event: "Year End Revival – Ladies Prayer Meeting",
+    time: "11:00 AM – 2:00 PM",
+    speaker: "Sis. G Prasanna Franklin, Visakhapatnam",
+  },
+  {
+    date: "13 Nov 2026",
+    event: "Year End Revival – Special Meeting",
+    time: "7:00 PM – 10:00 PM",
+    speaker: "Pastor D. Moses, Amalapuram",
+  },
+  {
+    date: "14 Nov 2026",
+    event: "Year End Revival – Special Meeting",
+    time: "10:30 AM – 1:30 PM",
+    speaker: "Pastor B. John Sudhakar, Visakhapatnam",
+  },
+  {
+    date: "14 Nov 2026",
+    event: "Year End Revival – Special Meeting",
+    time: "7:00 PM – 10:00 PM",
+    speaker: "Pastor Andrews, Visakhapatnam",
+  },
+  {
+    date: "15 Nov 2026",
+    event: "Year End Revival – Sunday Service",
+    time: "10:30 AM – 12:30 PM",
+  },
 ];
 
 const MONTHS = [
@@ -32,7 +66,10 @@ function eventTime({ date }: ChurchEvent) {
   return Date.UTC(Number(year), MONTHS.indexOf(month), Number(day));
 }
 
-/** Latest date first, so the most recent (or furthest-out) event leads the calendar. */
+/**
+ * Latest date first, so the most recent (or furthest-out) event leads the
+ * calendar. Events on the same day keep their listed (time) order.
+ */
 export function getEventsNewestFirst(): ChurchEvent[] {
   return [...CHURCH_EVENTS].sort((a, b) => eventTime(b) - eventTime(a));
 }
