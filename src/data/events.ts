@@ -74,11 +74,13 @@ export function getEventsNewestFirst(): ChurchEvent[] {
   return [...CHURCH_EVENTS].sort((a, b) => eventTime(b) - eventTime(a));
 }
 
-/** Poster shown in a pop-up on the homepage, up to and including `until` (IST). */
+/** Poster shown in a pop-up on the homepage and puzzle pages, up to and including `until` (IST). */
 export const ANNOUNCEMENT = {
-  image: "/images/year-end-revival-2026.png",
-  alt: "Year End Revival Meeting, 13 to 15 November 2026, Galilee Prayer Fellowship",
-  until: "2026-11-15",
+  image: "/images/melodious-praise-2026.png",
+  width: 1080,
+  height: 1350,
+  alt: "Melodious Praise, a special evening of thanksgiving, Saturday 28 November 2026 at 7:00 PM, Galilee Prayer Fellowship, Vizag. Live on YouTube @galileeindia3736",
+  until: "2026-11-28",
 };
 
 export const NEWS_MESSAGE =

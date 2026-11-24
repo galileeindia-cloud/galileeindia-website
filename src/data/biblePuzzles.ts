@@ -1545,6 +1545,38 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       { text: "Surely ___ will follow me all the days of my life, and I will ___ in the house of the LORD forever.", answers: ["goodness and love", "dwell"] },
     ],
   },
+  {
+    id: "39",
+    number: "N39",
+    title: "Under His Wings — Psalm 91:1–6: Fill in the Blanks",
+    description:
+      "Fill each blank in Psalm 91, verses 1–6, with the right word. Drag a word from below, or tap a word and then tap its blank.",
+    type: "fill",
+    sentences: [
+      { text: "He who dwells in the ___ of the Most High will rest in the ___ of the Almighty.", answers: ["shelter", "shadow"] },
+      { text: "I will say of the LORD, \"He is my ___ and my fortress, my God, in whom I ___.\"", answers: ["refuge", "trust"] },
+      { text: "Surely he will save you from the ___ snare and from the deadly ___.", answers: ["fowler's", "pestilence"] },
+      { text: "He will cover you with his ___, and under his wings you will find refuge; his ___ will be your shield and rampart.", answers: ["feathers", "faithfulness"] },
+      { text: "You will not ___ the terror of night, nor the arrow that flies by day,", answers: ["fear"] },
+      { text: "nor the pestilence that stalks in the ___, nor the plague that ___ at midday.", answers: ["darkness", "destroys"] },
+    ],
+  },
+  {
+    id: "40",
+    number: "N40",
+    title: "ఆయన రెక్కల క్రింద — కీర్తనలు 91:1–6: ఖాళీలను పూరించండి",
+    description:
+      "కీర్తనలు 91వ అధ్యాయము 1–6 వచనములలోని ఖాళీలలో సరైన పదాన్ని ఉంచండి. క్రింద ఉన్న పదాన్ని లాగండి, లేదా పదాన్ని తాకి తర్వాత ఖాళీని తాకండి.",
+    type: "fill",
+    sentences: [
+      { text: "మహోన్నతుని ___ నివసించువాడే సర్వశక్తుని ___ విశ్రమించువాడు.", answers: ["చాటున", "నీడను"] },
+      { text: "ఆయనే నాకు ___ నా కోట నేను ___ నా దేవుడని నేను యెహోవానుగూర్చి చెప్పుచున్నాను.", answers: ["ఆశ్రయము", "నమ్ము కొను"] },
+      { text: "___ ఉరిలోనుండి ఆయన నిన్ను విడిపించును నాశనకరమైన ___ రాకుండ నిన్ను రక్షించును.", answers: ["వేటకాని", "తెగులు"] },
+      { text: "ఆయన తన ___ నిన్ను కప్పును ఆయన రెక్కల క్రింద నీకు ఆశ్రయము కలుగును ఆయన సత్యము, కేడెమును ___ యున్నది.", answers: ["రెక్కలతో", "డాలునై"] },
+      { text: "రాత్రివేళ కలుగు ___ పగటివేళ ఎగురు బాణమునకైనను", answers: ["భయమునకైనను"] },
+      { text: "___ సంచరించు తెగులునకైనను మధ్యాహ్నమందు ___ రోగమునకైనను నీవు భయపడకుందువు.", answers: ["చీకటిలో", "పాడుచేయు"] },
+    ],
+  },
 ];
 
 export function getPuzzleById(id: string | undefined) {

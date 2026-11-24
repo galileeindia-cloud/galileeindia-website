@@ -15,6 +15,7 @@ import {
 } from "@dnd-kit/core";
 import { RotateCcw } from "lucide-react";
 import Celebration from "./Celebration";
+import ScrollToResult from "./ScrollToResult";
 import Leaderboard from "./Leaderboard";
 import {
   fetchLeaderboard,
@@ -25,12 +26,15 @@ import { formatDuration } from "@/utils/time";
 import type { FillSentence } from "@/data/biblePuzzles";
 
 type Phase = "name" | "playing" | "complete";
-type Slots = (string | null)[];
+// Each answer is a tile, numbered by its own blank. Blanks hold tile numbers,
+// so a word that appears twice gets two separate tiles.
+type Slots = (number | null)[];
 
 const NAME_STORAGE_KEY = "biblePuzzlePlayerName";
 const POOL = "pool";
 const BLANK = "___";
 const slotId = (index: number) => `slot:${index}`;
+const tileId = (tile: number) => `tile:${tile}`;
 
 // Below Tailwind's `lg` breakpoint the word bank becomes a tray pinned to the
 // bottom of the screen, so it is not a separate scroll away from the sentences.
@@ -71,17 +75,19 @@ const chipClass = (selected: boolean, dragging: boolean, inBank = false) =>
 // a sentence paragraph. In the word bank a tap selects it; inside a blank the
 // blank's own tap handler takes over (the click bubbles up to it).
 function Chip({
+  tile,
   word,
   selected = false,
   onTap,
   inBank = false,
 }: {
+  tile: number;
   word: string;
   selected?: boolean;
   onTap?: () => void;
   inBank?: boolean;
 }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: word });
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: tileId(tile) });
 
   return (
     <span
@@ -104,11 +110,13 @@ function Chip({
 
 function Blank({
   index,
+  tile,
   word,
   pending,
   onTap,
 }: {
   index: number;
+  tile: number | null;
   word: string | null;
   pending: boolean;
   onTap: () => void;
@@ -132,16 +140,17 @@ function Blank({
             }`
       }`}
     >
-      {word && <Chip word={word} />}
+      {tile !== null && word && <Chip tile={tile} word={word} />}
     </span>
   );
 }
 
-function WordBank({ words, selected, onTap, dragging, emptyText }: {
-  words: string[];
+function WordBank({ tiles, wordOf, selected, onTap, dragging, emptyText }: {
+  tiles: number[];
+  wordOf: (tile: number) => string;
   emptyText: string;
-  selected: string | null;
-  onTap: (word: string) => void;
+  selected: number | null;
+  onTap: (tile: number) => void;
   dragging: boolean;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: POOL });
@@ -153,12 +162,12 @@ function WordBank({ words, selected, onTap, dragging, emptyText }: {
         isOver && dragging ? "bg-blue-50 lg:border-blue-500" : "lg:border-gray-200 lg:bg-white"
       }`}
     >
-      {words.length === 0 ? (
+      {tiles.length === 0 ? (
         <p className="text-center text-sm lg:text-base text-gray-500 py-1 lg:py-2">{emptyText}</p>
       ) : (
         <div className="flex flex-wrap gap-1.5 lg:gap-2 max-h-[40vh] overflow-y-auto lg:max-h-none lg:overflow-visible">
-          {words.map((word) => (
-            <Chip key={word} word={word} selected={selected === word} onTap={() => onTap(word)} inBank />
+          {tiles.map((tile) => (
+            <Chip key={tile} tile={tile} word={wordOf(tile)} selected={selected === tile} onTap={() => onTap(tile)} inBank />
           ))}
         </div>
       )}
@@ -186,9 +195,9 @@ export default function FillPuzzle({
   const [name, setName] = useState("");
   const [slots, setSlots] = useState<Slots>(() => answers.map(() => null));
   // Shuffled once per run; the bank shows whichever of these aren't in a blank.
-  const [order, setOrder] = useState<string[]>(answers);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [activeWord, setActiveWord] = useState<string | null>(null);
+  const [order, setOrder] = useState<number[]>(() => answers.map((_, i) => i));
+  const [selected, setSelected] = useState<number | null>(null);
+  const [activeTile, setActiveTile] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
   const [finishedMs, setFinishedMs] = useState<number | null>(null);
@@ -213,15 +222,20 @@ export default function FillPuzzle({
     if (saved) setName(saved);
   }, []);
 
-  // On a phone, once play starts, bring the game up under the header so the
-  // sentences fill the space above the tray instead of the page title.
+  // Phones play full screen: two panes (verses on top, words pinned below)
+  // and the page behind them must not scroll, or it drags the game around.
+  const fullScreen = isCompact && phase === "playing";
   useEffect(() => {
-    if (phase !== "playing" || !isCompact) return;
-    playAreaRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [phase, isCompact]);
+    if (!fullScreen) return;
+    const root = document.documentElement;
+    const previous = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      root.style.overflow = previous;
+    };
+  }, [fullScreen]);
 
-  // The tray is fixed-position, so leave matching room at the end of the page
-  // for the last sentence and the Start Over button to scroll clear of it.
+  // Track the tray's height for --bottom-bar-h below.
   useEffect(() => {
     if (phase !== "playing") return;
     const tray = trayRef.current;
@@ -264,9 +278,9 @@ export default function FillPuzzle({
 
   function resetRun() {
     setSlots(answers.map(() => null));
-    setOrder(shuffle(answers));
+    setOrder(shuffle(answers.map((_, i) => i)));
     setSelected(null);
-    setActiveWord(null);
+    setActiveTile(null);
     setStartTime(Date.now());
     setNow(Date.now());
     setFinishedMs(null);
@@ -282,7 +296,9 @@ export default function FillPuzzle({
     resetRun();
   }
 
-  const isSolved = (candidate: Slots) => candidate.every((word, i) => word === answers[i]);
+  // Tiles with the same word are interchangeable, so compare words, not tiles.
+  const isSolved = (candidate: Slots) =>
+    candidate.every((tile, i) => tile !== null && answers[tile] === answers[i]);
 
   function commit(next: Slots) {
     setSlots(next);
@@ -295,19 +311,19 @@ export default function FillPuzzle({
     }
   }
 
-  function placeWord(word: string, slotIndex: number) {
-    const from = slots.indexOf(word);
+  function placeTile(tile: number, slotIndex: number) {
+    const from = slots.indexOf(tile);
     if (from === slotIndex) return;
     const next = [...slots];
     // Dropping onto a filled blank sends that word back to the bank, or into
     // the blank this word just left when it was dragged from another blank.
     if (from !== -1) next[from] = next[slotIndex];
-    next[slotIndex] = word;
+    next[slotIndex] = tile;
     commit(next);
   }
 
-  function returnWord(word: string) {
-    const from = slots.indexOf(word);
+  function returnTile(tile: number) {
+    const from = slots.indexOf(tile);
     if (from === -1) return;
     const next = [...slots];
     next[from] = null;
@@ -315,29 +331,30 @@ export default function FillPuzzle({
   }
 
   function handleDragStart(event: DragStartEvent) {
-    setActiveWord(String(event.active.id));
+    setActiveTile(Number(String(event.active.id).slice("tile:".length)));
   }
 
   function handleDragEnd({ active, over }: DragEndEvent) {
-    setActiveWord(null);
+    setActiveTile(null);
     if (!over) return;
-    const word = String(active.id);
+    const tile = Number(String(active.id).slice("tile:".length));
     const overId = String(over.id);
-    if (overId === POOL) returnWord(word);
-    else if (overId.startsWith("slot:")) placeWord(word, Number(overId.slice("slot:".length)));
+    if (overId === POOL) returnTile(tile);
+    else if (overId.startsWith("slot:")) placeTile(tile, Number(overId.slice("slot:".length)));
   }
 
-  function tapBankWord(word: string) {
-    setSelected((current) => (current === word ? null : word));
+  function tapBankTile(tile: number) {
+    setSelected((current) => (current === tile ? null : tile));
   }
 
   function tapBlank(index: number) {
-    if (selected) placeWord(selected, index);
-    else if (slots[index]) returnWord(slots[index]);
+    const placed = slots[index];
+    if (selected !== null) placeTile(selected, index);
+    else if (placed !== null) returnTile(placed);
   }
 
-  const bank = order.filter((word) => !slots.includes(word));
-  const allFilled = slots.every(Boolean);
+  const bank = order.filter((tile) => !slots.includes(tile));
+  const allFilled = slots.every((tile) => tile !== null);
   const elapsedMs = startTime ? now - startTime : 0;
 
   if (phase === "name") {
@@ -372,6 +389,7 @@ export default function FillPuzzle({
   if (phase === "complete") {
     return (
       <div className="max-w-lg mx-auto text-center">
+        <ScrollToResult />
         <Celebration />
 
         <div className="relative z-50 bg-white rounded-2xl shadow-xl border border-gray-100 p-10 animate-pop-in">
@@ -410,55 +428,95 @@ export default function FillPuzzle({
     );
   }
 
+  const trayHeading = (
+    <h3 className="font-bold text-blue-900 mb-1 lg:mb-3 text-center text-sm lg:text-base">
+      {selected !== null ? (
+        <span className="text-blue-700">&ldquo;{answers[selected]}&rdquo; selected — tap a blank</span>
+      ) : telugu ? (
+        "పదాలు"
+      ) : (
+        "Words"
+      )}
+    </h3>
+  );
+  const startOverLabel = "Start Over";
+
   return (
-    <div>
-      <div ref={playAreaRef} className="scroll-mt-[6.25rem] flex items-center justify-between mb-2 sm:mb-4">
-        <p className="text-sm sm:text-base text-gray-600">
+    // Phones: a full-screen layer with three rows -- a slim status bar, the
+    // verses (the only part that scrolls) and the word tray, which never
+    // moves. Wider screens: the page layout with a sticky side panel.
+    <div className={fullScreen ? "fixed inset-0 z-50 flex flex-col bg-gray-50 h-[100dvh]" : undefined}>
+      <div
+        ref={playAreaRef}
+        className={
+          fullScreen
+            ? "shrink-0 flex items-center justify-between gap-3 px-3 py-2 bg-white border-b border-gray-200 shadow-sm"
+            : "flex items-center justify-between mb-2 sm:mb-4"
+        }
+      >
+        <p className="text-sm sm:text-base text-gray-600 truncate">
           Go, <span className="font-semibold text-blue-900">{name}</span>!
         </p>
-        <p className="font-mono text-base sm:text-lg font-bold text-blue-900">
-          ⏱ {formatDuration(elapsedMs)}
-        </p>
+        <div className="flex items-center gap-3 shrink-0">
+          <p className="font-mono text-base sm:text-lg font-bold text-blue-900">
+            ⏱ {formatDuration(elapsedMs)}
+          </p>
+          {fullScreen && (
+            <button
+              type="button"
+              onClick={resetRun}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-gray-300 text-xs font-semibold text-gray-700"
+            >
+              <RotateCcw size={14} />
+              {startOverLabel}
+            </button>
+          )}
+        </div>
       </div>
 
       <DndContext
         sensors={sensors}
         collisionDetection={pointerWithin}
-        // Off on phones: the tray sits at the bottom edge, so with auto-scroll
-        // on, picking up a word from it would scroll the page by itself. On
-        // desktop the default zone (outer 20% of the window) covers the upper
-        // sentences and made the page creep upward, so use a thin, gentle one.
+        // Off on phones: the verses pane scrolls under a finger, and dragging
+        // near the tray would scroll it by itself. On desktop the default zone
+        // (outer 20% of the window) made the page creep upward, so use a thin,
+        // gentle one.
         autoScroll={isCompact ? false : { threshold: { x: 0.1, y: 0.07 }, acceleration: 5 }}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid lg:grid-cols-[minmax(0,1fr)_20rem] gap-4 lg:gap-8 items-start">
-          {/* Phones: a tray pinned to the bottom of the screen, so the words and
-              the blanks are always on screen together. Wide screens: a sticky
-              side panel. The heading doubles as the "word selected" reminder. */}
+        <div
+          className={
+            fullScreen
+              ? "flex-1 min-h-0 flex flex-col"
+              : "grid lg:grid-cols-[minmax(0,1fr)_20rem] gap-4 lg:gap-8 items-start"
+          }
+        >
+          {/* The word tray. The heading doubles as the "word selected" reminder. */}
           <div
             ref={trayRef}
-            className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur px-3 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-6px_16px_rgba(15,23,42,0.10)] lg:static lg:z-auto lg:order-2 lg:sticky lg:top-28 lg:border-0 lg:bg-transparent lg:backdrop-blur-none lg:p-0 lg:shadow-none"
+            className={
+              fullScreen
+                ? "order-2 shrink-0 border-t border-gray-200 bg-white px-3 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-6px_16px_rgba(15,23,42,0.10)]"
+                : "lg:order-2 lg:sticky lg:top-28"
+            }
           >
-            <h3 className="font-bold text-blue-900 mb-1 lg:mb-3 text-center text-sm lg:text-base">
-              {selected ? (
-                <span className="text-blue-700">&ldquo;{selected}&rdquo; selected — tap a blank</span>
-              ) : telugu ? (
-                "పదాలు"
-              ) : (
-                "Words"
-              )}
-            </h3>
+            {trayHeading}
             <WordBank
-              words={bank}
+              tiles={bank}
+              wordOf={(tile) => answers[tile]}
               selected={selected}
-              onTap={tapBankWord}
-              dragging={!!activeWord}
+              onTap={tapBankTile}
+              dragging={activeTile !== null}
               emptyText={telugu ? "అన్ని పదాలు ఉంచబడ్డాయి." : "All words are placed."}
             />
           </div>
 
-          <div className="lg:order-1">
+          <div
+            className={
+              fullScreen ? "order-1 flex-1 min-h-0 overflow-y-auto overscroll-contain px-2.5 py-2" : "lg:order-1"
+            }
+          >
             <ol className="flex flex-col gap-1 sm:gap-1.5">
               {sentences.map((sentence, si) => {
                 const parts = sentence.text.split(BLANK);
@@ -485,8 +543,9 @@ export default function FillPuzzle({
                               <span className="whitespace-nowrap">
                                 <Blank
                                   index={index}
-                                  word={slots[index]}
-                                  pending={!!selected}
+                                  tile={slots[index]}
+                                  word={slots[index] === null ? null : answers[slots[index]]}
+                                  pending={selected !== null}
                                   onTap={() => tapBlank(index)}
                                 />
                                 {trailing[pi]}
@@ -510,14 +569,15 @@ export default function FillPuzzle({
         </div>
 
         <DragOverlay>
-          {activeWord ? (
+          {activeTile !== null ? (
             <div className="rounded-full border border-blue-400 bg-white px-4 py-2 shadow-lg text-base sm:text-lg font-medium text-gray-900">
-              {activeWord}
+              {answers[activeTile]}
             </div>
           ) : null}
         </DragOverlay>
       </DndContext>
 
+      {!fullScreen && (
       <div className="flex justify-center mt-4 sm:mt-8">
         <button
           type="button"
@@ -525,11 +585,10 @@ export default function FillPuzzle({
           className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg border border-gray-300 text-sm sm:text-base text-gray-700 font-semibold hover:bg-gray-50 transition"
         >
           <RotateCcw size={16} />
-          Start Over
+          {startOverLabel}
         </button>
       </div>
-
-      <div className="lg:hidden" style={{ height: trayHeight }} aria-hidden />
+      )}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import BreakingNews from "@/components/BreakingNews";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Welcome from "@/components/Welcome";
@@ -14,7 +13,6 @@ export default function Home() {
   return (
     <>
       <AnnouncementPopup />
-      <BreakingNews />
       <Navbar />
       <Hero />
       <Welcome />

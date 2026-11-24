@@ -53,8 +53,8 @@ export default function AnnouncementPopup() {
           <Image
             src={ANNOUNCEMENT.image}
             alt={ANNOUNCEMENT.alt}
-            width={1024}
-            height={1536}
+            width={ANNOUNCEMENT.width}
+            height={ANNOUNCEMENT.height}
             sizes="(max-width: 480px) 100vw, 448px"
             priority
             className="w-full h-auto"

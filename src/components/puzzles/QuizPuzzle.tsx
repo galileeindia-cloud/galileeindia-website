@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { RotateCcw } from "lucide-react";
 import Celebration from "./Celebration";
+import ScrollToResult from "./ScrollToResult";
 import Leaderboard from "./Leaderboard";
 import {
   fetchLeaderboard,
@@ -171,6 +172,7 @@ export default function QuizPuzzle({
   if (phase === "complete") {
     return (
       <div className="max-w-lg mx-auto text-center">
+        <ScrollToResult />
         <Celebration />
 
         <div className="relative z-50 bg-white rounded-2xl shadow-xl border border-gray-100 p-10 animate-pop-in">
