@@ -1577,6 +1577,38 @@ export const BIBLE_PUZZLES: BiblePuzzle[] = [
       { text: "___ సంచరించు తెగులునకైనను మధ్యాహ్నమందు ___ రోగమునకైనను నీవు భయపడకుందువు.", answers: ["చీకటిలో", "పాడుచేయు"] },
     ],
   },
+  {
+    id: "41",
+    number: "N41",
+    title: "Psalm 91:7–12: Fill in the Blanks",
+    description:
+      "Fill each blank in Psalm 91, verses 7–12, with the right word. Drag a word from below, or tap a word and then tap its blank.",
+    type: "fill",
+    sentences: [
+      { text: "A ___ may fall at your side, ten thousand at your ___ hand, but it will not come near you.", answers: ["thousand", "right"] },
+      { text: "You will only observe with your ___ and see the punishment of the ___.", answers: ["eyes", "wicked"] },
+      { text: "If you make the Most High your ___ — even the LORD, who is my ___ —", answers: ["dwelling", "refuge"] },
+      { text: "then no harm will befall you, no ___ will come near your tent.", answers: ["disaster"] },
+      { text: "For he will ___ his angels concerning you to guard you in all your ways;", answers: ["command"] },
+      { text: "they will lift you up in their hands, so that you will not ___ your foot against a stone.", answers: ["strike"] },
+    ],
+  },
+  {
+    id: "42",
+    number: "N42",
+    title: "కీర్తనలు 91:7–12: ఖాళీలను పూరించండి",
+    description:
+      "కీర్తనలు 91వ అధ్యాయము 7–12 వచనములలోని ఖాళీలలో సరైన పదాన్ని ఉంచండి. క్రింద ఉన్న పదాన్ని లాగండి, లేదా పదాన్ని తాకి తర్వాత ఖాళీని తాకండి.",
+    type: "fill",
+    sentences: [
+      { text: "నీ ప్రక్కను ___ మంది పడినను నీ ___ప్రక్కను పదివేల మంది కూలినను అపాయము నీ యొద్దకురాదు.", answers: ["వేయి", "కుడి"] },
+      { text: "నీవు ___ చూచుచుండగా ___ ప్రతిఫలము కలుగును.", answers: ["కన్నులార", "భక్తిహీనులకు"] },
+      { text: "యెహోవా, నీవే నా ___ అని నీవు మహోన్నతుడైన దేవుని నీకు ___ చేసికొనియున్నావు.", answers: ["ఆశ్రయము", "నివాసస్థలముగా"] },
+      { text: "నీకు ___ రాదు ఏ తెగులును నీ గుడారమును సమీపించదు.", answers: ["అపాయమేమియు"] },
+      { text: "నీ మార్గములన్నిటిలో నిన్ను కాపాడుటకు ఆయన నిన్ను గూర్చి తన దూతలను ___.", answers: ["ఆజ్ఞాపించును"] },
+      { text: "నీ పాదములకు రాయి ___ వారు నిన్ను తమ చేతులమీద ఎత్తి పట్టుకొందురు.", answers: ["తగులకుండ"] },
+    ],
+  },
 ];
 
 export function getPuzzleById(id: string | undefined) {
